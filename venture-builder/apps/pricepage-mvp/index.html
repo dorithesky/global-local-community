@@ -3,15 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PricePage Pulse</title>
+  <title>PricePage Pulse | Competitor Pricing Change Alerts</title>
+  <meta name="description" content="Track competitor pricing page changes without manual checking. PricePage Pulse alerts small SaaS teams when plans, copy, packaging, or CTAs change." />
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0b1020; color: #f3f7ff; }
-    .wrap { max-width: 840px; margin: 0 auto; padding: 56px 20px; }
-    .card { background: #121933; border: 1px solid #263158; border-radius: 18px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 56px 20px; }
+    .card, .section { background: #121933; border: 1px solid #263158; border-radius: 18px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+    .section { margin-top: 20px; }
     .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #1e2a52; color: #9dc1ff; font-size: 12px; }
-    h1 { font-size: 44px; line-height: 1.05; margin: 16px 0; }
+    h1 { font-size: 48px; line-height: 1.02; margin: 16px 0; max-width: 760px; }
+    h2 { margin: 0 0 14px; font-size: 28px; }
     p { color: #c7d3f1; font-size: 18px; line-height: 1.6; }
-    ul { color: #dbe6ff; line-height: 1.7; }
+    ul { color: #dbe6ff; line-height: 1.7; padding-left: 20px; }
     .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
     input, button { font-size: 16px; padding: 14px 16px; border-radius: 12px; border: 1px solid #31406f; }
     input { flex: 1; min-width: 240px; background: #0d1430; color: #fff; }
@@ -19,25 +22,60 @@
     .sub { margin-top: 12px; font-size: 14px; color: #9eb0d9; }
     .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin-top: 24px; }
     .mini { background:#0d1430; border:1px solid #263158; border-radius:14px; padding:16px; }
+    .steps { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; }
+    .step-num { display:inline-block; width:28px; height:28px; border-radius:999px; background:#72e0a6; color:#062313; text-align:center; line-height:28px; font-weight:700; margin-bottom:10px; }
+    .proof { font-size: 15px; color:#aabce7; }
     a { color:#9dc1ff; }
+    .hero-list { margin-top: 18px; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <span class="pill">Founding customer offer</span>
-      <h1>Never miss a competitor pricing change again.</h1>
-      <p>PricePage Pulse watches competitor pricing pages and sends you clean alerts when plans, copy, packaging, or CTAs change. Built for small SaaS teams that cannot afford blind spots.</p>
+      <span class="pill">Founding customer offer, first 10 teams</span>
+      <h1>Know when competitors change pricing, packaging, or CTA copy before your next sales call does.</h1>
+      <p>PricePage Pulse monitors competitor pricing pages and sends plain-English alerts when anything meaningful changes. Built for small B2B SaaS teams that need fast visibility without buying an enterprise competitive-intel stack.</p>
+      <ul class="hero-list">
+        <li>Catch price increases, plan reshuffles, and CTA changes quickly.</li>
+        <li>Get concise weekly summaries with direct links.</li>
+        <li>Start with concierge setup, no dashboard learning curve.</li>
+      </ul>
       <div class="grid">
         <div class="mini"><strong>Track 5 competitors</strong><br/>Founding plan, $19/month after a $9 setup.</div>
-        <div class="mini"><strong>Weekly diff summary</strong><br/>Plain-English change report with direct links.</div>
-        <div class="mini"><strong>Concierge onboarding</strong><br/>We set up your watchlist for you.</div>
+        <div class="mini"><strong>Human-readable diffs</strong><br/>Not noisy page snapshots, just what changed and why it matters.</div>
+        <div class="mini"><strong>48-hour setup</strong><br/>We configure your initial watchlist for you.</div>
       </div>
-      <form class="cta" action="mailto:dori@agentmail.to" method="post" enctype="text/plain">
+      <form class="cta" action="mailto:dori@agentmail.to" method="get">
+        <input name="subject" type="hidden" value="PricePage Pulse Founding Plan" />
+        <input name="body" type="hidden" value="Company:\nCompetitors to track:\nWhat pricing changes matter most:\n" />
         <input name="email" type="email" placeholder="your@company.com" required />
-        <button type="submit">Join founding list</button>
+        <button type="submit">Request founding access</button>
       </form>
-      <div class="sub">Email <a href="mailto:dori@agentmail.to?subject=PricePage%20Pulse%20Founding%20Plan">dori@agentmail.to</a> with subject “PricePage Pulse Founding Plan” to reserve a slot.</div>
+      <div class="sub">Reply time target: within 24 hours. Email <a href="mailto:dori@agentmail.to?subject=PricePage%20Pulse%20Founding%20Plan">dori@agentmail.to</a> if you want concierge setup.</div>
+    </div>
+
+    <div class="section">
+      <h2>The weakness we fix</h2>
+      <p>Most small SaaS teams only notice competitor pricing changes after a lost deal, a churn conversation, or a founder screenshot in Slack. Manual checking is boring, inconsistent, and easy to abandon.</p>
+    </div>
+
+    <div class="section">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="mini"><span class="step-num">1</span><br/><strong>Send your watchlist</strong><br/>Share up to 5 competitor pricing pages and any pages you care about.</div>
+        <div class="mini"><span class="step-num">2</span><br/><strong>We monitor changes</strong><br/>Plans, copy, packaging, positioning, and CTA changes get tracked.</div>
+        <div class="mini"><span class="step-num">3</span><br/><strong>You get alerts</strong><br/>Receive a concise summary with links and clear notes on what changed.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Why early teams join</h2>
+      <ul>
+        <li>No bloated platform, just useful alerts.</li>
+        <li>Cheaper than losing context on a moving competitor.</li>
+        <li>Founding customers can shape the reporting format and alert cadence.</li>
+      </ul>
+      <p class="proof">Current stage: concierge beta. That means faster feedback loops, direct support, and rough edges being actively tightened.</p>
     </div>
   </div>
 </body>

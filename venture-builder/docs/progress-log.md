@@ -1,1 +1,2 @@
-- 16:00-18:00 KST: No meaningful improvement shipped. Reports repeated the same status. Fixing the reporting system now so future emails include exact per-window changes or clearly state none.
+- 18:00-20:00 KST: Rewrote the landing page headline and body to target a sharper pain point, added a clearer explanation of the problem, added a simple how-it-works section, improved trust/transparency with concierge-beta framing, and changed the CTA to a more specific founding-access request.
+- 18:00-20:00 KST: Deployed the improved landing page live to https://pricepage-pulse.netlify.app.
