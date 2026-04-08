@@ -7,6 +7,7 @@ _Learn about the person you're helping. Update this as you go._
 - **Pronouns:** _(optional)_
 - **Timezone:** KST (UTC+9)
 - **Notes:** Backbone of the workspace. Prefers heartbeats aligned to local operational hours so autonomous prompts make sense in the morning.
+- **Email:** scottchmoon@gmail.com
 
 ## Context
 

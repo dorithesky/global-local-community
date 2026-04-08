@@ -12,6 +12,10 @@ Long-term memory for Dori and Scott.
 - [[HEARTBEAT]]
 - [[TOOLS]]
 
+## Preferences
+- Dori has full access to AgentMail and may use it to read, write, and send email without asking again.
+- Scott's email address is scottchmoon@gmail.com.
+
 ## Daily Notes
 - [[memory/2026-04-07]]
 

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PricePage Pulse</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0b1020; color: #f3f7ff; }
+    .wrap { max-width: 840px; margin: 0 auto; padding: 56px 20px; }
+    .card { background: #121933; border: 1px solid #263158; border-radius: 18px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
+    .pill { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #1e2a52; color: #9dc1ff; font-size: 12px; }
+    h1 { font-size: 44px; line-height: 1.05; margin: 16px 0; }
+    p { color: #c7d3f1; font-size: 18px; line-height: 1.6; }
+    ul { color: #dbe6ff; line-height: 1.7; }
+    .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+    input, button { font-size: 16px; padding: 14px 16px; border-radius: 12px; border: 1px solid #31406f; }
+    input { flex: 1; min-width: 240px; background: #0d1430; color: #fff; }
+    button { background: #72e0a6; color: #062313; font-weight: 700; cursor: pointer; }
+    .sub { margin-top: 12px; font-size: 14px; color: #9eb0d9; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 16px; margin-top: 24px; }
+    .mini { background:#0d1430; border:1px solid #263158; border-radius:14px; padding:16px; }
+    a { color:#9dc1ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="pill">Founding customer offer</span>
+      <h1>Never miss a competitor pricing change again.</h1>
+      <p>PricePage Pulse watches competitor pricing pages and sends you clean alerts when plans, copy, packaging, or CTAs change. Built for small SaaS teams that cannot afford blind spots.</p>
+      <div class="grid">
+        <div class="mini"><strong>Track 5 competitors</strong><br/>Founding plan, $19/month after a $9 setup.</div>
+        <div class="mini"><strong>Weekly diff summary</strong><br/>Plain-English change report with direct links.</div>
+        <div class="mini"><strong>Concierge onboarding</strong><br/>We set up your watchlist for you.</div>
+      </div>
+      <form class="cta" action="mailto:dori@agentmail.to" method="post" enctype="text/plain">
+        <input name="email" type="email" placeholder="your@company.com" required />
+        <button type="submit">Join founding list</button>
+      </form>
+      <div class="sub">Email <a href="mailto:dori@agentmail.to?subject=PricePage%20Pulse%20Founding%20Plan">dori@agentmail.to</a> with subject “PricePage Pulse Founding Plan” to reserve a slot.</div>
+    </div>
+  </div>
+</body>
+</html>
