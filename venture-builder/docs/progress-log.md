@@ -1,0 +1,1 @@
+- 16:00-18:00 KST: No meaningful improvement shipped. Reports repeated the same status. Fixing the reporting system now so future emails include exact per-window changes or clearly state none.
