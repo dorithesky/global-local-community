@@ -1,5 +1,3 @@
-- 18:00-20:00 KST: Tightened the hero to focus on business impact, not just feature description.
-- 18:00-20:00 KST: Added a sample alert preview to reduce trust friction and show what buyers actually get.
-- 18:00-20:00 KST: Replaced the weak mailto-only CTA with a real hosted form endpoint for lead capture.
-- 18:00-20:00 KST: Added buyer reassurance lines and an FAQ section to handle common objections.
-- 18:00-20:00 KST: Deployed the improved page live to https://pricepage-pulse.netlify.app.
+- 18:00-20:00 KST: Reviewed competitor-style pages and supporting content patterns. Common theme: shorter hero, tighter proof, fewer sections.
+- 18:00-20:00 KST: Reduced copy density on the landing page, cut redundant explanation, and kept only hero, sample alert, how-it-works, and short FAQ.
+- 18:00-20:00 KST: Redeployed the leaner version live to https://pricepage-pulse.netlify.app.
