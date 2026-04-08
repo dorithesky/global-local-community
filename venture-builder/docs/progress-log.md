@@ -1,2 +1,5 @@
-- 18:00-20:00 KST: Rewrote the landing page headline and body to target a sharper pain point, added a clearer explanation of the problem, added a simple how-it-works section, improved trust/transparency with concierge-beta framing, and changed the CTA to a more specific founding-access request.
-- 18:00-20:00 KST: Deployed the improved landing page live to https://pricepage-pulse.netlify.app.
+- 18:00-20:00 KST: Tightened the hero to focus on business impact, not just feature description.
+- 18:00-20:00 KST: Added a sample alert preview to reduce trust friction and show what buyers actually get.
+- 18:00-20:00 KST: Replaced the weak mailto-only CTA with a real hosted form endpoint for lead capture.
+- 18:00-20:00 KST: Added buyer reassurance lines and an FAQ section to handle common objections.
+- 18:00-20:00 KST: Deployed the improved page live to https://pricepage-pulse.netlify.app.
