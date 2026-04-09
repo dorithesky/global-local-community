@@ -69,6 +69,8 @@ class SuggestedVariation(BaseModel):
 class LaunchReadinessReport(BaseModel):
     summary: str
     recommendation: str
+    requires_legal_review: bool
+    requires_registrar_check: bool
 
 
 class BrandCheckResponse(BaseModel):
@@ -77,6 +79,7 @@ class BrandCheckResponse(BaseModel):
     safety_score: int
     risk_level: str
     digital_availability: dict[str, str]
+    registrar_availability_verified: bool
     trademark_conflicts: list[TrademarkHit]
     launch_readiness_report: LaunchReadinessReport
     suggested_variations: list[SuggestedVariation]
@@ -213,33 +216,35 @@ async def check_domain(client: httpx.AsyncClient, domain: str) -> DomainLookupRe
         payload = response.json()
         answers = payload.get("Answer", [])
         if answers:
-            return DomainLookupResult(domain=domain, status="Taken")
-        return DomainLookupResult(domain=domain, status="Available")
+            return DomainLookupResult(domain=domain, status="Resolvable")
+        return DomainLookupResult(domain=domain, status="Not Resolvable")
     except Exception:
         return DomainLookupResult(domain=domain, status="Unknown")
 
 
 def compute_safety_score(conflicts: list[TrademarkHit]) -> int:
     if not conflicts:
-        return 93
+        return 88
     active_conflicts = [c for c in conflicts if c.active]
     target = active_conflicts[0] if active_conflicts else conflicts[0]
     score = target.conflict_score
+    if target.conflict_type == "direct_match" and target.active:
+        return 10
     if score >= 0.93:
-        return 12
+        return 15
     if score >= 0.86:
         return 28
     if score >= 0.79:
-        return 44
+        return 42
     if score >= 0.72:
-        return 61
-    return 76
+        return 58
+    return 70
 
 
 def risk_level_from_score(score: int) -> str:
     if score <= 35:
         return "High"
-    if score <= 69:
+    if score <= 74:
         return "Medium"
     return "Low"
 
@@ -270,27 +275,32 @@ def build_variation_candidates(brand_name: str) -> list[str]:
 
 
 def build_report(brand_name: str, risk_level: str, conflicts: list[TrademarkHit], domains: dict[str, str]) -> LaunchReadinessReport:
-    available_count = sum(1 for status in domains.values() if status == "Available")
+    not_resolvable_count = sum(1 for status in domains.values() if status == "Not Resolvable")
     if risk_level == "High":
         recommendation = "Do not launch under this brand without legal review and likely renaming."
     elif risk_level == "Medium":
-        recommendation = "Proceed carefully. Consider alternative branding and a legal screen before launch."
+        recommendation = "Proceed carefully. Use a trademark attorney and verify registrars before launch."
     else:
-        recommendation = "Promising early signal. Still perform formal legal review before committing."
+        recommendation = "Early signal is usable, but still verify with a trademark attorney and registrar before committing."
 
     if conflicts:
         top = conflicts[0]
         summary = (
             f"{brand_name} has {risk_level.lower()} trademark risk. "
             f"Top hit: {top.mark} ({top.conflict_type}, score {top.conflict_score}). "
-            f"{available_count} of {len(domains)} core domains look available."
+            f"{not_resolvable_count} of {len(domains)} core domains are currently not resolving in DNS."
         )
     else:
         summary = (
             f"{brand_name} has no strong trademark hits in the screened classes and "
-            f"{available_count} of {len(domains)} core domains look available."
+            f"{not_resolvable_count} of {len(domains)} core domains are currently not resolving in DNS."
         )
-    return LaunchReadinessReport(summary=summary, recommendation=recommendation)
+    return LaunchReadinessReport(
+        summary=summary,
+        recommendation=recommendation,
+        requires_legal_review=True,
+        requires_registrar_check=True,
+    )
 
 
 @app.post("/brand-check", response_model=BrandCheckResponse)
@@ -319,10 +329,18 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
             if len(suggestions) >= 5:
                 break
 
+    if any(c.active and c.conflict_type == "direct_match" for c in conflicts):
+        risk_level = "High"
+        safety_score = min(safety_score, 15)
+    elif any(c.active and c.conflict_score >= 0.72 for c in conflicts) and risk_level == "Low":
+        risk_level = "Medium"
+        safety_score = min(safety_score, 74)
+
     notes = [
+        "Do not file, launch, or buy branding assets solely on this score.",
         "Trademark logic is a screening heuristic, not legal advice.",
         "Direct match and likelihood-of-confusion checks use fuzzy text similarity plus phonetic normalization.",
-        "Domain status is DNS-based. 'Premium' requires registrar marketplace integration and defaults to availability heuristics only.",
+        "Domain status is DNS-based only. Registrar availability is not yet verified here.",
     ]
 
     return BrandCheckResponse(
@@ -331,6 +349,7 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
         safety_score=safety_score,
         risk_level=risk_level,
         digital_availability=domain_map,
+        registrar_availability_verified=False,
         trademark_conflicts=conflicts,
         launch_readiness_report=build_report(brand_name, risk_level, conflicts, domain_map),
         suggested_variations=suggestions,

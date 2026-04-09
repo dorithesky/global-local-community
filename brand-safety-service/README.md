@@ -17,11 +17,11 @@ Checks:
 - `.co`
 
 Returns a digital availability map with statuses like:
-- `Available`
-- `Taken`
+- `Resolvable`
+- `Not Resolvable`
 - `Unknown`
 
-Note: `Premium` is reserved for future registrar/marketplace integration.
+Note: these are DNS-level signals only, not registrar-confirmed availability. `Premium` requires future registrar/marketplace integration.
 
 ### Phase 3: Launch readiness report
 - summarizes brand viability
@@ -54,11 +54,12 @@ curl -X POST http://127.0.0.1:8000/brand-check \
   "safety_score": 61,
   "risk_level": "Medium",
   "digital_availability": {
-    "clawbot.com": "Taken",
-    "clawbot.ai": "Available",
-    "clawbot.io": "Taken",
-    "clawbot.co": "Available"
+    "clawbot.com": "Resolvable",
+    "clawbot.ai": "Not Resolvable",
+    "clawbot.io": "Resolvable",
+    "clawbot.co": "Unknown"
   },
+  "registrar_availability_verified": false,
   "trademark_conflicts": [],
   "launch_readiness_report": {
     "summary": "Clawbot has medium trademark risk...",
@@ -84,3 +85,4 @@ curl -X POST http://127.0.0.1:8000/brand-check \
 - This is an automated screening layer, not legal advice.
 - Trademark search uses a practical USPTO-oriented endpoint plus local fuzzy/phonetic scoring.
 - DNS resolution is not equivalent to registrar-confirmed availability.
+- The service is intentionally conservative and should trigger legal review before launch decisions.
