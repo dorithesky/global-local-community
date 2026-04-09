@@ -5,39 +5,58 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Brand Guard & Domain Scout</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0b1020; color: #eef3ff; }
-    .wrap { max-width: 960px; margin: 0 auto; padding: 42px 20px 64px; }
-    .card { background: #111934; border: 1px solid #27335b; border-radius: 18px; padding: 28px; margin-bottom: 18px; }
-    h1 { font-size: 42px; margin: 0 0 14px; }
-    h2 { margin-top: 0; }
-    p, li, label { color: #cad5ef; line-height: 1.6; }
-    code, pre { background: #0a132b; color: #dbe6ff; border-radius: 12px; }
-    code { padding: 2px 6px; }
-    pre { padding: 16px; overflow: auto; }
-    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#1d2850; color:#9bc0ff; font-size:12px; margin-bottom:12px; }
-    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin: 20px 0; }
-    .mini { background:#0c1430; border:1px solid #243052; border-radius:14px; padding:16px; }
-    a { color:#9bc0ff; }
-    input, textarea, button { width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid #31406f; padding: 14px 16px; font-size: 16px; }
+    :root {
+      --bg: #0b1020;
+      --card: #111934;
+      --muted: #cad5ef;
+      --border: #27335b;
+      --accent: #9bc0ff;
+      --success: #72e0a6;
+      --warning: #ffd28d;
+      --danger: #ff8f8f;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #eef3ff; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 64px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 18px; box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+    h1 { font-size: 44px; margin: 0 0 12px; }
+    h2 { margin-top: 0; font-size: 24px; }
+    p, li, label, td, th { color: var(--muted); line-height: 1.6; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#1d2850; color:var(--accent); font-size:12px; margin-bottom:12px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+    .mini { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:18px; }
+    input, textarea, button { width: 100%; box-sizing: border-box; border-radius: 14px; border: 1px solid #31406f; padding: 14px 16px; font-size: 16px; }
     input, textarea { background:#0c1430; color:#eef3ff; margin-top: 8px; }
     textarea { min-height: 90px; resize: vertical; }
-    button { background:#72e0a6; color:#062313; font-weight:700; cursor:pointer; margin-top: 16px; }
-    .warning { color:#ffd28d; font-size: 14px; }
-    .result { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; }
+    button { background:var(--success); color:#062313; font-weight:700; cursor:pointer; margin-top: 16px; }
+    .warning { color:var(--warning); font-size: 14px; }
     .muted { color:#92a6d8; font-size:14px; }
+    .result-shell { display:none; }
+    .hero-result { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+    .score-box { min-width: 220px; background:#0c1430; border:1px solid #243052; border-radius:18px; padding:18px; }
+    .score-box strong { display:block; font-size: 34px; margin-top: 8px; }
+    .risk-low { color: var(--success); }
+    .risk-medium { color: var(--warning); }
+    .risk-high { color: var(--danger); }
+    .tag { display:inline-block; padding:6px 10px; border-radius:999px; background:#172245; color:#d9e5ff; font-size:12px; margin: 4px 6px 0 0; }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align:left; padding: 10px 0; border-bottom: 1px solid #223055; }
+    .alt-card { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:16px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+    pre { background:#0a132b; color:#dbe6ff; border-radius:14px; padding:16px; overflow:auto; font-size: 13px; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <span class="pill">Interactive demo frontend</span>
+      <span class="pill">Founder-friendly brand screening</span>
       <h1>Brand Guard & Domain Scout</h1>
-      <p>Check early-stage brand risk fast. This demo shows the public product shape: submit a name, screen trademark conflict risk, and review core domain signals.</p>
-      <p class="warning">Important: this is a screening tool, not legal clearance. Do not launch, file, or buy branding assets solely on this result.</p>
+      <p>Check whether a name looks usable before you fall in love with it. Review trademark risk, DNS-level domain signals, and better fallback variations in one pass.</p>
+      <p class="warning">This is an early screening tool, not legal advice. Always verify with a trademark attorney and registrar before launch.</p>
     </div>
 
     <div class="card">
-      <h2>Run a brand check</h2>
+      <h2>Search a potential brand</h2>
       <label>
         Brand name
         <input id="brandName" placeholder="Clawbot" />
@@ -47,32 +66,74 @@
         <textarea id="keywords" placeholder="ai, saas, automation"></textarea>
       </label>
       <button id="runCheck">Check brand viability</button>
-      <p class="muted">Current mode: demo frontend. Until the Python API is deployed, this page returns a simulated result using the same response shape.</p>
+      <p class="muted">Current mode: polished frontend with demo data contract. Live backend connection is the next step.</p>
     </div>
 
-    <div class="card">
-      <h2>Result</h2>
-      <div id="result" class="result">No search run yet.</div>
+    <div id="resultShell" class="card result-shell">
+      <div class="hero-result">
+        <div class="score-box">
+          <div class="muted">Risk level</div>
+          <strong id="riskLevel">-</strong>
+          <div class="muted" style="margin-top:8px;">Safety score: <span id="safetyScore">-</span>/100</div>
+          <div class="muted">Confidence: <span id="confidenceLevel">-</span></div>
+        </div>
+        <div style="flex:1; min-width:280px;">
+          <h2 id="decisionTitle" style="margin-bottom:8px;">Decision summary</h2>
+          <p id="decisionSummary"></p>
+          <div id="blockingReasons" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="domainsCard" class="card result-shell">
+      <h2>Digital availability</h2>
+      <table>
+        <thead><tr><th>Domain</th><th>Status</th></tr></thead>
+        <tbody id="domainsTable"></tbody>
+      </table>
+      <p class="muted">Status is based on DNS behavior only. Registrar availability is not confirmed yet.</p>
+    </div>
+
+    <div id="conflictsCard" class="card result-shell">
+      <h2>Trademark conflicts</h2>
+      <div id="conflictsList"></div>
+    </div>
+
+    <div id="alternativesCard" class="card result-shell">
+      <h2>Safer alternatives</h2>
+      <div id="alternativesGrid" class="grid"></div>
+    </div>
+
+    <div id="detailsCard" class="card result-shell">
+      <details>
+        <summary>Developer details</summary>
+        <pre id="rawJson"></pre>
+      </details>
     </div>
   </div>
 
   <script>
-    const resultEl = document.getElementById('result');
+    const resultShells = document.querySelectorAll('.result-shell');
     const button = document.getElementById('runCheck');
 
     function normalizeBrand(name) {
       return name.toLowerCase().replace(/[^a-z0-9]/g, '');
     }
 
+    function humanizeReason(reason) {
+      return reason.replace(/_/g, ' ');
+    }
+
     function demoResponse(brandName, keywords) {
       const base = normalizeBrand(brandName || 'brand');
+      const medium = ['ai', 'saas', 'software', 'automation'].some(k => keywords.includes(k));
       return {
         brand_name: brandName,
-        relevant_nice_classes: keywords.some(k => ['ai','saas','software','automation'].includes(k)) ? [9, 42] : [9, 35, 42],
-        risk_level: 'Medium',
-        safety_score: 68,
+        relevant_nice_classes: medium ? [9, 42] : [9, 35, 42],
+        risk_level: medium ? 'Medium' : 'Low',
+        safety_score: medium ? 68 : 79,
         confidence_level: 'Medium',
-        blocking_reasons: ['registrar_unverified'],
+        blocking_reasons: medium ? ['registrar_unverified', 'active_phonetic_or_fuzzy_conflict'] : ['registrar_unverified'],
         digital_availability: {
           [`${base}.com`]: 'Resolvable',
           [`${base}.ai`]: 'Not Resolvable',
@@ -80,7 +141,7 @@
           [`${base}.co`]: 'Not Resolvable'
         },
         registrar_availability_verified: false,
-        trademark_conflicts: [
+        trademark_conflicts: medium ? [
           {
             mark: `${brandName} Labs`,
             status: 'LIVE',
@@ -92,10 +153,14 @@
             active: true,
             conflict_type: 'likelihood_of_confusion'
           }
-        ],
+        ] : [],
         launch_readiness_report: {
-          summary: `${brandName} shows medium risk in the demo flow. One similar active mark appears and registrar availability is still unverified.`,
-          recommendation: 'Proceed carefully. Use legal review and registrar verification before launch.',
+          summary: medium
+            ? `${brandName} shows medium risk in the demo flow. One similar active mark appears and domain purchase availability is still unverified.`
+            : `${brandName} looks more promising in the demo flow, but legal and registrar verification are still required.`,
+          recommendation: medium
+            ? 'Proceed carefully. Use legal review and registrar verification before launch.'
+            : 'Promising early signal. Verify legal and registrar details before committing.',
           requires_legal_review: true,
           requires_registrar_check: true
         },
@@ -123,21 +188,63 @@
         ],
         notes: [
           'Demo mode is active until the backend API is deployed.',
-          'This output shape matches the planned service contract.'
+          'This result shape matches the planned service contract.'
         ]
       };
     }
 
-    button.addEventListener('click', async () => {
+    function renderResult(data) {
+      resultShells.forEach(el => el.style.display = 'block');
+
+      const riskLevel = document.getElementById('riskLevel');
+      riskLevel.textContent = data.risk_level;
+      riskLevel.className = '';
+      riskLevel.classList.add(`risk-${data.risk_level.toLowerCase()}`);
+      document.getElementById('safetyScore').textContent = data.safety_score;
+      document.getElementById('confidenceLevel').textContent = data.confidence_level;
+      document.getElementById('decisionSummary').textContent = data.launch_readiness_report.summary;
+
+      const blocking = document.getElementById('blockingReasons');
+      blocking.innerHTML = '<div class="muted">Blocking reasons</div>' + data.blocking_reasons.map(reason => `<span class="tag">${humanizeReason(reason)}</span>`).join('');
+
+      const domainsTable = document.getElementById('domainsTable');
+      domainsTable.innerHTML = Object.entries(data.digital_availability)
+        .map(([domain, status]) => `<tr><td>${domain}</td><td>${status}</td></tr>`).join('');
+
+      const conflictsList = document.getElementById('conflictsList');
+      if (!data.trademark_conflicts.length) {
+        conflictsList.innerHTML = '<p>No strong conflict surfaced in this demo run.</p>';
+      } else {
+        conflictsList.innerHTML = data.trademark_conflicts.map(conflict => `
+          <div class="mini" style="margin-top:12px;">
+            <strong>${conflict.mark}</strong><br/>
+            Status: ${conflict.status || 'Unknown'}<br/>
+            Conflict type: ${humanizeReason(conflict.conflict_type)}<br/>
+            Score: ${conflict.conflict_score}
+          </div>
+        `).join('');
+      }
+
+      const alternativesGrid = document.getElementById('alternativesGrid');
+      alternativesGrid.innerHTML = data.suggested_variations.map(alt => `
+        <div class="alt-card">
+          <strong>${alt.candidate}</strong><br/>
+          Risk: ${alt.risk_level}<br/>
+          <div class="muted" style="margin-top:8px;">${Object.entries(alt.digital_availability).map(([domain, status]) => `${domain}: ${status}`).join('<br/>')}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+    }
+
+    button.addEventListener('click', () => {
       const brandName = document.getElementById('brandName').value.trim();
       const keywords = document.getElementById('keywords').value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
       if (!brandName) {
-        resultEl.textContent = 'Enter a brand name first.';
+        alert('Enter a brand name first.');
         return;
       }
-      resultEl.textContent = 'Running check...';
-      const data = demoResponse(brandName, keywords);
-      resultEl.textContent = JSON.stringify(data, null, 2);
+      renderResult(demoResponse(brandName, keywords));
     });
   </script>
 </body>
