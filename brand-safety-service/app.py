@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 import asyncio
 import os
 import re
 from difflib import SequenceMatcher
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 from fastapi import FastAPI, HTTPException
@@ -53,9 +51,9 @@ class BrandCheckRequest(BaseModel):
 
 class TrademarkHit(BaseModel):
     mark: str
-    serial_number: str | None = None
-    registration_number: str | None = None
-    status: str | None = None
+    serial_number: Optional[str] = None
+    registration_number: Optional[str] = None
+    status: Optional[str] = None
     classes: list[int] = Field(default_factory=list)
     source: str
     similarity: float
@@ -150,7 +148,7 @@ def infer_nice_classes(keywords: list[str]) -> list[int]:
     return sorted(classes)
 
 
-def is_active_status(status: str | None) -> bool:
+def is_active_status(status: Optional[str]) -> bool:
     if not status:
         return True
     lowered = status.lower()
