@@ -8,9 +8,19 @@ from typing import Any
 
 import httpx
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="Brand Guard & Domain Scout", version="0.2.0")
+app = FastAPI(title="Brand Guard & Domain Scout", version="0.3.0")
+
+allowed_origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",") if origin.strip()]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins or ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 USPTO_API_FALLBACK_URL = os.getenv("USPTO_API_FALLBACK_URL", "https://api.markbase.co/v1/search")
 DOMAIN_SUFFIXES = ["com", "ai", "io", "co"]

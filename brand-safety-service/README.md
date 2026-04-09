@@ -28,13 +28,20 @@ Note: these are DNS-level signals only, not registrar-confirmed availability. `P
 - recommends whether to proceed
 - suggests 3 to 5 alternative name variations using prefixes/suffixes
 
-## Run
+## Run locally
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn app:app --reload
 ```
+
+## Deploy on Render
+- `render.yaml` is included
+- create a new Render Blueprint or Web Service from this folder
+- deploy the API
+- frontend expects the API at:
+  - `https://brand-guard-domain-scout-api.onrender.com`
 
 ## Example request
 ```bash
@@ -89,3 +96,4 @@ curl -X POST http://127.0.0.1:8000/brand-check \
 - DNS resolution is not equivalent to registrar-confirmed availability.
 - The service is intentionally conservative and should trigger legal review before launch decisions.
 - `risk_level` and `blocking_reasons` should be treated as primary decision signals, not just `safety_score`.
+- The Netlify frontend can run in demo mode until the Render backend is live.

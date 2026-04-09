@@ -31,6 +31,7 @@
     .warning { color:var(--warning); font-size: 14px; }
     .muted { color:#92a6d8; font-size:14px; }
     .demo-banner { background: rgba(255, 210, 141, 0.12); border: 1px solid rgba(255, 210, 141, 0.45); color: var(--warning); border-radius: 16px; padding: 14px 16px; margin-top: 16px; font-weight: 600; }
+    .live-banner { background: rgba(114, 224, 166, 0.12); border: 1px solid rgba(114, 224, 166, 0.45); color: var(--success); border-radius: 16px; padding: 14px 16px; margin-top: 16px; font-weight: 600; display:none; }
     .result-shell { display:none; }
     .hero-result { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
     .score-box { min-width: 220px; background:#0c1430; border:1px solid #243052; border-radius:18px; padding:18px; }
@@ -54,7 +55,8 @@
       <h1>Brand Guard & Domain Scout</h1>
       <p>Check whether a name looks usable before you fall in love with it. Review trademark risk, DNS-level domain signals, and better fallback variations in one pass.</p>
       <p class="warning">This is an early screening tool, not legal advice. Always verify with a trademark attorney and registrar before launch.</p>
-      <div class="demo-banner">Demo mode is active. Results shown here are simulated examples until the live backend is connected.</div>
+      <div class="demo-banner" id="topDemoBanner">Demo mode is active. Results shown here are simulated examples until the live backend is connected.</div>
+      <div class="live-banner" id="topLiveBanner">Live backend connected. Results now come from the active screening API.</div>
     </div>
 
     <div class="card">
@@ -68,12 +70,14 @@
         <textarea id="keywords" placeholder="ai, saas, automation"></textarea>
       </label>
       <button id="runCheck">Check brand viability</button>
-      <p class="muted">Current mode: polished frontend with demo data contract. Live backend connection is the next step.</p>
-      <div class="demo-banner">You are not seeing live USPTO or live domain lookup results yet. This screen is for product flow validation only.</div>
+      <p class="muted" id="modeHint">Current mode: polished frontend with demo data contract. Live backend connection is the next step.</p>
+      <div class="demo-banner" id="formDemoBanner">You are not seeing live USPTO or live domain lookup results yet. This screen is for product flow validation only.</div>
+      <div class="live-banner" id="formLiveBanner">This form is using live backend data.</div>
     </div>
 
     <div id="resultShell" class="card result-shell">
       <div class="demo-banner" id="resultModeBanner">Demo result. Live data is not connected yet.</div>
+      <div class="live-banner" id="resultLiveBanner">Live data result.</div>
       <div class="hero-result">
         <div class="score-box">
           <div class="muted">Risk level</div>
@@ -117,8 +121,10 @@
   </div>
 
   <script>
+    const API_BASE = 'https://brand-guard-domain-scout-api.onrender.com';
     const resultShells = document.querySelectorAll('.result-shell');
     const button = document.getElementById('runCheck');
+    let liveMode = false;
 
     function normalizeBrand(name) {
       return name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -132,6 +138,19 @@
       if (status === 'Resolvable') return 'Likely Registered';
       if (status === 'Not Resolvable') return 'Likely Unregistered';
       return 'Unknown';
+    }
+
+    function setMode(isLive) {
+      liveMode = isLive;
+      document.getElementById('topDemoBanner').style.display = isLive ? 'none' : 'block';
+      document.getElementById('formDemoBanner').style.display = isLive ? 'none' : 'block';
+      document.getElementById('resultModeBanner').style.display = isLive ? 'none' : 'block';
+      document.getElementById('topLiveBanner').style.display = isLive ? 'block' : 'none';
+      document.getElementById('formLiveBanner').style.display = isLive ? 'block' : 'none';
+      document.getElementById('resultLiveBanner').style.display = isLive ? 'block' : 'none';
+      document.getElementById('modeHint').textContent = isLive
+        ? 'Current mode: live backend connection.'
+        : 'Current mode: polished frontend with demo data contract. Live backend connection is the next step.';
     }
 
     function demoResponse(brandName, keywords) {
@@ -203,6 +222,16 @@
       };
     }
 
+    async function fetchLiveResult(brandName, keywords) {
+      const response = await fetch(`${API_BASE}/brand-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand_name: brandName, industry_keywords: keywords })
+      });
+      if (!response.ok) throw new Error(`API error ${response.status}`);
+      return await response.json();
+    }
+
     function renderResult(data) {
       resultShells.forEach(el => el.style.display = 'block');
 
@@ -223,7 +252,7 @@
 
       const conflictsList = document.getElementById('conflictsList');
       if (!data.trademark_conflicts.length) {
-        conflictsList.innerHTML = '<p>No strong conflict surfaced in this demo run.</p>';
+        conflictsList.innerHTML = '<p>No strong conflict surfaced in this run.</p>';
       } else {
         conflictsList.innerHTML = data.trademark_conflicts.map(conflict => `
           <div class="mini" style="margin-top:12px;">
@@ -240,22 +269,49 @@
         <div class="alt-card">
           <strong>${alt.candidate}</strong><br/>
           Risk: ${alt.risk_level}<br/>
-          <div class="muted" style="margin-top:8px;">${Object.entries(alt.digital_availability).map(([domain, status]) => `${domain}: ${status}`).join('<br/>')}</div>
+          <div class="muted" style="margin-top:8px;">${Object.entries(alt.digital_availability).map(([domain, status]) => `${domain}: ${humanizeDomainStatus(status)}`).join('<br/>')}</div>
         </div>
       `).join('');
 
       document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
     }
 
-    button.addEventListener('click', () => {
+    async function detectLiveMode() {
+      try {
+        const response = await fetch(`${API_BASE}/health`);
+        setMode(response.ok);
+      } catch {
+        setMode(false);
+      }
+    }
+
+    button.addEventListener('click', async () => {
       const brandName = document.getElementById('brandName').value.trim();
       const keywords = document.getElementById('keywords').value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
       if (!brandName) {
         alert('Enter a brand name first.');
         return;
       }
-      renderResult(demoResponse(brandName, keywords));
+      button.textContent = 'Checking...';
+      button.disabled = true;
+      try {
+        let data;
+        if (liveMode) {
+          data = await fetchLiveResult(brandName, keywords);
+        } else {
+          data = demoResponse(brandName, keywords);
+        }
+        renderResult(data);
+      } catch {
+        setMode(false);
+        renderResult(demoResponse(brandName, keywords));
+      } finally {
+        button.textContent = 'Check brand viability';
+        button.disabled = false;
+      }
     });
+
+    detectLiveMode();
   </script>
 </body>
 </html>
