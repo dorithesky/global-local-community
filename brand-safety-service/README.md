@@ -51,8 +51,10 @@ curl -X POST http://127.0.0.1:8000/brand-check \
 {
   "brand_name": "Clawbot",
   "relevant_nice_classes": [9, 42],
-  "safety_score": 61,
   "risk_level": "Medium",
+  "safety_score": 61,
+  "confidence_level": "Medium",
+  "blocking_reasons": ["registrar_unverified", "domain_not_confirmed_free"],
   "digital_availability": {
     "clawbot.com": "Resolvable",
     "clawbot.ai": "Not Resolvable",
@@ -86,3 +88,4 @@ curl -X POST http://127.0.0.1:8000/brand-check \
 - Trademark search uses a practical USPTO-oriented endpoint plus local fuzzy/phonetic scoring.
 - DNS resolution is not equivalent to registrar-confirmed availability.
 - The service is intentionally conservative and should trigger legal review before launch decisions.
+- `risk_level` and `blocking_reasons` should be treated as primary decision signals, not just `safety_score`.

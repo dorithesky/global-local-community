@@ -76,8 +76,10 @@ class LaunchReadinessReport(BaseModel):
 class BrandCheckResponse(BaseModel):
     brand_name: str
     relevant_nice_classes: list[int]
-    safety_score: int
     risk_level: str
+    safety_score: int
+    confidence_level: str
+    blocking_reasons: list[str]
     digital_availability: dict[str, str]
     registrar_availability_verified: bool
     trademark_conflicts: list[TrademarkHit]
@@ -329,14 +331,28 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
             if len(suggestions) >= 5:
                 break
 
+    blocking_reasons: list[str] = ["registrar_unverified"]
     if any(c.active and c.conflict_type == "direct_match" for c in conflicts):
         risk_level = "High"
         safety_score = min(safety_score, 15)
-    elif any(c.active and c.conflict_score >= 0.72 for c in conflicts) and risk_level == "Low":
-        risk_level = "Medium"
-        safety_score = min(safety_score, 74)
+        blocking_reasons.append("active_direct_match")
+    elif any(c.active and c.conflict_score >= 0.72 for c in conflicts):
+        if risk_level == "Low":
+            risk_level = "Medium"
+            safety_score = min(safety_score, 74)
+        blocking_reasons.append("active_phonetic_or_fuzzy_conflict")
+
+    if any(status == "Resolvable" for status in domain_map.values()):
+        blocking_reasons.append("domain_not_confirmed_free")
+
+    confidence_level = "Medium"
+    if conflicts:
+        confidence_level = "Medium"
+    elif all(status in {"Resolvable", "Not Resolvable", "Unknown"} for status in domain_map.values()):
+        confidence_level = "Medium"
 
     notes = [
+        "Risk level should be treated as more important than safety score.",
         "Do not file, launch, or buy branding assets solely on this score.",
         "Trademark logic is a screening heuristic, not legal advice.",
         "Direct match and likelihood-of-confusion checks use fuzzy text similarity plus phonetic normalization.",
@@ -346,8 +362,10 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
     return BrandCheckResponse(
         brand_name=brand_name,
         relevant_nice_classes=nice_classes,
-        safety_score=safety_score,
         risk_level=risk_level,
+        safety_score=safety_score,
+        confidence_level=confidence_level,
+        blocking_reasons=sorted(set(blocking_reasons)),
         digital_availability=domain_map,
         registrar_availability_verified=False,
         trademark_conflicts=conflicts,
