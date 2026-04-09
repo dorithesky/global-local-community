@@ -41,6 +41,7 @@
     .risk-high { color: var(--danger); }
     .tag { display:inline-block; padding:6px 10px; border-radius:999px; background:#172245; color:#d9e5ff; font-size:12px; margin: 4px 6px 0 0; }
     .status-badge { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; margin-left:8px; }
+    .status-help { color:#92a6d8; font-size:13px; margin-top:8px; }
     .status-verified { background: rgba(114, 224, 166, 0.14); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); }
     .status-notlive { background: rgba(255, 210, 141, 0.14); border: 1px solid rgba(255, 210, 141, 0.4); color: var(--warning); }
     table { width:100%; border-collapse: collapse; margin-top: 10px; }
@@ -90,6 +91,7 @@
         </div>
         <div style="flex:1; min-width:280px;">
           <h2 id="decisionTitle" style="margin-bottom:8px;">Decision summary <span id="backendBadge" class="status-badge status-notlive">Not Live</span></h2>
+          <div class="status-help">Verified means a live backend responded. Not Live means inferred, demo-backed, or not fully confirmed.</div>
           <p id="decisionSummary"></p>
           <div id="blockingReasons" style="margin-top:12px;"></div>
         </div>
@@ -102,11 +104,12 @@
         <thead><tr><th>Domain</th><th>Status</th></tr></thead>
         <tbody id="domainsTable"></tbody>
       </table>
-      <p class="muted">Status is shown in user-friendly language. Right now it is still inferred from DNS behavior, not registrar-confirmed.</p>
+      <p class="muted">Status is shown in user-friendly language. Verified would require registrar-level confirmation. Right now these labels are inferred from DNS behavior.</p>
     </div>
 
     <div id="conflictsCard" class="card result-shell">
       <h2>Trademark conflicts <span id="trademarkBadge" class="status-badge status-notlive">Not Live</span></h2>
+      <div class="status-help">Verified here means the result came from the live backend. It does not mean legal clearance.</div>
       <div id="conflictsList"></div>
     </div>
 
