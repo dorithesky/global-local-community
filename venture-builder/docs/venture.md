@@ -39,3 +39,8 @@ First paid founding customer as quickly as possible, ideally via concierge sale 
 ## Blockers
 - No payment processor configured yet
 - No X API write setup yet
+
+
+## Status
+- Dropped on 2026-04-09 by Scott instruction.
+- Keep as archived reference only unless explicitly revived.
