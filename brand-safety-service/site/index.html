@@ -16,7 +16,7 @@
       --danger: #ff8f8f;
     }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #eef3ff; }
-    .wrap { max-width: 1040px; margin: 0 auto; padding: 40px 20px 64px; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
     .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 18px; box-shadow: 0 12px 32px rgba(0,0,0,.2); }
     h1 { font-size: 44px; margin: 0 0 12px; }
     h2 { margin-top: 0; font-size: 24px; }
@@ -26,7 +26,7 @@
     .mini { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:18px; }
     input, textarea, button { width: 100%; box-sizing: border-box; border-radius: 14px; border: 1px solid #31406f; padding: 14px 16px; font-size: 16px; }
     input, textarea { background:#0c1430; color:#eef3ff; margin-top: 8px; }
-    textarea { min-height: 90px; resize: vertical; }
+    textarea { min-height: 110px; resize: vertical; }
     button { background:var(--success); color:#062313; font-weight:700; cursor:pointer; margin-top: 16px; }
     .warning { color:var(--warning); font-size: 14px; }
     .muted { color:#92a6d8; font-size:14px; }
@@ -46,10 +46,11 @@
     .status-notlive { background: rgba(255, 210, 141, 0.14); border: 1px solid rgba(255, 210, 141, 0.4); color: var(--warning); }
     table { width:100%; border-collapse: collapse; margin-top: 10px; }
     th, td { text-align:left; padding: 10px 0; border-bottom: 1px solid #223055; }
-    .alt-card { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:16px; }
+    .alt-card, .compare-card { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:16px; }
     details { margin-top: 12px; }
     summary { cursor: pointer; color: var(--accent); }
     pre { background:#0a132b; color:#dbe6ff; border-radius:14px; padding:16px; overflow:auto; font-size: 13px; }
+    .compare-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
   </style>
 </head>
 <body>
@@ -64,10 +65,10 @@
     </div>
 
     <div class="card">
-      <h2>Search a potential brand</h2>
+      <h2>Search or compare potential brands</h2>
       <label>
-        Brand name
-        <input id="brandName" placeholder="Clawbot" />
+        Brand names, one per line
+        <textarea id="brandNames" placeholder="Clawbot&#10;Clawflow&#10;Clawlabs"></textarea>
       </label>
       <label>
         Industry keywords
@@ -77,6 +78,12 @@
       <p class="muted" id="modeHint">Current mode: polished frontend with demo data contract. Live backend connection is the next step.</p>
       <div class="demo-banner" id="formDemoBanner">You are not seeing live USPTO or live domain lookup results yet. This screen is for product flow validation only.</div>
       <div class="live-banner" id="formLiveBanner">This form is using live backend data.</div>
+    </div>
+
+    <div id="compareShell" class="card result-shell">
+      <h2>Compare candidates</h2>
+      <div class="status-help">Best for founders deciding between a shortlist. Cards are sorted by strongest candidate first.</div>
+      <div id="compareGrid" class="compare-grid"></div>
     </div>
 
     <div id="resultShell" class="card result-shell">
@@ -144,6 +151,12 @@
       if (status === 'Resolvable') return 'Likely Registered';
       if (status === 'Not Resolvable') return 'Likely Unregistered';
       return 'Unknown';
+    }
+
+    function verdictFromRisk(risk) {
+      if (risk === 'Low') return 'Good candidate';
+      if (risk === 'Medium') return 'Needs caution';
+      return 'Avoid';
     }
 
     function setMode(isLive) {
@@ -242,6 +255,26 @@
       return await response.json();
     }
 
+    function renderCompare(results) {
+      const compareGrid = document.getElementById('compareGrid');
+      const sorted = [...results].sort((a, b) => {
+        const scoreA = a.risk_level === 'Low' ? 0 : a.risk_level === 'Medium' ? 1 : 2;
+        const scoreB = b.risk_level === 'Low' ? 0 : b.risk_level === 'Medium' ? 1 : 2;
+        if (scoreA !== scoreB) return scoreA - scoreB;
+        return b.safety_score - a.safety_score;
+      });
+      compareGrid.innerHTML = sorted.map(item => `
+        <div class="compare-card">
+          <strong style="font-size:20px;">${item.brand_name}</strong><br/>
+          <span class="tag">${verdictFromRisk(item.risk_level)}</span>
+          <span class="tag">Risk: ${item.risk_level}</span>
+          <span class="tag">Score: ${item.safety_score}</span>
+          <p style="margin-top:10px;">${item.launch_readiness_report.summary}</p>
+          <div class="muted">Top blocker: ${item.blocking_reasons[0] ? humanizeReason(item.blocking_reasons[0]) : 'none'}</div>
+        </div>
+      `).join('');
+    }
+
     function renderResult(data) {
       resultShells.forEach(el => el.style.display = 'block');
 
@@ -304,25 +337,28 @@
     }
 
     button.addEventListener('click', async () => {
-      const brandName = document.getElementById('brandName').value.trim();
+      const brandNames = document.getElementById('brandNames').value.split('\n').map(v => v.trim()).filter(Boolean).slice(0, 5);
       const keywords = document.getElementById('keywords').value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
-      if (!brandName) {
-        alert('Enter a brand name first.');
+      if (!brandNames.length) {
+        alert('Enter at least one brand name first.');
         return;
       }
       button.textContent = 'Checking...';
       button.disabled = true;
       try {
-        let data;
+        let results;
         if (liveMode) {
-          data = await fetchLiveResult(brandName, keywords);
+          results = await Promise.all(brandNames.map(name => fetchLiveResult(name, keywords)));
         } else {
-          data = demoResponse(brandName, keywords);
+          results = brandNames.map(name => demoResponse(name, keywords));
         }
-        renderResult(data);
+        renderCompare(results);
+        renderResult(results[0]);
       } catch {
         setMode(false);
-        renderResult(demoResponse(brandName, keywords));
+        const results = brandNames.map(name => demoResponse(name, keywords));
+        renderCompare(results);
+        renderResult(results[0]);
       } finally {
         button.textContent = 'Check brand viability';
         button.disabled = false;
