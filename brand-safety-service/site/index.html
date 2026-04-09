@@ -40,6 +40,10 @@
     .risk-medium { color: var(--warning); }
     .risk-high { color: var(--danger); }
     .tag { display:inline-block; padding:6px 10px; border-radius:999px; background:#172245; color:#d9e5ff; font-size:12px; margin: 4px 6px 0 0; }
+    .risk-pill { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; margin: 4px 6px 0 0; }
+    .risk-pill.low { background: rgba(114, 224, 166, 0.14); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); }
+    .risk-pill.medium { background: rgba(255, 210, 141, 0.14); border: 1px solid rgba(255, 210, 141, 0.4); color: var(--warning); }
+    .risk-pill.high { background: rgba(255, 143, 143, 0.14); border: 1px solid rgba(255, 143, 143, 0.4); color: var(--danger); }
     .status-badge { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; margin-left:8px; }
     .status-help { color:#92a6d8; font-size:13px; margin-top:8px; }
     .status-verified { background: rgba(114, 224, 166, 0.14); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); }
@@ -51,6 +55,9 @@
     summary { cursor: pointer; color: var(--accent); }
     pre { background:#0a132b; color:#dbe6ff; border-radius:14px; padding:16px; overflow:auto; font-size: 13px; }
     .compare-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+    .compare-card { cursor:pointer; transition: transform .12s ease, border-color .12s ease; }
+    .compare-card:hover { transform: translateY(-2px); border-color: #3a4c84; }
+    .compare-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(155,192,255,.25) inset; }
   </style>
 </head>
 <body>
@@ -159,6 +166,15 @@
       return 'Avoid';
     }
 
+    function sortedResults(results) {
+      return [...results].sort((a, b) => {
+        const scoreA = a.risk_level === 'Low' ? 0 : a.risk_level === 'Medium' ? 1 : 2;
+        const scoreB = b.risk_level === 'Low' ? 0 : b.risk_level === 'Medium' ? 1 : 2;
+        if (scoreA !== scoreB) return scoreA - scoreB;
+        return b.safety_score - a.safety_score;
+      });
+    }
+
     function setMode(isLive) {
       liveMode = isLive;
       document.getElementById('topDemoBanner').style.display = isLive ? 'none' : 'block';
@@ -257,22 +273,28 @@
 
     function renderCompare(results) {
       const compareGrid = document.getElementById('compareGrid');
-      const sorted = [...results].sort((a, b) => {
-        const scoreA = a.risk_level === 'Low' ? 0 : a.risk_level === 'Medium' ? 1 : 2;
-        const scoreB = b.risk_level === 'Low' ? 0 : b.risk_level === 'Medium' ? 1 : 2;
-        if (scoreA !== scoreB) return scoreA - scoreB;
-        return b.safety_score - a.safety_score;
-      });
-      compareGrid.innerHTML = sorted.map(item => `
-        <div class="compare-card">
+      const sorted = sortedResults(results);
+      compareGrid.innerHTML = sorted.map((item, idx) => `
+        <div class="compare-card ${idx === 0 ? 'selected' : ''}" data-brand="${item.brand_name}">
           <strong style="font-size:20px;">${item.brand_name}</strong><br/>
-          <span class="tag">${verdictFromRisk(item.risk_level)}</span>
-          <span class="tag">Risk: ${item.risk_level}</span>
+          <span class="risk-pill ${item.risk_level.toLowerCase()}">${verdictFromRisk(item.risk_level)}</span>
+          <span class="risk-pill ${item.risk_level.toLowerCase()}">Risk: ${item.risk_level}</span>
           <span class="tag">Score: ${item.safety_score}</span>
           <p style="margin-top:10px;">${item.launch_readiness_report.summary}</p>
           <div class="muted">Top blocker: ${item.blocking_reasons[0] ? humanizeReason(item.blocking_reasons[0]) : 'none'}</div>
         </div>
       `).join('');
+
+      compareGrid.querySelectorAll('.compare-card').forEach(card => {
+        card.addEventListener('click', () => {
+          compareGrid.querySelectorAll('.compare-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          const match = sorted.find(item => item.brand_name === card.dataset.brand);
+          if (match) renderResult(match);
+        });
+      });
+
+      return sorted;
     }
 
     function renderResult(data) {
@@ -352,13 +374,13 @@
         } else {
           results = brandNames.map(name => demoResponse(name, keywords));
         }
-        renderCompare(results);
-        renderResult(results[0]);
+        const sorted = renderCompare(results);
+        renderResult(sorted[0]);
       } catch {
         setMode(false);
         const results = brandNames.map(name => demoResponse(name, keywords));
-        renderCompare(results);
-        renderResult(results[0]);
+        const sorted = renderCompare(results);
+        renderResult(sorted[0]);
       } finally {
         button.textContent = 'Check brand viability';
         button.disabled = false;
