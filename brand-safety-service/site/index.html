@@ -168,9 +168,17 @@
     }
 
     function verdictFromRisk(risk) {
-      if (risk === 'Low') return 'Good candidate';
-      if (risk === 'Medium') return 'Needs caution';
+      if (risk === 'Low') return 'Use';
+      if (risk === 'Medium') return 'Caution';
       return 'Avoid';
+    }
+
+    function topReason(data) {
+      if (data.blocking_reasons.includes('active_direct_match')) return 'An active direct trademark match was found.';
+      if (data.blocking_reasons.includes('active_phonetic_or_fuzzy_conflict')) return 'A similar-sounding or visually similar active trademark was found.';
+      if (data.blocking_reasons.includes('domain_not_confirmed_free')) return 'Core domains do not yet look clearly free.';
+      if (data.blocking_reasons.includes('registrar_unverified')) return 'Domain ownership is not registrar-verified yet.';
+      return 'No major blocker surfaced in this pass.';
     }
 
     function sortedResults(results) {
@@ -289,6 +297,7 @@
           <span class="risk-pill ${item.risk_level.toLowerCase()}">Risk: ${item.risk_level}</span>
           <span class="tag">Score: ${item.safety_score}</span>
           <p style="margin-top:10px;">${item.launch_readiness_report.summary}</p>
+          <div class="muted"><strong>Why:</strong> ${topReason(item)}</div>
           <div class="muted">Top blocker: ${item.blocking_reasons[0] ? humanizeReason(item.blocking_reasons[0]) : 'none'}</div>
         </div>
       `).join('');
@@ -314,7 +323,7 @@
       riskLevel.classList.add(`risk-${data.risk_level.toLowerCase()}`);
       document.getElementById('safetyScore').textContent = data.safety_score;
       document.getElementById('confidenceLevel').textContent = data.confidence_level;
-      document.getElementById('decisionSummary').textContent = data.launch_readiness_report.summary;
+      document.getElementById('decisionSummary').textContent = `${data.launch_readiness_report.summary} Why: ${topReason(data)}`;
 
       const actions = document.getElementById('nextActions');
       actions.innerHTML = `
