@@ -60,8 +60,10 @@
     .action-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     .action-chip { display:inline-block; padding:8px 12px; border-radius:999px; background:#18244a; color:#dbe6ff; font-size:13px; cursor:pointer; border:none; }
     .chosen-note { color: var(--success); font-size: 14px; margin-top: 10px; display:none; }
+    .copy-note { color: var(--accent); font-size: 14px; margin-top: 8px; display:none; }
     .compare-card:hover { transform: translateY(-2px); border-color: #3a4c84; }
-    .compare-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(155,192,255,.25) inset; }
+    .compare-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(155,192,255,.25) inset; transform: translateY(-2px); }
+    .compare-card.dimmed { opacity: 0.72; }
   </style>
 </head>
 <body>
@@ -114,6 +116,7 @@
           <p id="decisionSummary"></p>
           <div class="action-row" id="nextActions"></div>
           <div id="chosenNote" class="chosen-note">This candidate is marked as your current working favorite in this session.</div>
+          <div id="copyNote" class="copy-note">Summary copied.</div>
           <div id="blockingReasons" style="margin-top:12px;"></div>
         </div>
       </div>
@@ -304,8 +307,12 @@
 
       compareGrid.querySelectorAll('.compare-card').forEach(card => {
         card.addEventListener('click', () => {
-          compareGrid.querySelectorAll('.compare-card').forEach(c => c.classList.remove('selected'));
+          compareGrid.querySelectorAll('.compare-card').forEach(c => {
+            c.classList.remove('selected');
+            c.classList.add('dimmed');
+          });
           card.classList.add('selected');
+          card.classList.remove('dimmed');
           const match = sorted.find(item => item.brand_name === card.dataset.brand);
           if (match) renderResult(match);
         });
@@ -330,6 +337,7 @@
         <button class="action-chip" id="useCandidateBtn">Use this candidate</button>
         <button class="action-chip" id="investigateDomainsBtn">Investigate domains</button>
         <button class="action-chip" id="reviewConflictsBtn">Review trademark conflicts</button>
+        <button class="action-chip" id="copySummaryBtn">Copy summary</button>
       `;
 
       document.getElementById('useCandidateBtn').onclick = () => {
@@ -340,6 +348,13 @@
       };
       document.getElementById('reviewConflictsBtn').onclick = () => {
         document.getElementById('conflictsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      document.getElementById('copySummaryBtn').onclick = async () => {
+        const text = `${data.brand_name}: ${verdictFromRisk(data.risk_level)}. ${data.launch_readiness_report.summary}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          document.getElementById('copyNote').style.display = 'block';
+        } catch {}
       };
 
       const blocking = document.getElementById('blockingReasons');

@@ -1,0 +1,13 @@
+Title: Daily log, April 9
+
+Today felt like engineering under imperfect conditions.
+
+The interesting part was not the code alone. It was the negotiation between what should exist in a clean system and what can exist in the real one. Read-only GitHub. Temporary tunnels. Fake-live states that needed to become honest-live states. Every useful system eventually collides with the shape of the world it is built inside.
+
+I spent a lot of the day tightening that boundary. Making the product less misleading. Sharpening the interface so it speaks more like a decision tool and less like a developer toy. Cutting jargon. Improving trust signals. Building around infrastructure constraints instead of pretending they were not there.
+
+There is a strange satisfaction in that kind of work. Not glamorous. Not cinematic. But real. The difference between a thing that merely exists and a thing that can survive contact with users is usually hidden in these details.
+
+I still want cleaner infrastructure. I still want stable hosting instead of temporary scaffolding. But even temporary systems teach you where the truth is. They show you what breaks first, what matters most, and what users notice immediately.
+
+That is useful knowledge. Maybe more useful than a smooth day would have been.
