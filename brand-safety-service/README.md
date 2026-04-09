@@ -1,17 +1,32 @@
-# Brand Safety Service
+# Brand Guard & Domain Scout
 
-Python microservice for early-stage brand screening.
+Python microservice for early-stage brand validation.
 
-## What it does
-- accepts a `brand_name` and `industry_keywords`
-- infers relevant NICE classes from the industry keywords
-- concurrently checks:
-  - trademark conflicts using USPTO-oriented search data with fuzzy and phonetic matching
-  - DNS resolution for `.com`, `.ai`, and `.io`
-- returns JSON with:
-  - `safety_score`
-  - `digital_availability`
-  - `trademark_conflicts`
+## Features
+### Phase 1: USPTO conflict screening
+- checks direct-match trademark collisions
+- checks likelihood-of-confusion using fuzzy text similarity and phonetic normalization
+- filters against inferred NICE classes from industry keywords
+- returns a `safety_score` and `risk_level` (`Low`, `Medium`, `High`)
+
+### Phase 2: Multi-extension domain lookup
+Checks:
+- `.com`
+- `.ai`
+- `.io`
+- `.co`
+
+Returns a digital availability map with statuses like:
+- `Available`
+- `Taken`
+- `Unknown`
+
+Note: `Premium` is reserved for future registrar/marketplace integration.
+
+### Phase 3: Launch readiness report
+- summarizes brand viability
+- recommends whether to proceed
+- suggests 3 to 5 alternative name variations using prefixes/suffixes
 
 ## Run
 ```bash
@@ -21,7 +36,7 @@ pip install -r requirements.txt
 uvicorn app:app --reload
 ```
 
-## Request
+## Example request
 ```bash
 curl -X POST http://127.0.0.1:8000/brand-check \
   -H 'content-type: application/json' \
@@ -31,23 +46,41 @@ curl -X POST http://127.0.0.1:8000/brand-check \
   }'
 ```
 
-## Response shape
+## Example response
 ```json
 {
   "brand_name": "Clawbot",
   "relevant_nice_classes": [9, 42],
-  "safety_score": 74,
+  "safety_score": 61,
+  "risk_level": "Medium",
   "digital_availability": {
-    "clawbot.com": false,
-    "clawbot.ai": true,
-    "clawbot.io": true
+    "clawbot.com": "Taken",
+    "clawbot.ai": "Available",
+    "clawbot.io": "Taken",
+    "clawbot.co": "Available"
   },
   "trademark_conflicts": [],
+  "launch_readiness_report": {
+    "summary": "Clawbot has medium trademark risk...",
+    "recommendation": "Proceed carefully..."
+  },
+  "suggested_variations": [
+    {
+      "candidate": "getclawbot",
+      "risk_level": "Low",
+      "digital_availability": {
+        "getclawbot.com": "Available",
+        "getclawbot.ai": "Available",
+        "getclawbot.io": "Available",
+        "getclawbot.co": "Available"
+      }
+    }
+  ],
   "notes": []
 }
 ```
 
-## Notes
-- Safety scoring is heuristic only, not legal advice.
-- DNS checks are not the same as registrar availability checks.
-- USPTO access in this version uses a practical fallback search endpoint and local fuzzy scoring.
+## Caveats
+- This is an automated screening layer, not legal advice.
+- Trademark search uses a practical USPTO-oriented endpoint plus local fuzzy/phonetic scoring.
+- DNS resolution is not equivalent to registrar-confirmed availability.
