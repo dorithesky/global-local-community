@@ -56,6 +56,9 @@
     pre { background:#0a132b; color:#dbe6ff; border-radius:14px; padding:16px; overflow:auto; font-size: 13px; }
     .compare-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
     .compare-card { cursor:pointer; transition: transform .12s ease, border-color .12s ease; }
+     .winner-banner { background: rgba(114, 224, 166, 0.12); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; font-weight: 700; }
+    .action-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .action-chip { display:inline-block; padding:8px 12px; border-radius:999px; background:#18244a; color:#dbe6ff; font-size:13px; }
     .compare-card:hover { transform: translateY(-2px); border-color: #3a4c84; }
     .compare-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(155,192,255,.25) inset; }
   </style>
@@ -90,6 +93,7 @@
     <div id="compareShell" class="card result-shell">
       <h2>Compare candidates</h2>
       <div class="status-help">Best for founders deciding between a shortlist. Cards are sorted by strongest candidate first.</div>
+      <div id="winnerBanner" class="winner-banner"></div>
       <div id="compareGrid" class="compare-grid"></div>
     </div>
 
@@ -107,6 +111,7 @@
           <h2 id="decisionTitle" style="margin-bottom:8px;">Decision summary <span id="backendBadge" class="status-badge status-notlive">Not Live</span></h2>
           <div class="status-help">Verified means a live backend responded. Not Live means inferred, demo-backed, or not fully confirmed.</div>
           <p id="decisionSummary"></p>
+          <div class="action-row" id="nextActions"></div>
           <div id="blockingReasons" style="margin-top:12px;"></div>
         </div>
       </div>
@@ -274,6 +279,7 @@
     function renderCompare(results) {
       const compareGrid = document.getElementById('compareGrid');
       const sorted = sortedResults(results);
+      document.getElementById('winnerBanner').textContent = `Best current option: ${sorted[0].brand_name} (${verdictFromRisk(sorted[0].risk_level)})`;
       compareGrid.innerHTML = sorted.map((item, idx) => `
         <div class="compare-card ${idx === 0 ? 'selected' : ''}" data-brand="${item.brand_name}">
           <strong style="font-size:20px;">${item.brand_name}</strong><br/>
@@ -307,6 +313,13 @@
       document.getElementById('safetyScore').textContent = data.safety_score;
       document.getElementById('confidenceLevel').textContent = data.confidence_level;
       document.getElementById('decisionSummary').textContent = data.launch_readiness_report.summary;
+
+      const actions = document.getElementById('nextActions');
+      actions.innerHTML = `
+        <span class="action-chip">Use this candidate</span>
+        <span class="action-chip">Investigate domains</span>
+        <span class="action-chip">Review trademark conflicts</span>
+      `;
 
       const blocking = document.getElementById('blockingReasons');
       blocking.innerHTML = '<div class="muted">Blocking reasons</div>' + data.blocking_reasons.map(reason => `<span class="tag">${humanizeReason(reason)}</span>`).join('');
