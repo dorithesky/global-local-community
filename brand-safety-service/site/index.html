@@ -6,10 +6,11 @@
   <title>Brand Guard & Domain Scout</title>
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0b1020; color: #eef3ff; }
-    .wrap { max-width: 860px; margin: 0 auto; padding: 48px 20px; }
-    .card { background: #111934; border: 1px solid #27335b; border-radius: 18px; padding: 28px; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 42px 20px 64px; }
+    .card { background: #111934; border: 1px solid #27335b; border-radius: 18px; padding: 28px; margin-bottom: 18px; }
     h1 { font-size: 42px; margin: 0 0 14px; }
-    p, li { color: #cad5ef; line-height: 1.6; }
+    h2 { margin-top: 0; }
+    p, li, label { color: #cad5ef; line-height: 1.6; }
     code, pre { background: #0a132b; color: #dbe6ff; border-radius: 12px; }
     code { padding: 2px 6px; }
     pre { padding: 16px; overflow: auto; }
@@ -17,27 +18,127 @@
     .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin: 20px 0; }
     .mini { background:#0c1430; border:1px solid #243052; border-radius:14px; padding:16px; }
     a { color:#9bc0ff; }
+    input, textarea, button { width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid #31406f; padding: 14px 16px; font-size: 16px; }
+    input, textarea { background:#0c1430; color:#eef3ff; margin-top: 8px; }
+    textarea { min-height: 90px; resize: vertical; }
+    button { background:#72e0a6; color:#062313; font-weight:700; cursor:pointer; margin-top: 16px; }
+    .warning { color:#ffd28d; font-size: 14px; }
+    .result { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; }
+    .muted { color:#92a6d8; font-size:14px; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <span class="pill">Python microservice</span>
+      <span class="pill">Interactive demo frontend</span>
       <h1>Brand Guard & Domain Scout</h1>
-      <p>Automated brand-name screening for founders. It checks trademark conflicts, fuzzy/phonetic similarity, and domain availability across core startup extensions.</p>
-      <div class="grid">
-        <div class="mini"><strong>Trademark screening</strong><br/>Direct match plus likelihood-of-confusion heuristics.</div>
-        <div class="mini"><strong>Domain lookup</strong><br/>Checks .com, .ai, .io, and .co.</div>
-        <div class="mini"><strong>Launch report</strong><br/>Returns risk level, availability map, and alternative suggestions.</div>
-      </div>
-      <p><strong>API endpoint:</strong> <code>POST /brand-check</code></p>
-      <pre>{
-  "brand_name": "Clawbot",
-  "industry_keywords": ["ai", "saas", "automation"]
-}</pre>
-      <p>Local source lives in the OpenClaw workspace under <code>brand-safety-service/</code>.</p>
-      <p>This Netlify page is a public project page, not the running Python API host.</p>
+      <p>Check early-stage brand risk fast. This demo shows the public product shape: submit a name, screen trademark conflict risk, and review core domain signals.</p>
+      <p class="warning">Important: this is a screening tool, not legal clearance. Do not launch, file, or buy branding assets solely on this result.</p>
+    </div>
+
+    <div class="card">
+      <h2>Run a brand check</h2>
+      <label>
+        Brand name
+        <input id="brandName" placeholder="Clawbot" />
+      </label>
+      <label>
+        Industry keywords
+        <textarea id="keywords" placeholder="ai, saas, automation"></textarea>
+      </label>
+      <button id="runCheck">Check brand viability</button>
+      <p class="muted">Current mode: demo frontend. Until the Python API is deployed, this page returns a simulated result using the same response shape.</p>
+    </div>
+
+    <div class="card">
+      <h2>Result</h2>
+      <div id="result" class="result">No search run yet.</div>
     </div>
   </div>
+
+  <script>
+    const resultEl = document.getElementById('result');
+    const button = document.getElementById('runCheck');
+
+    function normalizeBrand(name) {
+      return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function demoResponse(brandName, keywords) {
+      const base = normalizeBrand(brandName || 'brand');
+      return {
+        brand_name: brandName,
+        relevant_nice_classes: keywords.some(k => ['ai','saas','software','automation'].includes(k)) ? [9, 42] : [9, 35, 42],
+        risk_level: 'Medium',
+        safety_score: 68,
+        confidence_level: 'Medium',
+        blocking_reasons: ['registrar_unverified'],
+        digital_availability: {
+          [`${base}.com`]: 'Resolvable',
+          [`${base}.ai`]: 'Not Resolvable',
+          [`${base}.io`]: 'Unknown',
+          [`${base}.co`]: 'Not Resolvable'
+        },
+        registrar_availability_verified: false,
+        trademark_conflicts: [
+          {
+            mark: `${brandName} Labs`,
+            status: 'LIVE',
+            classes: [9, 42],
+            source: 'Demo placeholder',
+            similarity: 0.82,
+            phonetic_similarity: 0.88,
+            conflict_score: 0.88,
+            active: true,
+            conflict_type: 'likelihood_of_confusion'
+          }
+        ],
+        launch_readiness_report: {
+          summary: `${brandName} shows medium risk in the demo flow. One similar active mark appears and registrar availability is still unverified.`,
+          recommendation: 'Proceed carefully. Use legal review and registrar verification before launch.',
+          requires_legal_review: true,
+          requires_registrar_check: true
+        },
+        suggested_variations: [
+          {
+            candidate: `get${base}`,
+            risk_level: 'Low',
+            digital_availability: {
+              [`get${base}.com`]: 'Not Resolvable',
+              [`get${base}.ai`]: 'Not Resolvable',
+              [`get${base}.io`]: 'Unknown',
+              [`get${base}.co`]: 'Not Resolvable'
+            }
+          },
+          {
+            candidate: `${base}labs`,
+            risk_level: 'Medium',
+            digital_availability: {
+              [`${base}labs.com`]: 'Resolvable',
+              [`${base}labs.ai`]: 'Not Resolvable',
+              [`${base}labs.io`]: 'Not Resolvable',
+              [`${base}labs.co`]: 'Unknown'
+            }
+          }
+        ],
+        notes: [
+          'Demo mode is active until the backend API is deployed.',
+          'This output shape matches the planned service contract.'
+        ]
+      };
+    }
+
+    button.addEventListener('click', async () => {
+      const brandName = document.getElementById('brandName').value.trim();
+      const keywords = document.getElementById('keywords').value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+      if (!brandName) {
+        resultEl.textContent = 'Enter a brand name first.';
+        return;
+      }
+      resultEl.textContent = 'Running check...';
+      const data = demoResponse(brandName, keywords);
+      resultEl.textContent = JSON.stringify(data, null, 2);
+    });
+  </script>
 </body>
 </html>
