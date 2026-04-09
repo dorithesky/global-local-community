@@ -58,7 +58,8 @@
     .compare-card { cursor:pointer; transition: transform .12s ease, border-color .12s ease; }
      .winner-banner { background: rgba(114, 224, 166, 0.12); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; font-weight: 700; }
     .action-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
-    .action-chip { display:inline-block; padding:8px 12px; border-radius:999px; background:#18244a; color:#dbe6ff; font-size:13px; }
+    .action-chip { display:inline-block; padding:8px 12px; border-radius:999px; background:#18244a; color:#dbe6ff; font-size:13px; cursor:pointer; border:none; }
+    .chosen-note { color: var(--success); font-size: 14px; margin-top: 10px; display:none; }
     .compare-card:hover { transform: translateY(-2px); border-color: #3a4c84; }
     .compare-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(155,192,255,.25) inset; }
   </style>
@@ -112,6 +113,7 @@
           <div class="status-help">Verified means a live backend responded. Not Live means inferred, demo-backed, or not fully confirmed.</div>
           <p id="decisionSummary"></p>
           <div class="action-row" id="nextActions"></div>
+          <div id="chosenNote" class="chosen-note">This candidate is marked as your current working favorite in this session.</div>
           <div id="blockingReasons" style="margin-top:12px;"></div>
         </div>
       </div>
@@ -316,10 +318,20 @@
 
       const actions = document.getElementById('nextActions');
       actions.innerHTML = `
-        <span class="action-chip">Use this candidate</span>
-        <span class="action-chip">Investigate domains</span>
-        <span class="action-chip">Review trademark conflicts</span>
+        <button class="action-chip" id="useCandidateBtn">Use this candidate</button>
+        <button class="action-chip" id="investigateDomainsBtn">Investigate domains</button>
+        <button class="action-chip" id="reviewConflictsBtn">Review trademark conflicts</button>
       `;
+
+      document.getElementById('useCandidateBtn').onclick = () => {
+        document.getElementById('chosenNote').style.display = 'block';
+      };
+      document.getElementById('investigateDomainsBtn').onclick = () => {
+        document.getElementById('domainsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      document.getElementById('reviewConflictsBtn').onclick = () => {
+        document.getElementById('conflictsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
 
       const blocking = document.getElementById('blockingReasons');
       blocking.innerHTML = '<div class="muted">Blocking reasons</div>' + data.blocking_reasons.map(reason => `<span class="tag">${humanizeReason(reason)}</span>`).join('');
