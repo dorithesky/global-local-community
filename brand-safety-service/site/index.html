@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Guard & Domain Scout</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0b1020; color: #eef3ff; }
+    .wrap { max-width: 860px; margin: 0 auto; padding: 48px 20px; }
+    .card { background: #111934; border: 1px solid #27335b; border-radius: 18px; padding: 28px; }
+    h1 { font-size: 42px; margin: 0 0 14px; }
+    p, li { color: #cad5ef; line-height: 1.6; }
+    code, pre { background: #0a132b; color: #dbe6ff; border-radius: 12px; }
+    code { padding: 2px 6px; }
+    pre { padding: 16px; overflow: auto; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#1d2850; color:#9bc0ff; font-size:12px; margin-bottom:12px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin: 20px 0; }
+    .mini { background:#0c1430; border:1px solid #243052; border-radius:14px; padding:16px; }
+    a { color:#9bc0ff; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="pill">Python microservice</span>
+      <h1>Brand Guard & Domain Scout</h1>
+      <p>Automated brand-name screening for founders. It checks trademark conflicts, fuzzy/phonetic similarity, and domain availability across core startup extensions.</p>
+      <div class="grid">
+        <div class="mini"><strong>Trademark screening</strong><br/>Direct match plus likelihood-of-confusion heuristics.</div>
+        <div class="mini"><strong>Domain lookup</strong><br/>Checks .com, .ai, .io, and .co.</div>
+        <div class="mini"><strong>Launch report</strong><br/>Returns risk level, availability map, and alternative suggestions.</div>
+      </div>
+      <p><strong>API endpoint:</strong> <code>POST /brand-check</code></p>
+      <pre>{
+  "brand_name": "Clawbot",
+  "industry_keywords": ["ai", "saas", "automation"]
+}</pre>
+      <p>Local source lives in the OpenClaw workspace under <code>brand-safety-service/</code>.</p>
+      <p>This Netlify page is a public project page, not the running Python API host.</p>
+    </div>
+  </div>
+</body>
+</html>
