@@ -40,6 +40,9 @@
     .risk-medium { color: var(--warning); }
     .risk-high { color: var(--danger); }
     .tag { display:inline-block; padding:6px 10px; border-radius:999px; background:#172245; color:#d9e5ff; font-size:12px; margin: 4px 6px 0 0; }
+    .status-badge { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; margin-left:8px; }
+    .status-verified { background: rgba(114, 224, 166, 0.14); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); }
+    .status-notlive { background: rgba(255, 210, 141, 0.14); border: 1px solid rgba(255, 210, 141, 0.4); color: var(--warning); }
     table { width:100%; border-collapse: collapse; margin-top: 10px; }
     th, td { text-align:left; padding: 10px 0; border-bottom: 1px solid #223055; }
     .alt-card { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:16px; }
@@ -86,7 +89,7 @@
           <div class="muted">Confidence: <span id="confidenceLevel">-</span></div>
         </div>
         <div style="flex:1; min-width:280px;">
-          <h2 id="decisionTitle" style="margin-bottom:8px;">Decision summary</h2>
+          <h2 id="decisionTitle" style="margin-bottom:8px;">Decision summary <span id="backendBadge" class="status-badge status-notlive">Not Live</span></h2>
           <p id="decisionSummary"></p>
           <div id="blockingReasons" style="margin-top:12px;"></div>
         </div>
@@ -94,7 +97,7 @@
     </div>
 
     <div id="domainsCard" class="card result-shell">
-      <h2>Digital availability</h2>
+      <h2>Digital availability <span id="domainBadge" class="status-badge status-notlive">Not Live</span></h2>
       <table>
         <thead><tr><th>Domain</th><th>Status</th></tr></thead>
         <tbody id="domainsTable"></tbody>
@@ -103,7 +106,7 @@
     </div>
 
     <div id="conflictsCard" class="card result-shell">
-      <h2>Trademark conflicts</h2>
+      <h2>Trademark conflicts <span id="trademarkBadge" class="status-badge status-notlive">Not Live</span></h2>
       <div id="conflictsList"></div>
     </div>
 
@@ -151,6 +154,10 @@
       document.getElementById('modeHint').textContent = isLive
         ? 'Current mode: live backend connection.'
         : 'Current mode: polished frontend with demo data contract. Live backend connection is the next step.';
+
+      const backendBadge = document.getElementById('backendBadge');
+      backendBadge.textContent = isLive ? 'Verified' : 'Not Live';
+      backendBadge.className = `status-badge ${isLive ? 'status-verified' : 'status-notlive'}`;
     }
 
     function demoResponse(brandName, keywords) {
@@ -245,6 +252,14 @@
 
       const blocking = document.getElementById('blockingReasons');
       blocking.innerHTML = '<div class="muted">Blocking reasons</div>' + data.blocking_reasons.map(reason => `<span class="tag">${humanizeReason(reason)}</span>`).join('');
+
+      const domainBadge = document.getElementById('domainBadge');
+      domainBadge.textContent = data.registrar_availability_verified ? 'Verified' : 'Not Live';
+      domainBadge.className = `status-badge ${data.registrar_availability_verified ? 'status-verified' : 'status-notlive'}`;
+
+      const trademarkBadge = document.getElementById('trademarkBadge');
+      trademarkBadge.textContent = liveMode ? 'Verified' : 'Not Live';
+      trademarkBadge.className = `status-badge ${liveMode ? 'status-verified' : 'status-notlive'}`;
 
       const domainsTable = document.getElementById('domainsTable');
       domainsTable.innerHTML = Object.entries(data.digital_availability)
