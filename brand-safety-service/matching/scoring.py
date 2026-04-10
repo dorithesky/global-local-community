@@ -26,9 +26,27 @@ class MatchScores:
     final: float
 
 
+def preprocess_brand_string(text: str) -> str:
+    collapsed = collapse_text(text)
+    if not collapsed:
+        return ''
+    collapsed = collapsed.replace('ph', 'f')
+    collapsed = collapsed.replace('k', 'c')
+    chars = []
+    vowels = set('aeiou')
+    for idx, ch in enumerate(collapsed):
+        if ch == 'y':
+            prev_vowel = idx > 0 and collapsed[idx - 1] in vowels
+            next_vowel = idx + 1 < len(collapsed) and collapsed[idx + 1] in vowels
+            chars.append('i' if prev_vowel or next_vowel else ch)
+        else:
+            chars.append(ch)
+    return ''.join(chars)
+
+
 def phonetic_codes(text: str) -> set[str]:
     codes: set[str] = set()
-    parts = [collapse_text(text), *tokenize(text)]
+    parts = [preprocess_brand_string(text), *tokenize(text)]
     for part in parts:
         if not part:
             continue
@@ -37,18 +55,6 @@ def phonetic_codes(text: str) -> set[str]:
             codes.add(primary)
         if secondary:
             codes.add(secondary)
-        if part.startswith('k'):
-            k_primary, k_secondary = doublemetaphone('c' + part[1:])
-            if k_primary:
-                codes.add(k_primary)
-            if k_secondary:
-                codes.add(k_secondary)
-        if part.startswith('c'):
-            c_primary, c_secondary = doublemetaphone('k' + part[1:])
-            if c_primary:
-                codes.add(c_primary)
-            if c_secondary:
-                codes.add(c_secondary)
     return codes
 
 
@@ -61,8 +67,8 @@ def enrich_tokens(tokens: list[str]) -> set[str]:
 
 
 def phonetic_score(query: str, candidate: str) -> float:
-    q_collapsed = collapse_text(query)
-    c_collapsed = collapse_text(candidate)
+    q_collapsed = preprocess_brand_string(query)
+    c_collapsed = preprocess_brand_string(candidate)
     q_full = {code for code in doublemetaphone(q_collapsed) if code}
     c_full = {code for code in doublemetaphone(c_collapsed) if code}
     if q_full & c_full:
@@ -74,19 +80,21 @@ def phonetic_score(query: str, candidate: str) -> float:
             return max(0.88, 1.0 if q_collapsed == c_collapsed else 0.88)
     union = max(1, len(q_tokens | c_tokens))
     overlap = len(q_tokens & c_tokens)
+    collapsed_ratio = fuzz.ratio(q_collapsed, c_collapsed) / 100
     if overlap == 0:
-        collapsed_ratio = fuzz.ratio(q_collapsed, c_collapsed) / 100
+        if collapsed_ratio >= 0.95:
+            return 0.95
         if collapsed_ratio >= 0.9:
-            return 0.82
+            return 0.88
         if collapsed_ratio >= 0.75:
-            return 0.68
+            return 0.7
         return 0.0
-    return max(0.75 * (overlap / union), 0.82 if overlap and (fuzz.ratio(q_collapsed, c_collapsed) / 100) >= 0.9 else 0.0)
+    return max(0.8 * (overlap / union), 0.88 if collapsed_ratio >= 0.9 else 0.0)
 
 
 def edit_score(query: str, candidate: str) -> float:
-    q2 = collapse_text(query)
-    c2 = collapse_text(candidate)
+    q2 = preprocess_brand_string(query)
+    c2 = preprocess_brand_string(candidate)
     if not q2 or not c2:
         return 0.0
     ratio = fuzz.ratio(q2, c2) / 100
@@ -107,7 +115,7 @@ def token_score(query: str, candidate: str) -> float:
     jaccard = len(qt & ct) / max(len(qt | ct), 1)
     if len(qt & ct) == 1 and max(len(qt), len(ct)) > 1:
         jaccard = min(jaccard, 0.45)
-    collapsed_ratio = fuzz.ratio(collapse_text(query), collapse_text(candidate)) / 100
+    collapsed_ratio = fuzz.ratio(preprocess_brand_string(query), preprocess_brand_string(candidate)) / 100
     return max(ratio, jaccard, collapsed_ratio)
 
 
@@ -116,14 +124,14 @@ def final_score(query: str, candidate: str) -> MatchScores:
     e = edit_score(query, candidate)
     t = token_score(query, candidate)
     score = 0.45 * p + 0.35 * e + 0.20 * t
-    q_collapsed = collapse_text(query)
-    c_collapsed = collapse_text(candidate)
+    q_collapsed = preprocess_brand_string(query)
+    c_collapsed = preprocess_brand_string(candidate)
     if q_collapsed == c_collapsed:
-        score += 0.08
+        score += 0.12
     if q_collapsed.startswith(c_collapsed) or c_collapsed.startswith(q_collapsed):
         if min(len(q_collapsed), len(c_collapsed)) >= 5:
             score += 0.05
-    if edit_score(query, candidate) >= 0.9 and token_score(query, candidate) >= 0.9:
+    if e >= 0.9 and t >= 0.9:
         score += 0.05
     if len(q_collapsed) > 0 and len(c_collapsed) > 0:
         longer = max(len(q_collapsed), len(c_collapsed))
