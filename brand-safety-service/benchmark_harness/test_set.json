@@ -1,0 +1,22 @@
+[
+  {"query": "OpenAI", "candidate": "Open AI", "expected_min_score": 0.95},
+  {"query": "OpenAI", "candidate": "Open A.I.", "expected_min_score": 0.95},
+  {"query": "Notion", "candidate": "Notion AI", "expected_min_score": 0.72},
+  {"query": "Stripe", "candidate": "Strip", "expected_min_score": 0.68},
+  {"query": "Github", "candidate": "GitHub", "expected_min_score": 0.95},
+  {"query": "Figma", "candidate": "Figma Labs", "expected_min_score": 0.74},
+  {"query": "Canva", "candidate": "Kanvas", "expected_min_score": 0.78},
+  {"query": "Ikea", "candidate": "IKEA", "expected_min_score": 0.95},
+  {"query": "Lyft", "candidate": "Lift", "expected_min_score": 0.78},
+  {"query": "Dropbox", "candidate": "Drop Box", "expected_min_score": 0.9},
+  {"query": "Clawbot", "candidate": "Claw Bot", "expected_min_score": 0.9},
+  {"query": "Anthropic", "candidate": "Anthropic AI", "expected_min_score": 0.8},
+  {"query": "Datadog", "candidate": "Data Dog", "expected_min_score": 0.86},
+  {"query": "Shopify", "candidate": "Shopifi", "expected_min_score": 0.8},
+  {"query": "Snowflake", "candidate": "Snow Flake", "expected_min_score": 0.88},
+  {"query": "Nvidia", "candidate": "Envidia", "expected_min_score": 0.72},
+  {"query": "Salesforce", "candidate": "Sale Force", "expected_min_score": 0.86},
+  {"query": "Midjourney", "candidate": "Mid Journey", "expected_min_score": 0.88},
+  {"query": "Mailchimp", "candidate": "Mail Chimp", "expected_min_score": 0.88},
+  {"query": "Airtable", "candidate": "Air Table", "expected_min_score": 0.88}
+]

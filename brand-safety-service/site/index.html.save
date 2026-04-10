@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Guard & Domain Scout</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --card: #111934;
+      --muted: #cad5ef;
+      --border: #27335b;
+      --accent: #9bc0ff;
+      --success: #72e0a6;
+      --warning: #ffd28d;
+      --danger: #ff8f8f;
+    }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: var(--bg); color: #eef3ff; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 18px; box-shadow: 0 12px 32px rgba(0,0,0,.2); }
+    h1 { font-size: 44px; margin: 0 0 12px; }
+    h2 { margin-top: 0; font-size: 24px; }
+    p, li, label, td, th { color: var(--muted); line-height: 1.6; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; background:#1d2850; color:var(--accent); font-size:12px; margin-bottom:12px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap:16px; }
+    .mini { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:18px; }
+    input, textarea, button { width: 100%; box-sizing: border-box; border-radius: 14px; border: 1px solid #31406f; padding: 14px 16px; font-size: 16px; }
+    input, textarea { background:#0c1430; color:#eef3ff; margin-top: 8px; }
+    textarea { min-height: 110px; resize: vertical; }
+    button { background:var(--success); color:#062313; font-weight:700; cursor:pointer; margin-top: 16px; }
+    .warning { color:var(--warning); font-size: 14px; }
+    .muted { color:#92a6d8; font-size:14px; }
+    .demo-banner { background: rgba(255, 210, 141, 0.12); border: 1px solid rgba(255, 210, 141, 0.45); color: var(--warning); border-radius: 16px; padding: 14px 16px; margin-top: 16px; font-weight: 600; }
+    .live-banner { background: rgba(114, 224, 166, 0.12); border: 1px solid rgba(114, 224, 166, 0.45); color: var(--success); border-radius: 16px; padding: 14px 16px; margin-top: 16px; font-weight: 600; display:none; }
+    .result-shell { display:none; }
+    .hero-result { display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+    .score-box { min-width: 220px; background:#0c1430; border:1px solid #243052; border-radius:18px; padding:18px; }
+    .score-box strong { display:block; font-size: 34px; margin-top: 8px; }
+    .risk-low { color: var(--success); }
+    .risk-medium { color: var(--warning); }
+    .risk-high { color: var(--danger); }
+    .tag { display:inline-block; padding:6px 10px; border-radius:999px; background:#172245; color:#d9e5ff; font-size:12px; margin: 4px 6px 0 0; }
+    .risk-pill { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; margin: 4px 6px 0 0; }
+    .risk-pill.low { background: rgba(114, 224, 166, 0.14); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); }
+    .risk-pill.medium { background: rgba(255, 210, 141, 0.14); border: 1px solid rgba(255, 210, 141, 0.4); color: var(--warning); }
+    .risk-pill.high { background: rgba(255, 143, 143, 0.14); border: 1px solid rgba(255, 143, 143, 0.4); color: var(--danger); }
+    .status-badge { display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700; margin-left:8px; }
+    .status-help { color:#92a6d8; font-size:13px; margin-top:8px; }
+    .status-verified { background: rgba(114, 224, 166, 0.14); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); }
+    .status-notlive { background: rgba(255, 210, 141, 0.14); border: 1px solid rgba(255, 210, 141, 0.4); color: var(--warning); }
+    table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { text-align:left; padding: 10px 0; border-bottom: 1px solid #223055; }
+    .alt-card, .compare-card { background:#0c1430; border:1px solid #243052; border-radius:16px; padding:16px; }
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: var(--accent); }
+    pre { background:#0a132b; color:#dbe6ff; border-radius:14px; padding:16px; overflow:auto; font-size: 13px; }
+    .compare-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+    .compare-card { cursor:pointer; transition: transform .12s ease, border-color .12s ease; }
+     .winner-banner { background: rgba(114, 224, 166, 0.12); border: 1px solid rgba(114, 224, 166, 0.4); color: var(--success); border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; font-weight: 700; }
+    .action-row { display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .action-chip { display:inline-block; padding:8px 12px; border-radius:999px; background:#18244a; color:#dbe6ff; font-size:13px; cursor:pointer; border:none; }
+    .chosen-note { color: var(--success); font-size: 14px; margin-top: 10px; display:none; }
+    .copy-note { color: var(--accent); font-size: 14px; margin-top: 8px; display:none; }
+    .compare-card:hover { transform: translateY(-2px); border-color: #3a4c84; }
+    .compare-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(155,192,255,.25) inset; transform: translateY(-2px); }
+    .compare-card.dimmed { opacity: 0.72; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <span class="pill">Founder-friendly brand screening</span>
+      <h1>Brand Guard & Domain Scout</h1>
+      <p>Check whether a name looks usable before you fall in love with it. Review trademark risk, DNS-level domain signals, and better fallback variations in one pass.</p>
+      <p class="warning">This is an early screening tool, not legal advice. Always verify with a trademark attorney and registrar before launch.</p>
+      <div class="demo-banner" id="topDemoBanner">Demo mode is active. Results shown here are simulated examples until the live backend is connected.</div>
+      <div class="live-banner" id="topLiveBanner">Live backend connected. Results now come from the active screening API.</div>
+    </div>
+
+    <div class="card">
+      <h2>Search or compare potential brands</h2>
+      <label>
+        Brand names, one per line
+        <textarea id="brandNames" placeholder="Clawbot&#10;Clawflow&#10;Clawlabs"></textarea>
+      </label>
+      <label>
+        Industry keywords
+        <textarea id="keywords" placeholder="ai, saas, automation"></textarea>
+      </label>
+      <button id="runCheck">Check brand viability</button>
+      <p class="muted" id="modeHint">Current mode: polished frontend with demo data contract. Live backend connection is the next step.</p>
+      <div class="demo-banner" id="formDemoBanner">You are not seeing live USPTO or live domain lookup results yet. This screen is for product flow validation only.</div>
+      <div class="live-banner" id="formLiveBanner">This form is using live backend data.</div>
+    </div>
+
+    <div id="compareShell" class="card result-shell">
+      <h2>Compare candidates</h2>
+      <div class="status-help">Best for founders deciding between a shortlist. Cards are sorted by strongest candidate first.</div>
+      <div id="winnerBanner" class="winner-banner"></div>
+      <div id="compareGrid" class="compare-grid"></div>
+    </div>
+
+    <div id="resultShell" class="card result-shell">
+      <div class="demo-banner" id="resultModeBanner">Demo result. Live data is not connected yet.</div>
+      <div class="live-banner" id="resultLiveBanner">Live data result.</div>
+      <div class="hero-result">
+        <div class="score-box">
+          <div class="muted">Risk level</div>
+          <strong id="riskLevel">-</strong>
+          <div class="muted" style="margin-top:8px;">Safety score: <span id="safetyScore">-</span>/100</div>
+          <div class="muted">Confidence: <span id="confidenceLevel">-</span></div>
+        </div>
+        <div style="flex:1; min-width:280px;">
+          <h2 id="decisionTitle" style="margin-bottom:8px;">Decision summary <span id="backendBadge" class="status-badge status-notlive">Not Live</span></h2>
+          <div class="status-help">Verified means a live backend responded. Not Live means inferred, demo-backed, or not fully confirmed.</div>
+          <p id="decisionSummary"></p>
+          <div class="action-row" id="nextActions"></div>
+          <div id="chosenNote" class="chosen-note">This candidate is marked as your current working favorite in this session.</div>
+          <div id="copyNote" class="copy-note">Summary copied.</div>
+          <div id="blockingReasons" style="margin-top:12px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="domainsCard" class="card result-shell">
+      <h2>Digital availability <span id="domainBadge" class="status-badge status-notlive">Not Live</span></h2>
+      <table>
+        <thead><tr><th>Domain</th><th>Status</th></tr></thead>
+        <tbody id="domainsTable"></tbody>
+      </table>
+      <p class="muted">Status is shown in user-friendly language. Verified would require registrar-level confirmation. Right now these labels are inferred from DNS behavior.</p>
+    </div>
+
+    <div id="conflictsCard" class="card result-shell">
+      <h2>Trademark conflicts <span id="trademarkBadge" class="status-badge status-notlive">Not Live</span></h2>
+      <div class="status-help">Verified here means the result came from the live backend. It does not mean legal clearance.</div>
+      <div id="conflictsList"></div>
+    </div>
+
+    <div id="alternativesCard" class="card result-shell">
+      <h2>Safer alternatives</h2>
+      <div id="alternativesGrid" class="grid"></div>
+    </div>
+
+    <div id="detailsCard" class="card result-shell">
+      <details>
+        <summary>Developer details</summary>
+        <pre id="rawJson"></pre>
+      </details>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://const API_BASE = 'https://brand-guard-domain-scout-api.onrender.com';
+    const resultShells = document.querySelectorAll('.result-shell');
+    const button = document.getElementById('runCheck');
+    let liveMode = false;
+
+    function normalizeBrand(name) {
+      return name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    function humanizeReason(reason) {
+      return reason.replace(/_/g, ' ');
+    }
+
+    function humanizeDomainStatus(status) {
+      if (status === 'Resolvable') return 'Likely Registered';
+      if (status === 'Not Resolvable') return 'Likely Unregistered';
+      return 'Unknown';
+    }
+
+    function verdictFromRisk(risk) {
+      if (risk === 'Low') return 'Use';
+      if (risk === 'Medium') return 'Caution';
+      return 'Avoid';
+    }
+
+    function topReason(data) {
+      if (data.blocking_reasons.includes('active_direct_match')) return 'An active direct trademark match was found.';
+      if (data.blocking_reasons.includes('active_phonetic_or_fuzzy_conflict')) return 'A similar-sounding or visually similar active trademark was found.';
+      if (data.blocking_reasons.includes('domain_not_confirmed_free')) return 'Core domains do not yet look clearly free.';
+      if (data.blocking_reasons.includes('registrar_unverified')) return 'Domain ownership is not registrar-verified yet.';
+      return 'No major blocker surfaced in this pass.';
+    }
+
+    function sortedResults(results) {
+      return [...results].sort((a, b) => {
+        const scoreA = a.risk_level === 'Low' ? 0 : a.risk_level === 'Medium' ? 1 : 2;
+        const scoreB = b.risk_level === 'Low' ? 0 : b.risk_level === 'Medium' ? 1 : 2;
+        if (scoreA !== scoreB) return scoreA - scoreB;
+        return b.safety_score - a.safety_score;
+      });
+    }
+
+    function setMode(isLive) {
+      liveMode = isLive;
+      document.getElementById('topDemoBanner').style.display = isLive ? 'none' : 'block';
+      document.getElementById('formDemoBanner').style.display = isLive ? 'none' : 'block';
+      document.getElementById('resultModeBanner').style.display = isLive ? 'none' : 'block';
+      document.getElementById('topLiveBanner').style.display = isLive ? 'block' : 'none';
+      document.getElementById('formLiveBanner').style.display = isLive ? 'block' : 'none';
+      document.getElementById('resultLiveBanner').style.display = isLive ? 'block' : 'none';
+      document.getElementById('modeHint').textContent = isLive
+        ? 'Current mode: live backend connection.'
+        : 'Current mode: polished frontend with demo data contract. Live backend connection is the next step.';
+
+      const backendBadge = document.getElementById('backendBadge');
+      backendBadge.textContent = isLive ? 'Verified' : 'Not Live';
+      backendBadge.className = `status-badge ${isLive ? 'status-verified' : 'status-notlive'}`;
+    }
+
+    function demoResponse(brandName, keywords) {
+      const base = normalizeBrand(brandName || 'brand');
+      const medium = ['ai', 'saas', 'software', 'automation'].some(k => keywords.includes(k));
+      return {
+        brand_name: brandName,
+        relevant_nice_classes: medium ? [9, 42] : [9, 35, 42],
+        risk_level: medium ? 'Medium' : 'Low',
+        safety_score: medium ? 68 : 79,
+        confidence_level: 'Medium',
+        blocking_reasons: medium ? ['registrar_unverified', 'active_phonetic_or_fuzzy_conflict'] : ['registrar_unverified'],
+        digital_availability: {
+          [`${base}.com`]: 'Resolvable',
+          [`${base}.ai`]: 'Not Resolvable',
+          [`${base}.io`]: 'Unknown',
+          [`${base}.co`]: 'Not Resolvable'
+        },
+        registrar_availability_verified: false,
+        trademark_conflicts: medium ? [
+          {
+            mark: `${brandName} Labs`,
+            status: 'LIVE',
+            classes: [9, 42],
+            source: 'Demo placeholder',
+            similarity: 0.82,
+            phonetic_similarity: 0.88,
+            conflict_score: 0.88,
+            active: true,
+            conflict_type: 'likelihood_of_confusion'
+          }
+        ] : [],
+        launch_readiness_report: {
+          summary: medium
+            ? `${brandName} shows medium risk in the demo flow. One similar active mark appears and domain purchase availability is still unverified.`
+            : `${brandName} looks more promising in the demo flow, but legal and registrar verification are still required.`,
+          recommendation: medium
+            ? 'Proceed carefully. Use legal review and registrar verification before launch.'
+            : 'Promising early signal. Verify legal and registrar details before committing.',
+          requires_legal_review: true,
+          requires_registrar_check: true
+        },
+        suggested_variations: [
+          {
+            candidate: `get${base}`,
+            risk_level: 'Low',
+            digital_availability: {
+              [`get${base}.com`]: 'Not Resolvable',
+              [`get${base}.ai`]: 'Not Resolvable',
+              [`get${base}.io`]: 'Unknown',
+              [`get${base}.co`]: 'Not Resolvable'
+            }
+          },
+          {
+            candidate: `${base}labs`,
+            risk_level: 'Medium',
+            digital_availability: {
+              [`${base}labs.com`]: 'Resolvable',
+              [`${base}labs.ai`]: 'Not Resolvable',
+              [`${base}labs.io`]: 'Not Resolvable',
+              [`${base}labs.co`]: 'Unknown'
+            }
+          }
+        ],
+        notes: [
+          'Demo mode is active until the backend API is deployed.',
+          'This result shape matches the planned service contract.'
+        ]
+      };
+    }
+
+    async function fetchLiveResult(brandName, keywords) {
+      const response = await fetch(`${API_BASE}/brand-check`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand_name: brandName, industry_keywords: keywords })
+      });
+      if (!response.ok) throw new Error(`API error ${response.status}`);
+      return await response.json();
+    }
+
+    function renderCompare(results) {
+      const compareGrid = document.getElementById('compareGrid');
+      const sorted = sortedResults(results);
+      document.getElementById('winnerBanner').textContent = `Best current option: ${sorted[0].brand_name} (${verdictFromRisk(sorted[0].risk_level)})`;
+      compareGrid.innerHTML = sorted.map((item, idx) => `
+        <div class="compare-card ${idx === 0 ? 'selected' : ''}" data-brand="${item.brand_name}">
+          <strong style="font-size:20px;">${item.brand_name}</strong><br/>
+          <span class="risk-pill ${item.risk_level.toLowerCase()}">${verdictFromRisk(item.risk_level)}</span>
+          <span class="risk-pill ${item.risk_level.toLowerCase()}">Risk: ${item.risk_level}</span>
+          <span class="tag">Score: ${item.safety_score}</span>
+          <p style="margin-top:10px;">${item.launch_readiness_report.summary}</p>
+          <div class="muted"><strong>Why:</strong> ${topReason(item)}</div>
+          <div class="muted">Top blocker: ${item.blocking_reasons[0] ? humanizeReason(item.blocking_reasons[0]) : 'none'}</div>
+        </div>
+      `).join('');
+
+      compareGrid.querySelectorAll('.compare-card').forEach(card => {
+        card.addEventListener('click', () => {
+          compareGrid.querySelectorAll('.compare-card').forEach(c => {
+            c.classList.remove('selected');
+            c.classList.add('dimmed');
+          });
+          card.classList.add('selected');
+          card.classList.remove('dimmed');
+          const match = sorted.find(item => item.brand_name === card.dataset.brand);
+          if (match) renderResult(match);
+        });
+      });
+
+      return sorted;
+    }
+
+    function renderResult(data) {
+      resultShells.forEach(el => el.style.display = 'block');
+
+      const riskLevel = document.getElementById('riskLevel');
+      riskLevel.textContent = data.risk_level;
+      riskLevel.className = '';
+      riskLevel.classList.add(`risk-${data.risk_level.toLowerCase()}`);
+      document.getElementById('safetyScore').textContent = data.safety_score;
+      document.getElementById('confidenceLevel').textContent = data.confidence_level;
+      document.getElementById('decisionSummary').textContent = `${data.launch_readiness_report.summary} Why: ${topReason(data)}`;
+
+      const actions = document.getElementById('nextActions');
+      actions.innerHTML = `
+        <button class="action-chip" id="useCandidateBtn">Use this candidate</button>
+        <button class="action-chip" id="investigateDomainsBtn">Investigate domains</button>
+        <button class="action-chip" id="reviewConflictsBtn">Review trademark conflicts</button>
+        <button class="action-chip" id="copySummaryBtn">Copy summary</button>
+      `;
+
+      document.getElementById('useCandidateBtn').onclick = () => {
+        document.getElementById('chosenNote').style.display = 'block';
+      };
+      document.getElementById('investigateDomainsBtn').onclick = () => {
+        document.getElementById('domainsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      document.getElementById('reviewConflictsBtn').onclick = () => {
+        document.getElementById('conflictsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      document.getElementById('copySummaryBtn').onclick = async () => {
+        const text = `${data.brand_name}: ${verdictFromRisk(data.risk_level)}. ${data.launch_readiness_report.summary}`;
+        try {
+          await navigator.clipboard.writeText(text);
+          document.getElementById('copyNote').style.display = 'block';
+        } catch {}
+      };
+
+      const blocking = document.getElementById('blockingReasons');
+      blocking.innerHTML = '<div class="muted">Blocking reasons</div>' + data.blocking_reasons.map(reason => `<span class="tag">${humanizeReason(reason)}</span>`).join('');
+
+      const domainBadge = document.getElementById('domainBadge');
+      domainBadge.textContent = data.registrar_availability_verified ? 'Verified' : 'Not Live';
+      domainBadge.className = `status-badge ${data.registrar_availability_verified ? 'status-verified' : 'status-notlive'}`;
+
+      const trademarkBadge = document.getElementById('trademarkBadge');
+      trademarkBadge.textContent = liveMode ? 'Verified' : 'Not Live';
+      trademarkBadge.className = `status-badge ${liveMode ? 'status-verified' : 'status-notlive'}`;
+
+      const domainsTable = document.getElementById('domainsTable');
+      domainsTable.innerHTML = Object.entries(data.digital_availability)
+        .map(([domain, status]) => `<tr><td>${domain}</td><td>${humanizeDomainStatus(status)}</td></tr>`).join('');
+
+      const conflictsList = document.getElementById('conflictsList');
+      if (!data.trademark_conflicts.length) {
+        conflictsList.innerHTML = '<p>No strong conflict surfaced in this run.</p>';
+      } else {
+        conflictsList.innerHTML = data.trademark_conflicts.map(conflict => `
+          <div class="mini" style="margin-top:12px;">
+            <strong>${conflict.mark}</strong><br/>
+            Status: ${conflict.status || 'Unknown'}<br/>
+            Conflict type: ${humanizeReason(conflict.conflict_type)}<br/>
+            Score: ${conflict.conflict_score}
+          </div>
+        `).join('');
+      }
+
+      const alternativesGrid = document.getElementById('alternativesGrid');
+      alternativesGrid.innerHTML = data.suggested_variations.map(alt => `
+        <div class="alt-card">
+          <strong>${alt.candidate}</strong><br/>
+          Risk: ${alt.risk_level}<br/>
+          <div class="muted" style="margin-top:8px;">${Object.entries(alt.digital_availability).map(([domain, status]) => `${domain}: ${humanizeDomainStatus(status)}`).join('<br/>')}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('rawJson').textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function detectLiveMode() {
+      try {
+        const response = await fetch(`${API_BASE}/health`);
+        setMode(response.ok);
+      } catch {
+        setMode(false);
+      }
+    }
+
+    button.addEventListener('click', async () => {
+      const brandNames = document.getElementById('brandNames').value.split('\n').map(v => v.trim()).filter(Boolean).slice(0, 5);
+      const keywords = document.getElementById('keywords').value.split(',').map(v => v.trim().toLowerCase()).filter(Boolean);
+      if (!brandNames.length) {
+        alert('Enter at least one brand name first.');
+        return;
+      }
+      button.textContent = 'Checking...';
+      button.disabled = true;
+      try {
+        let results;
+        if (liveMode) {
+          results = await Promise.all(brandNames.map(name => fetchLiveResult(name, keywords)));
+        } else {
+          results = brandNames.map(name => demoResponse(name, keywords));
+        }
+        const sorted = renderCompare(results);
+        renderResult(sorted[0]);
+      } catch {
+        setMode(false);
+        const results = brandNames.map(name => demoResponse(name, keywords));
+        const sorted = renderCompare(results);
+        renderResult(sorted[0]);
+      } finally {
+        button.textContent = 'Check brand viability';
+        button.disabled = false;
+      }
+    });
+
+    detectLiveMode();
+  </script>
+</body>
+</html>
