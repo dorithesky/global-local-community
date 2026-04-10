@@ -420,8 +420,15 @@
         let results;
         if (liveMode) {
           results = await Promise.all(brandNames.map(name => fetchLiveResult(name, keywords)));
+          setMode(true);
         } else {
-          results = brandNames.map(name => demoResponse(name, keywords));
+          try {
+            results = await Promise.all(brandNames.map(name => fetchLiveResult(name, keywords)));
+            setMode(true);
+          } catch {
+            setMode(false);
+            results = brandNames.map(name => demoResponse(name, keywords));
+          }
         }
         const sorted = renderCompare(results);
         renderResult(sorted[0]);
