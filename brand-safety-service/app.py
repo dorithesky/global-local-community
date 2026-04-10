@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-app = FastAPI(title="Brand Guard & Domain Scout", version="0.3.0")
+app = FastAPI(title="Brand Guard & Domain Scout", version="0.4.0")
 
 allowed_origins = [origin.strip() for origin in os.getenv("ALLOWED_ORIGINS", "*").split(",") if origin.strip()]
 app.add_middleware(
@@ -42,6 +42,20 @@ NICE_CLASS_HINTS = {
 }
 PREFIXES = ["get", "try", "use"]
 SUFFIXES = ["labs", "hq", "app", "ai", "works"]
+GLOBAL_WATCHLIST = {
+    "ikea",
+    "google",
+    "microsoft",
+    "apple",
+    "openai",
+    "amazon",
+    "meta",
+    "netflix",
+    "nike",
+    "adidas",
+    "tesla",
+    "samsung",
+}
 
 
 class BrandCheckRequest(BaseModel):
@@ -61,11 +75,6 @@ class TrademarkHit(BaseModel):
     conflict_score: float
     active: bool
     conflict_type: str
-
-
-class DomainStatus(BaseModel):
-    domain: str
-    status: str
 
 
 class SuggestedVariation(BaseModel):
@@ -101,8 +110,22 @@ class DomainLookupResult(BaseModel):
     status: str
 
 
+class TrademarkQueryOutcome(BaseModel):
+    conflicts: list[TrademarkHit]
+    search_succeeded: bool
+    sources_checked: list[str]
+    watchlist_triggered: bool = False
+
+
 def normalize_brand(text: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", text.lower())
+    text = text.lower().strip()
+    text = text.replace("&", "and")
+    text = re.sub(r"[^a-z0-9]", "", text)
+    return text
+
+
+def tokenize_brand(text: str) -> list[str]:
+    return re.findall(r"[a-z0-9]+", text.lower())
 
 
 def simple_phonetic(text: str) -> str:
@@ -155,28 +178,57 @@ def is_active_status(status: Optional[str]) -> bool:
     return not any(word in lowered for word in ["dead", "cancelled", "abandoned", "expired"])
 
 
-async def fetch_trademark_candidates(client: httpx.AsyncClient, query: str, nice_classes: list[int]) -> list[dict[str, Any]]:
+def build_watchlist_hit(brand_name: str) -> Optional[TrademarkHit]:
+    normalized = normalize_brand(brand_name)
+    if normalized not in GLOBAL_WATCHLIST:
+        return None
+    return TrademarkHit(
+        mark=brand_name.strip(),
+        status="Watchlist match",
+        classes=[],
+        source="Global brand watchlist",
+        similarity=1.0,
+        phonetic_similarity=1.0,
+        conflict_score=0.995,
+        active=True,
+        conflict_type="direct_match",
+    )
+
+
+async def fetch_trademark_candidates(client: httpx.AsyncClient, query: str, nice_classes: list[int]) -> tuple[list[dict[str, Any]], bool]:
     params = {"q": query, "classes": ",".join(map(str, nice_classes)), "limit": 25}
     try:
         response = await client.get(USPTO_API_FALLBACK_URL, params=params, timeout=20)
         response.raise_for_status()
         data = response.json()
         if isinstance(data, dict):
-            return data.get("results", data.get("items", []))
+            return data.get("results", data.get("items", [])), True
         if isinstance(data, list):
-            return data
+            return data, True
+        return [], False
     except Exception:
-        return []
-    return []
+        return [], False
 
 
-async def query_trademarks(client: httpx.AsyncClient, brand_name: str, nice_classes: list[int]) -> list[TrademarkHit]:
+async def query_trademarks(client: httpx.AsyncClient, brand_name: str, nice_classes: list[int]) -> TrademarkQueryOutcome:
+    watchlist_hit = build_watchlist_hit(brand_name)
+    if watchlist_hit:
+        return TrademarkQueryOutcome(
+            conflicts=[watchlist_hit],
+            search_succeeded=True,
+            sources_checked=["global_watchlist"],
+            watchlist_triggered=True,
+        )
+
     conflicts: list[TrademarkHit] = []
     queries = {brand_name, normalize_brand(brand_name), simple_phonetic(brand_name)}
     raw_results = await asyncio.gather(*(fetch_trademark_candidates(client, q, nice_classes) for q in queries if q))
     seen: set[str] = set()
+    upstream_successes = 0
 
-    for result_set in raw_results:
+    for result_set, success in raw_results:
+        if success:
+            upstream_successes += 1
         for item in result_set:
             mark = item.get("mark") or item.get("name") or item.get("trademark") or ""
             if not mark:
@@ -187,18 +239,26 @@ async def query_trademarks(client: httpx.AsyncClient, brand_name: str, nice_clas
             seen.add(key)
 
             item_classes = [int(c) for c in item.get("classes", item.get("international_classes", [])) if str(c).isdigit()]
-            overlap = bool(set(item_classes) & set(nice_classes)) or not item_classes
-            if not overlap:
-                continue
-
             direct = similarity(brand_name, mark)
             phon = phonetic_similarity(brand_name, mark)
+            normalized_match = normalize_brand(brand_name) == normalize_brand(mark)
+            token_overlap = bool(set(tokenize_brand(brand_name)) & set(tokenize_brand(mark)))
+            class_overlap = bool(set(item_classes) & set(nice_classes)) or not item_classes
+            allow_without_class_overlap = direct >= 0.92 or phon >= 0.92 or normalized_match
+            if not class_overlap and not allow_without_class_overlap:
+                continue
+
             score = max(direct, phon * 0.97)
+            if normalized_match:
+                score = max(score, 0.99)
+            elif token_overlap and score >= 0.6:
+                score = max(score, 0.72)
+
             if score < 0.68:
                 continue
 
             active = is_active_status(item.get("status"))
-            conflict_type = "direct_match" if direct >= 0.92 else "likelihood_of_confusion"
+            conflict_type = "direct_match" if normalized_match or direct >= 0.92 else "likelihood_of_confusion"
             conflicts.append(
                 TrademarkHit(
                     mark=mark,
@@ -215,7 +275,12 @@ async def query_trademarks(client: httpx.AsyncClient, brand_name: str, nice_clas
                 )
             )
     conflicts.sort(key=lambda x: (x.active, x.conflict_score), reverse=True)
-    return conflicts[:10]
+    return TrademarkQueryOutcome(
+        conflicts=conflicts[:10],
+        search_succeeded=upstream_successes > 0,
+        sources_checked=["markbase"],
+        watchlist_triggered=False,
+    )
 
 
 async def check_domain(client: httpx.AsyncClient, domain: str) -> DomainLookupResult:
@@ -232,8 +297,8 @@ async def check_domain(client: httpx.AsyncClient, domain: str) -> DomainLookupRe
         return DomainLookupResult(domain=domain, status="Unknown")
 
 
-def compute_safety_score(conflicts: list[TrademarkHit], trademark_data_live: bool) -> int:
-    if not trademark_data_live:
+def compute_safety_score(conflicts: list[TrademarkHit], trademark_search_succeeded: bool) -> int:
+    if not trademark_search_succeeded:
         return 40
     if not conflicts:
         return 88
@@ -261,13 +326,13 @@ def risk_level_from_score(score: int) -> str:
     return "Low"
 
 
-async def evaluate_candidate(client: httpx.AsyncClient, candidate: str, nice_classes: list[int], trademark_data_live: bool) -> SuggestedVariation:
+async def evaluate_candidate(client: httpx.AsyncClient, candidate: str, nice_classes: list[int], trademark_search_succeeded: bool) -> SuggestedVariation:
     domains = [f"{normalize_brand(candidate)}.{suffix}" for suffix in DOMAIN_SUFFIXES]
-    conflicts, *domain_results = await asyncio.gather(
+    trademark_outcome, *domain_results = await asyncio.gather(
         query_trademarks(client, candidate, nice_classes),
         *(check_domain(client, d) for d in domains),
     )
-    score = compute_safety_score(conflicts, trademark_data_live)
+    score = compute_safety_score(trademark_outcome.conflicts, trademark_search_succeeded and trademark_outcome.search_succeeded)
     return SuggestedVariation(
         candidate=candidate,
         risk_level=risk_level_from_score(score),
@@ -286,7 +351,13 @@ def build_variation_candidates(brand_name: str) -> list[str]:
     return variants[:8]
 
 
-def build_report(brand_name: str, risk_level: str, conflicts: list[TrademarkHit], domains: dict[str, str]) -> LaunchReadinessReport:
+def build_report(
+    brand_name: str,
+    risk_level: str,
+    conflicts: list[TrademarkHit],
+    domains: dict[str, str],
+    trademark_search_succeeded: bool,
+) -> LaunchReadinessReport:
     not_resolvable_count = sum(1 for status in domains.values() if status == "Not Resolvable")
     if risk_level == "High":
         recommendation = "Do not launch under this brand without legal review and likely renaming."
@@ -295,7 +366,12 @@ def build_report(brand_name: str, risk_level: str, conflicts: list[TrademarkHit]
     else:
         recommendation = "Early signal is usable, but still verify with a trademark attorney and registrar before committing."
 
-    if conflicts:
+    if not trademark_search_succeeded:
+        summary = (
+            f"Trademark search for {brand_name} was inconclusive, so this run is intentionally conservative. "
+            f"{not_resolvable_count} of {len(domains)} core domains are currently not resolving in DNS."
+        )
+    elif conflicts:
         top = conflicts[0]
         summary = (
             f"{brand_name} has {risk_level.lower()} trademark risk. "
@@ -304,7 +380,7 @@ def build_report(brand_name: str, risk_level: str, conflicts: list[TrademarkHit]
         )
     else:
         summary = (
-            f"{brand_name} has no strong trademark hits in the screened classes and "
+            f"{brand_name} has no strong trademark hits in the screened sources and "
             f"{not_resolvable_count} of {len(domains)} core domains are currently not resolving in DNS."
         )
     return LaunchReadinessReport(
@@ -324,29 +400,34 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
     nice_classes = infer_nice_classes(request.industry_keywords)
     domains = [f"{normalize_brand(brand_name)}.{suffix}" for suffix in DOMAIN_SUFFIXES]
 
-    async with httpx.AsyncClient(headers={"User-Agent": "brand-guard-domain-scout/0.2"}) as client:
+    async with httpx.AsyncClient(headers={"User-Agent": "brand-guard-domain-scout/0.4"}) as client:
         trademark_task = query_trademarks(client, brand_name, nice_classes)
         domain_tasks = [check_domain(client, domain) for domain in domains]
-        conflicts, *domain_results = await asyncio.gather(trademark_task, *domain_tasks)
+        trademark_outcome, *domain_results = await asyncio.gather(trademark_task, *domain_tasks)
 
+        conflicts = trademark_outcome.conflicts
         domain_map = {result.domain: result.status for result in domain_results}
-        trademark_data_live = bool(conflicts)
-        safety_score = compute_safety_score(conflicts, trademark_data_live)
+        trademark_search_succeeded = trademark_outcome.search_succeeded
+        safety_score = compute_safety_score(conflicts, trademark_search_succeeded)
         risk_level = risk_level_from_score(safety_score)
 
         suggestions: list[SuggestedVariation] = []
         for candidate in build_variation_candidates(brand_name):
-            suggestion = await evaluate_candidate(client, candidate, nice_classes, trademark_data_live)
+            suggestion = await evaluate_candidate(client, candidate, nice_classes, trademark_search_succeeded)
             if suggestion.risk_level != "High":
                 suggestions.append(suggestion)
             if len(suggestions) >= 5:
                 break
 
     blocking_reasons: list[str] = ["registrar_unverified"]
-    if not trademark_data_live:
-        blocking_reasons.append("trademark_source_low_confidence")
+    if not trademark_search_succeeded:
+        blocking_reasons.append("trademark_search_inconclusive")
         risk_level = "Medium"
         safety_score = min(safety_score, 40)
+    if trademark_outcome.watchlist_triggered:
+        blocking_reasons.append("global_brand_watchlist_match")
+        risk_level = "High"
+        safety_score = min(safety_score, 10)
     if any(c.active and c.conflict_type == "direct_match" for c in conflicts):
         risk_level = "High"
         safety_score = min(safety_score, 15)
@@ -360,14 +441,17 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
     if any(status == "Resolvable" for status in domain_map.values()):
         blocking_reasons.append("domain_not_confirmed_free")
 
-    confidence_level = "Low" if not trademark_data_live else "Medium"
+    confidence_level = "Low" if not trademark_search_succeeded else "Medium"
+    if trademark_outcome.watchlist_triggered or any(c.active and c.conflict_type == "direct_match" for c in conflicts):
+        confidence_level = "High"
 
     notes = [
         "Risk level should be treated as more important than safety score.",
         "Do not file, launch, or buy branding assets solely on this score.",
         "Trademark logic is a screening heuristic, not legal advice.",
         "Direct match and likelihood-of-confusion checks use fuzzy text similarity plus phonetic normalization.",
-        "If trademark source confidence is low, the result is intentionally prevented from showing a low-risk recommendation.",
+        "If trademark search is inconclusive, the result is intentionally prevented from showing a low-risk recommendation.",
+        "A global famous-brand watchlist is used to prevent embarrassing false negatives on obvious marks.",
         "Domain status is DNS-based only. Registrar availability is not yet verified here.",
     ]
 
@@ -381,7 +465,13 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
         digital_availability=domain_map,
         registrar_availability_verified=False,
         trademark_conflicts=conflicts,
-        launch_readiness_report=build_report(brand_name, risk_level, conflicts, domain_map),
+        launch_readiness_report=build_report(
+            brand_name,
+            risk_level,
+            conflicts,
+            domain_map,
+            trademark_search_succeeded,
+        ),
         suggested_variations=suggestions,
         notes=notes,
     )

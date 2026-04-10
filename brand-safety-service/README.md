@@ -2,11 +2,20 @@
 
 Python microservice for early-stage brand validation.
 
+## What changed in the current backend
+- trademark lookup now fails safely instead of quietly treating upstream misses as low risk
+- obvious famous brands trigger a hard high-risk watchlist match
+- direct matches can still surface even when class overlap is weak
+- responses now distinguish between:
+  - successful trademark search with no strong hits
+  - inconclusive trademark search
+
 ## Features
-### Phase 1: USPTO conflict screening
+### Phase 1: Trademark conflict screening
 - checks direct-match trademark collisions
 - checks likelihood-of-confusion using fuzzy text similarity and phonetic normalization
-- filters against inferred NICE classes from industry keywords
+- uses a conservative famous-brand watchlist to avoid embarrassing false negatives
+- treats inconclusive trademark lookup as cautionary, not safe
 - returns a `safety_score` and `risk_level` (`Low`, `Medium`, `High`)
 
 ### Phase 2: Multi-extension domain lookup
@@ -53,47 +62,14 @@ curl -X POST http://127.0.0.1:8000/brand-check \
   }'
 ```
 
-## Example response
-```json
-{
-  "brand_name": "Clawbot",
-  "relevant_nice_classes": [9, 42],
-  "risk_level": "Medium",
-  "safety_score": 61,
-  "confidence_level": "Medium",
-  "blocking_reasons": ["registrar_unverified", "domain_not_confirmed_free"],
-  "digital_availability": {
-    "clawbot.com": "Resolvable",
-    "clawbot.ai": "Not Resolvable",
-    "clawbot.io": "Resolvable",
-    "clawbot.co": "Unknown"
-  },
-  "registrar_availability_verified": false,
-  "trademark_conflicts": [],
-  "launch_readiness_report": {
-    "summary": "Clawbot has medium trademark risk...",
-    "recommendation": "Proceed carefully..."
-  },
-  "suggested_variations": [
-    {
-      "candidate": "getclawbot",
-      "risk_level": "Low",
-      "digital_availability": {
-        "getclawbot.com": "Available",
-        "getclawbot.ai": "Available",
-        "getclawbot.io": "Available",
-        "getclawbot.co": "Available"
-      }
-    }
-  ],
-  "notes": []
-}
-```
+## Example response behavior
+- if the search is inconclusive, the service should not return a falsely reassuring low-risk result
+- if a globally famous brand like `IKEA` is entered, the service should force a high-risk outcome
 
 ## Caveats
 - This is an automated screening layer, not legal advice.
-- Trademark search uses a practical USPTO-oriented endpoint plus local fuzzy/phonetic scoring.
+- Trademark search currently uses a practical live endpoint plus local safeguards, not a full local USPTO index yet.
 - DNS resolution is not equivalent to registrar-confirmed availability.
 - The service is intentionally conservative and should trigger legal review before launch decisions.
 - `risk_level` and `blocking_reasons` should be treated as primary decision signals, not just `safety_score`.
-- The Netlify frontend can run in demo mode until the Render backend is live.
+- The next major reliability upgrade is replacing thin live endpoint dependence with a local trademark index built from bulk data.
