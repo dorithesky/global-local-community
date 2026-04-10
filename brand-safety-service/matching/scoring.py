@@ -37,6 +37,18 @@ def phonetic_codes(text: str) -> set[str]:
             codes.add(primary)
         if secondary:
             codes.add(secondary)
+        if part.startswith('k'):
+            k_primary, k_secondary = doublemetaphone('c' + part[1:])
+            if k_primary:
+                codes.add(k_primary)
+            if k_secondary:
+                codes.add(k_secondary)
+        if part.startswith('c'):
+            c_primary, c_secondary = doublemetaphone('k' + part[1:])
+            if c_primary:
+                codes.add(c_primary)
+            if c_secondary:
+                codes.add(c_secondary)
     return codes
 
 
