@@ -36,30 +36,31 @@ def fetch_candidates(query: str, limit: int = 100) -> list[dict]:
     phonetics = tuple(phonetic_values(query))
     fts_query = tokenize_for_fts(query)
 
+    phonetic_placeholders = ','.join('?' for _ in phonetics) if phonetics else "''"
     sql = """
     SELECT DISTINCT t.*
     FROM trademarks t
-    LEFT JOIN trademarks_fts f ON f.rowid = t.id
+    LEFT JOIN (
+      SELECT rowid FROM trademarks_fts WHERE trademarks_fts MATCH ?
+    ) f ON f.rowid = t.id
     WHERE (
       t.mark_compact = ?
       OR t.mark_normalized = ?
       OR t.mark_phonetic_primary IN ({phonetic_placeholders})
       OR t.mark_phonetic_secondary IN ({phonetic_placeholders})
-      OR (? != '' AND f.trademarks_fts MATCH ?)
+      OR f.rowid IS NOT NULL
       OR t.mark_compact LIKE ?
     )
     ORDER BY t.is_active DESC, t.updated_at DESC
     LIMIT ?
-    """.format(
-        phonetic_placeholders=','.join('?' for _ in phonetics) if phonetics else "''"
-    )
+    """.format(phonetic_placeholders=phonetic_placeholders)
 
-    params = [collapsed, normalized]
+    params = [fts_query or '']
+    params.extend([collapsed, normalized])
     if phonetics:
         params.extend(list(phonetics))
         params.extend(list(phonetics))
-    params.extend([fts_query, fts_query, f'%{collapsed}%'])
-    params.append(limit)
+    params.extend([f'%{collapsed}%', limit])
 
     with sqlite3.connect(DB_PATH) as conn:
         conn.row_factory = sqlite3.Row

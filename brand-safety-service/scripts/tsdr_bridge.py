@@ -1,6 +1,6 @@
 import os
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Optional
 
 import httpx
 
@@ -13,7 +13,7 @@ def normalize_active(status_text: str) -> bool:
     return not any(token in lowered for token in ['dead', 'abandoned', 'cancelled', 'expired'])
 
 
-async def fetch_tsdr_status(serial_number: str | None = None, registration_number: str | None = None) -> dict[str, Any]:
+async def fetch_tsdr_status(serial_number: Optional[str] = None, registration_number: Optional[str] = None) -> dict[str, Any]:
     if not TSDR_API_KEY:
         return {'ok': False, 'error': 'missing_tsdr_api_key'}
     if not serial_number and not registration_number:
