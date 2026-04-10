@@ -232,7 +232,9 @@ async def check_domain(client: httpx.AsyncClient, domain: str) -> DomainLookupRe
         return DomainLookupResult(domain=domain, status="Unknown")
 
 
-def compute_safety_score(conflicts: list[TrademarkHit]) -> int:
+def compute_safety_score(conflicts: list[TrademarkHit], trademark_data_live: bool) -> int:
+    if not trademark_data_live:
+        return 40
     if not conflicts:
         return 88
     active_conflicts = [c for c in conflicts if c.active]
@@ -259,13 +261,13 @@ def risk_level_from_score(score: int) -> str:
     return "Low"
 
 
-async def evaluate_candidate(client: httpx.AsyncClient, candidate: str, nice_classes: list[int]) -> SuggestedVariation:
+async def evaluate_candidate(client: httpx.AsyncClient, candidate: str, nice_classes: list[int], trademark_data_live: bool) -> SuggestedVariation:
     domains = [f"{normalize_brand(candidate)}.{suffix}" for suffix in DOMAIN_SUFFIXES]
     conflicts, *domain_results = await asyncio.gather(
         query_trademarks(client, candidate, nice_classes),
         *(check_domain(client, d) for d in domains),
     )
-    score = compute_safety_score(conflicts)
+    score = compute_safety_score(conflicts, trademark_data_live)
     return SuggestedVariation(
         candidate=candidate,
         risk_level=risk_level_from_score(score),
@@ -328,18 +330,23 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
         conflicts, *domain_results = await asyncio.gather(trademark_task, *domain_tasks)
 
         domain_map = {result.domain: result.status for result in domain_results}
-        safety_score = compute_safety_score(conflicts)
+        trademark_data_live = bool(conflicts)
+        safety_score = compute_safety_score(conflicts, trademark_data_live)
         risk_level = risk_level_from_score(safety_score)
 
         suggestions: list[SuggestedVariation] = []
         for candidate in build_variation_candidates(brand_name):
-            suggestion = await evaluate_candidate(client, candidate, nice_classes)
+            suggestion = await evaluate_candidate(client, candidate, nice_classes, trademark_data_live)
             if suggestion.risk_level != "High":
                 suggestions.append(suggestion)
             if len(suggestions) >= 5:
                 break
 
     blocking_reasons: list[str] = ["registrar_unverified"]
+    if not trademark_data_live:
+        blocking_reasons.append("trademark_source_low_confidence")
+        risk_level = "Medium"
+        safety_score = min(safety_score, 40)
     if any(c.active and c.conflict_type == "direct_match" for c in conflicts):
         risk_level = "High"
         safety_score = min(safety_score, 15)
@@ -353,17 +360,14 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
     if any(status == "Resolvable" for status in domain_map.values()):
         blocking_reasons.append("domain_not_confirmed_free")
 
-    confidence_level = "Medium"
-    if conflicts:
-        confidence_level = "Medium"
-    elif all(status in {"Resolvable", "Not Resolvable", "Unknown"} for status in domain_map.values()):
-        confidence_level = "Medium"
+    confidence_level = "Low" if not trademark_data_live else "Medium"
 
     notes = [
         "Risk level should be treated as more important than safety score.",
         "Do not file, launch, or buy branding assets solely on this score.",
         "Trademark logic is a screening heuristic, not legal advice.",
         "Direct match and likelihood-of-confusion checks use fuzzy text similarity plus phonetic normalization.",
+        "If trademark source confidence is low, the result is intentionally prevented from showing a low-risk recommendation.",
         "Domain status is DNS-based only. Registrar availability is not yet verified here.",
     ]
 
