@@ -1,8 +1,10 @@
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
-import { posts } from '@/lib/mock-data';
+import { getFeedPosts } from '@/lib/data';
 
-export default function FeedPage() {
+export default async function FeedPage() {
+  const posts = await getFeedPosts();
+
   return (
     <div className="space-y-4 pb-24 lg:pb-8">
       <PageHeader

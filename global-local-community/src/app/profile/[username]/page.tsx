@@ -1,13 +1,13 @@
 import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
-import { getProfileByUsername, posts } from '@/lib/mock-data';
+import { getProfile, getProfilePosts } from '@/lib/data';
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
-  const profile = getProfileByUsername(username);
+  const profile = await getProfile(username);
   if (!profile) notFound();
-  const authoredPosts = posts.filter((post) => post.author.username === username);
+  const authoredPosts = await getProfilePosts(username);
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">

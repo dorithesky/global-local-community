@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Briefcase, Home, LifeBuoy } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
-import { posts } from '@/lib/mock-data';
+import { getFeedPosts } from '@/lib/data';
 
 const highlights = [
   { title: 'Housing without the chaos', description: 'Find reliable listings, deposit context, and neighborhood notes from people already here.', icon: Home },
@@ -10,7 +10,9 @@ const highlights = [
   { title: 'Daily life made easier', description: 'Banking, hospitals, ARC updates, phone plans, and the little things that still eat your time.', icon: LifeBuoy },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const posts = await getFeedPosts();
+
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
       <section className="rounded-[2rem] bg-slate-950 px-6 py-10 text-white shadow-xl">

@@ -2,13 +2,13 @@ import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { Bookmark, Heart, MessageCircle, ShieldAlert } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
-import { getCommentsByPostId, getPostById } from '@/lib/mock-data';
+import { getPost, getPostComments } from '@/lib/data';
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const post = getPostById(id);
+  const post = await getPost(id);
   if (!post) notFound();
-  const comments = getCommentsByPostId(id);
+  const comments = await getPostComments(id);
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
