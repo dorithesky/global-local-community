@@ -3,12 +3,14 @@ import gzip
 import json
 import shutil
 import sqlite3
+import time
 import urllib.request
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Optional
 
+import requests
 from metaphone import doublemetaphone
 
 from etl.normalize import collapse_text, has_target_class, normalize_text
@@ -19,12 +21,19 @@ SCHEMA_PATH = ROOT / 'trademark_schema.sql'
 RAW_ROOT = ROOT / 'data' / 'raw' / 'uspto'
 DEFAULT_SOURCES = {
     'annual': [
-        'https://data.uspto.gov/bulkdata/datasets/trtdxfap/2026/applications-2026.xml.zip',
-        'https://data.uspto.gov/bulkdata/datasets/trtdxfgr/2026/registrations-2026.xml.zip',
+        'https://data.uspto.gov/bulkdata/datasets/trtdxfap/apc250101.zip',
     ],
     'daily': [
-        'https://data.uspto.gov/bulkdata/datasets/trtdxfap/2026/daily/applications-2026-04-10.xml.zip',
+        'https://data.uspto.gov/bulkdata/datasets/trtdxfap/apc260409.zip',
     ],
+}
+
+REQUEST_HEADERS = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Connection': 'keep-alive',
 }
 
 
@@ -38,11 +47,29 @@ def ensure_schema(conn: sqlite3.Connection) -> None:
     conn.commit()
 
 
-def download_file(url: str, dest: Path) -> Path:
+def download_file(url: str, dest: Path, max_attempts: int = 4) -> Path:
     dest.parent.mkdir(parents=True, exist_ok=True)
-    with urllib.request.urlopen(url, timeout=60) as response, open(dest, 'wb') as out:
-        shutil.copyfileobj(response, out)
-    return dest
+    session = requests.Session()
+    backoff = 2
+    last_error: Optional[Exception] = None
+    for attempt in range(1, max_attempts + 1):
+        try:
+            with session.get(url, headers=REQUEST_HEADERS, stream=True, timeout=90) as response:
+                if response.status_code in {403, 503}:
+                    raise RuntimeError(f'HTTP {response.status_code}')
+                response.raise_for_status()
+                with open(dest, 'wb') as out:
+                    for chunk in response.iter_content(chunk_size=1024 * 1024):
+                        if chunk:
+                            out.write(chunk)
+                return dest
+        except Exception as exc:
+            last_error = exc
+            if attempt == max_attempts:
+                break
+            time.sleep(backoff)
+            backoff *= 2
+    raise RuntimeError(f'failed to download {url}: {last_error}')
 
 
 def maybe_unpack(path: Path) -> Path:
