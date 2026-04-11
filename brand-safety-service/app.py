@@ -116,6 +116,7 @@ class TrademarkQueryOutcome(BaseModel):
     search_succeeded: bool
     sources_checked: list[str]
     watchlist_triggered: bool = False
+    candidate_count: int = 0
 
 
 def normalize_brand(text: str) -> str:
@@ -229,9 +230,10 @@ async def query_trademarks(brand_name: str, nice_classes: list[int]) -> Trademar
     conflicts = await maybe_verify_hits(conflicts)
     return TrademarkQueryOutcome(
         conflicts=conflicts[:10],
-        search_succeeded=bool(candidates),
+        search_succeeded=True,
         sources_checked=["local_index"],
         watchlist_triggered=False,
+        candidate_count=len(candidates),
     )
 
 
@@ -376,6 +378,9 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
         blocking_reasons.append("trademark_search_inconclusive")
         risk_level = "Medium"
         safety_score = min(safety_score, 40)
+    elif not conflicts:
+        risk_level = "Low"
+        safety_score = max(safety_score, 82)
     if trademark_outcome.watchlist_triggered:
         blocking_reasons.append("global_brand_watchlist_match")
         risk_level = "High"
@@ -394,6 +399,8 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
         blocking_reasons.append("domain_not_confirmed_free")
 
     confidence_level = "Low" if not trademark_search_succeeded else "Medium"
+    if trademark_search_succeeded and not conflicts:
+        confidence_level = "Medium"
     if trademark_outcome.watchlist_triggered or any(c.active and c.conflict_type == "direct_match" for c in conflicts):
         confidence_level = "High"
 
@@ -403,6 +410,7 @@ async def brand_check(request: BrandCheckRequest) -> BrandCheckResponse:
         "Trademark logic is a screening heuristic, not legal advice.",
         "Primary trademark retrieval now uses the local trademark index, with optional TSDR verification for top hits.",
         "If trademark search is inconclusive, the result is intentionally prevented from showing a low-risk recommendation.",
+        "If the local index search completes and finds no meaningful conflict, the engine may return a cautious low-risk result instead of an inconclusive one.",
         "A global famous-brand watchlist is used to prevent embarrassing false negatives on obvious marks.",
         "Domain status is DNS-based only. Registrar availability is not yet verified here.",
     ]
