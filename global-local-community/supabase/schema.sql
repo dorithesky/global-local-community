@@ -1,0 +1,82 @@
+create extension if not exists pgcrypto;
+
+create table if not exists profiles (
+  id uuid primary key references auth.users(id) on delete cascade,
+  username text unique,
+  display_name text not null,
+  bio text,
+  city text not null default 'Daegu',
+  origin_country text,
+  occupation text,
+  avatar_url text,
+  onboarding_completed boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists posts (
+  id uuid primary key default gen_random_uuid(),
+  author_id uuid not null references profiles(id) on delete cascade,
+  category text not null check (category in ('housing','jobs','daily-life','events','marketplace')),
+  title text not null,
+  body text not null,
+  city text not null default 'Daegu',
+  district text,
+  tags text[] not null default '{}',
+  ai_label text,
+  ai_score numeric(5,4),
+  ai_explanation text,
+  moderation_status text not null default 'published' check (moderation_status in ('published','review','hidden')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references posts(id) on delete cascade,
+  author_id uuid not null references profiles(id) on delete cascade,
+  body text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists likes (
+  user_id uuid not null references profiles(id) on delete cascade,
+  post_id uuid not null references posts(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, post_id)
+);
+
+create table if not exists bookmarks (
+  user_id uuid not null references profiles(id) on delete cascade,
+  post_id uuid not null references posts(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, post_id)
+);
+
+create table if not exists reports (
+  id uuid primary key default gen_random_uuid(),
+  reporter_id uuid not null references profiles(id) on delete cascade,
+  post_id uuid references posts(id) on delete cascade,
+  comment_id uuid references comments(id) on delete cascade,
+  reason text not null,
+  details text,
+  status text not null default 'open' check (status in ('open','reviewing','resolved')),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists workflow_events (
+  id bigint generated always as identity primary key,
+  event_type text not null,
+  entity_type text not null,
+  entity_id uuid,
+  payload jsonb not null default '{}'::jsonb,
+  processed_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_posts_city_category_created_at on posts(city, category, created_at desc);
+create index if not exists idx_posts_author_id_created_at on posts(author_id, created_at desc);
+create index if not exists idx_comments_post_id_created_at on comments(post_id, created_at asc);
+create index if not exists idx_reports_status_created_at on reports(status, created_at desc);
+create index if not exists idx_workflow_events_event_type_processed on workflow_events(event_type, processed_at, created_at desc);
