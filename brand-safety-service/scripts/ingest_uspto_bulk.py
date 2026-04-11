@@ -6,6 +6,7 @@ import sqlite3
 import time
 import urllib.request
 import xml.etree.ElementTree as ET
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Optional
@@ -78,13 +79,27 @@ def maybe_unpack(path: Path) -> Path:
         with gzip.open(path, 'rb') as src, open(target, 'wb') as dst:
             shutil.copyfileobj(src, dst)
         return target
+    if path.suffix == '.zip':
+        extract_dir = path.with_suffix('')
+        extract_dir.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(path) as zf:
+            xml_members = [name for name in zf.namelist() if name.lower().endswith('.xml')]
+            if not xml_members:
+                raise RuntimeError(f'no XML found in {path}')
+            target_name = xml_members[0]
+            extracted_path = extract_dir / Path(target_name).name
+            if not extracted_path.exists():
+                with zf.open(target_name) as src, open(extracted_path, 'wb') as dst:
+                    shutil.copyfileobj(src, dst)
+            return extracted_path
     return path
 
 
 def iter_xml_records(xml_path: Path) -> Iterable[dict]:
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-    for elem in root.iter():
+    context = ET.iterparse(str(xml_path), events=('end',))
+    _, root = next(context)
+    count = 0
+    for _, elem in context:
         tag = elem.tag.lower()
         if tag.endswith('trademark') or tag.endswith('record') or tag.endswith('casefile'):
             mark = None
@@ -127,6 +142,9 @@ def iter_xml_records(xml_path: Path) -> Iterable[dict]:
                     'registration_date': None,
                     'status_date': None,
                 }
+                count += 1
+                if count % 500 == 0:
+                    root.clear()
 
 
 def parse_record(raw: dict) -> Optional[dict]:
@@ -219,7 +237,7 @@ def upsert_record(conn: sqlite3.Connection, record: dict) -> None:
         )
 
 
-def ingest_files(paths: list[Path]) -> dict:
+def ingest_files(paths: list[Path], limit: Optional[int] = None) -> dict:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     loaded = 0
     skipped = 0
@@ -234,6 +252,9 @@ def ingest_files(paths: list[Path]) -> dict:
                     continue
                 upsert_record(conn, parsed)
                 loaded += 1
+                if limit and loaded >= limit:
+                    conn.commit()
+                    return {'db_path': str(DB_PATH), 'loaded_records': loaded, 'skipped_records': skipped}
         conn.commit()
     return {'db_path': str(DB_PATH), 'loaded_records': loaded, 'skipped_records': skipped}
 
@@ -243,6 +264,7 @@ def main() -> None:
     parser.add_argument('--source', choices=['annual', 'daily', 'all'], default='all')
     parser.add_argument('--url', action='append', default=[])
     parser.add_argument('--local-file', action='append', default=[])
+    parser.add_argument('--limit', type=int, default=None)
     args = parser.parse_args()
 
     targets: list[Path] = []
@@ -265,7 +287,7 @@ def main() -> None:
         except Exception as exc:
             print(json.dumps({'url': url, 'error': str(exc)}))
 
-    summary = ingest_files(targets)
+    summary = ingest_files(targets, limit=args.limit)
     print(json.dumps(summary, indent=2))
 
 
