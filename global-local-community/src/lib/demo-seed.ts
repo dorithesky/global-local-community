@@ -1,38 +1,11 @@
 import { posts as mockPosts } from './mock-data';
 import { getSupabaseAdminClient } from './supabase-admin';
 
-const profileRows = [
-  {
-    id: '00000000-0000-0000-0000-000000000001',
-    username: 'mina-expat',
-    display_name: 'Mina Carter',
-    bio: 'Community host for newcomers in Daegu.',
-    city: 'Daegu',
-    origin_country: 'Canada',
-    occupation: 'Teacher',
-    onboarding_completed: true,
-  },
-  {
-    id: '00000000-0000-0000-0000-000000000002',
-    username: 'jaynomad',
-    display_name: 'Jay Park',
-    bio: 'Sharing practical Korea life tips.',
-    city: 'Daegu',
-    origin_country: 'USA',
-    occupation: 'Designer',
-    onboarding_completed: true,
-  },
-  {
-    id: '00000000-0000-0000-0000-000000000003',
-    username: 'sara-abroad',
-    display_name: 'Sara Kim',
-    bio: 'Helping people find housing and jobs.',
-    city: 'Daegu',
-    origin_country: 'UK',
-    occupation: 'Recruiter',
-    onboarding_completed: true,
-  },
-];
+const AUTHOR_ID_BY_USERNAME: Record<string, string> = {
+  'mina-expat': '00000000-0000-0000-0000-000000000001',
+  jaynomad: '00000000-0000-0000-0000-000000000002',
+  'sara-abroad': '00000000-0000-0000-0000-000000000003',
+};
 
 export async function seedDemoPostsIfNeeded() {
   const admin = getSupabaseAdminClient();
@@ -42,16 +15,8 @@ export async function seedDemoPostsIfNeeded() {
   if (countError) return { seeded: false, reason: countError.message };
   if ((count ?? 0) >= 30) return { seeded: false, reason: 'already-seeded', count };
 
-  const { error: profilesError } = await admin.from('profiles').upsert(profileRows, { onConflict: 'id' });
-  if (profilesError) return { seeded: false, reason: profilesError.message };
-
   const postRows = mockPosts.map((post) => ({
-    author_id:
-      post.author.username === 'mina-expat'
-        ? '00000000-0000-0000-0000-000000000001'
-        : post.author.username === 'jaynomad'
-          ? '00000000-0000-0000-0000-000000000002'
-          : '00000000-0000-0000-0000-000000000003',
+    author_id: AUTHOR_ID_BY_USERNAME[post.author.username],
     category: post.category,
     title: post.title,
     body: post.body,
