@@ -64,6 +64,11 @@ export function PostCard({ post }: { post: PostRecord }) {
         <p className="font-semibold text-slate-900">Trust and context</p>
         <p>{cityScopeLabel(post.city, post.district)} • {post.category} • {post.commentsCount} replies</p>
         <p className="mt-1">Posted by a visible member profile{post.author.occupation || post.author.originCountry ? ' with added identity context' : ''}.</p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600">Published post</span>
+          {post.commentsCount > 0 ? <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600">Active discussion</span> : null}
+          {(post.author.occupation || post.author.originCountry) ? <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600">Profile has context</span> : null}
+        </div>
       </div>
     </article>
   );

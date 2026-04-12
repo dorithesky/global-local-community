@@ -3,6 +3,7 @@ import { ArrowRight, Briefcase, Home, LifeBuoy } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getFeedPosts } from '@/lib/data';
+import { getAdminUserSettingsView } from '@/lib/settings';
 
 const highlights = [
   { title: 'Housing without the chaos', description: 'Find reliable listings, deposit context, and neighborhood notes from people already here.', icon: Home },
@@ -11,7 +12,10 @@ const highlights = [
 ];
 
 export default async function HomePage() {
-  const posts = await getFeedPosts();
+  const [posts, memberSettings] = await Promise.all([getFeedPosts(), getAdminUserSettingsView()]);
+  const activeMembers = memberSettings.filter((row) => row.profile?.onboardingCompleted).length;
+  const visibleCities = new Set(memberSettings.map((row) => row.profile?.city).filter(Boolean)).size;
+  const sanctionedMembers = memberSettings.filter((row) => row.activeSanction).length;
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
@@ -28,6 +32,30 @@ export default async function HomePage() {
           <Link href="/settings" className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
             Set your city and needs first
           </Link>
+        </div>
+      </section>
+
+      <section className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Trust signals</p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900">Built to feel more trustworthy than a random group chat.</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-600">Visible profiles, moderation controls, and city-aware context are part of the product surface, not hidden promises.</p>
+        </div>
+        <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Community snapshot</p>
+          <div className="mt-3 space-y-3 text-sm text-slate-600">
+            <p><span className="font-semibold text-slate-900">{activeMembers}</span> members with onboarding completed</p>
+            <p><span className="font-semibold text-slate-900">{posts.length}</span> published posts currently visible</p>
+            <p><span className="font-semibold text-slate-900">{visibleCities}</span> city buckets represented</p>
+          </div>
+        </div>
+        <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Safety posture</p>
+          <div className="mt-3 space-y-3 text-sm text-slate-600">
+            <p>Public feeds show published posts only.</p>
+            <p>Reports and moderation actions are operator-gated.</p>
+            <p>{sanctionedMembers ? `${sanctionedMembers} members currently restricted under moderation controls.` : 'No active member restrictions visible right now.'}</p>
+          </div>
         </div>
       </section>
 
