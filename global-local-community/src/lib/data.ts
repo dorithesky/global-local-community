@@ -487,6 +487,18 @@ export async function getUserCommentedPosts() {
   return feed.filter((post) => commentedPostIds.has(post.id));
 }
 
+export async function getCommentCountByPostId(postId: string): Promise<number> {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return getCommentsByPostId(postId).length;
+
+  const { count } = await supabase
+    .from('comments')
+    .select('*', { count: 'exact', head: true })
+    .eq('post_id', postId);
+
+  return count ?? 0;
+}
+
 export async function getAdminModerationView() {
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

@@ -8,13 +8,16 @@ import { CommentForm } from '@/components/post-engagement-forms';
 import { PostDetailReportTrigger } from '@/components/post-detail-report-trigger';
 import { BookmarkButton, DeletePostButton, LikeButton } from '@/components/post-actions';
 import { cityScopeLabel } from '@/lib/locations';
-import { getPostDetail } from '@/lib/data';
+import { getCommentCountByPostId, getPostDetail } from '@/lib/data';
 import { createCommentAction, createReportAction, deleteCommentAction, updateCommentAction } from './actions';
 import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from './engagement-actions';
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { post, comments, debug } = await getPostDetail(id);
+  const [{ post, comments, debug }, visibleCommentCount] = await Promise.all([
+    getPostDetail(id),
+    getCommentCountByPostId(id),
+  ]);
   if (!post) notFound();
 
   return (
@@ -43,7 +46,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />
-          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {comments.length} comments</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {visibleCommentCount} comments</span>
           {post.canEdit ? <DeletePostButton action={deletePostAction.bind(null, id)} /> : <PostDetailReportTrigger action={createReportAction.bind(null, id)} />}
         </div>
       </article>
@@ -51,7 +54,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-slate-900">Discussion</h2>
-          <span className="text-sm text-slate-500">{comments.length} {comments.length === 1 ? 'reply' : 'replies'}</span>
+          <span className="text-sm text-slate-500">{visibleCommentCount} {visibleCommentCount === 1 ? 'reply' : 'replies'}</span>
         </div>
         <div className="mt-5 border-t border-slate-100 pt-5">
           <CommentForm action={createCommentAction.bind(null, id)} />
@@ -67,7 +70,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
               No replies are rendering for this post right now.
               <div className="mt-2 text-xs text-amber-700">
-                Detail source: {debug.source} • post id: {debug.postId} • counted: {debug.liveCommentCount} • rendered: {debug.renderedCommentCount}
+                Detail source: {debug.source} • post id: {debug.postId} • counted: {visibleCommentCount} • rendered: {debug.renderedCommentCount}
               </div>
             </div>
           )}
