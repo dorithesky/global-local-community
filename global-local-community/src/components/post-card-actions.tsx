@@ -7,7 +7,7 @@ function ActionButton({ label, icon, tone = 'neutral' }: { label: string; icon: 
   const { pending } = useFormStatus();
   const toneClass = tone === 'danger'
     ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
-    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50';
+    : 'border-sky-200 bg-white text-sky-700 hover:bg-sky-50';
 
   return (
     <button type="submit" disabled={pending} className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium disabled:opacity-60 ${toneClass}`}>
