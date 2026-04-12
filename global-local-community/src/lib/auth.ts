@@ -1,6 +1,13 @@
 import { cache } from 'react';
 import { getSupabaseServerClient } from './supabase-server';
 
+const ADMIN_EMAILS = new Set(
+  (process.env.ADMIN_EMAILS ?? 'scottchmoon@gmail.com')
+    .split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean),
+);
+
 function slugifyUsername(value: string) {
   return value
     .toLowerCase()
@@ -47,6 +54,7 @@ export const getCurrentMember = cache(async () => {
         displayName,
         username: preferredUsername,
         avatarUrl,
+        isAdmin: ADMIN_EMAILS.has(email.toLowerCase()),
       };
     }
 
@@ -56,6 +64,7 @@ export const getCurrentMember = cache(async () => {
       displayName,
       username: `${preferredUsername}-${user.id.slice(0, 6)}`,
       avatarUrl,
+      isAdmin: ADMIN_EMAILS.has(email.toLowerCase()),
     };
   }
 
@@ -65,5 +74,12 @@ export const getCurrentMember = cache(async () => {
     displayName: existing.display_name,
     username: existing.username,
     avatarUrl: existing.avatar_url ?? avatarUrl,
+    isAdmin: ADMIN_EMAILS.has(email.toLowerCase()),
   };
 });
+
+export async function requireAdmin() {
+  const member = await getCurrentMember();
+  if (!member?.isAdmin) return null;
+  return member;
+}

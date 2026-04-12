@@ -48,7 +48,7 @@ export default async function HomePage() {
       <PageHeader
         eyebrow="Fresh in the feed"
         title="What people are asking right now"
-        description="Seeded with realistic expat problems so the platform feels alive from day one."
+        description="Real posts when the database has them, realistic seeded context when it does not, so the product never feels empty."
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

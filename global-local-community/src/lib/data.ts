@@ -174,8 +174,21 @@ export async function getAdminModerationView() {
     getFeedPosts(),
   ]);
 
+  const postIds = (reportsData ?? []).map((report) => report.post_id).filter(Boolean);
+  const reportedPosts = postIds.length
+    ? await supabase
+        .from('posts')
+        .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
+        .in('id', postIds)
+    : { data: [] };
+
+  const reportedPostMap = new Map((reportedPosts.data ?? []).map((post) => [post.id, post]));
+
   return {
-    reports: reportsData ?? [],
+    reports: (reportsData ?? []).map((report) => ({
+      ...report,
+      post: report.post_id ? reportedPostMap.get(report.post_id) ?? null : null,
+    })),
     recentPosts: recentPosts.slice(0, 8),
   };
 }

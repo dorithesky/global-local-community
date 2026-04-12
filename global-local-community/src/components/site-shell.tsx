@@ -1,17 +1,18 @@
 import Link from 'next/link';
 import { Home, Briefcase, MessageSquare, Shield } from 'lucide-react';
 import { clsx } from 'clsx';
-import { SessionPill } from '@/components/session-pill';
-
-const nav = [
-  { href: '/', label: 'Home', icon: Home },
-  { href: '/feed', label: 'Feed', icon: MessageSquare },
-  { href: '/categories/housing', label: 'Housing', icon: Home },
-  { href: '/categories/jobs', label: 'Jobs', icon: Briefcase },
-  { href: '/admin', label: 'Admin', icon: Shield },
-];
+import { TopAuthBar } from '@/components/top-auth-bar';
+import { getCurrentMember } from '@/lib/auth';
 
 export async function SiteShell({ children }: { children: React.ReactNode }) {
+  const member = await getCurrentMember();
+  const nav = [
+    { href: '/', label: 'Home', icon: Home },
+    { href: '/feed', label: 'Feed', icon: MessageSquare },
+    { href: '/categories/housing', label: 'Housing', icon: Home },
+    { href: '/categories/jobs', label: 'Jobs', icon: Briefcase },
+    ...(member?.isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
+  ];
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -20,12 +21,9 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Global Local Community</p>
             <h1 className="text-lg font-semibold">English-first support for life in Korea</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <SessionPill />
-            <Link href="/create" className="rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700">
-              Create post
-            </Link>
-          </div>
+          <Link href="/create" className="rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700">
+            Create post
+          </Link>
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl gap-6 px-4 py-6">
@@ -46,7 +44,10 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             <p>Korea-wide, with Seoul, Busan, Daegu, and Other supported in the posting flow.</p>
           </div>
         </aside>
-        <main className="min-w-0 flex-1">{children}</main>
+        <main className="min-w-0 flex-1 space-y-6">
+          <TopAuthBar />
+          {children}
+        </main>
       </div>
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 p-2 lg:hidden">
         <div className="grid grid-cols-5 gap-2">

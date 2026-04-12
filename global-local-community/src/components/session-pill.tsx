@@ -6,7 +6,7 @@ export async function SessionPill() {
 
   if (!member) {
     return (
-      <Link href="/#signin" className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">
+      <Link href="/#signin" className="rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700">
         Sign in
       </Link>
     );
