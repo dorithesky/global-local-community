@@ -71,6 +71,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
               No replies are rendering for this post right now.
               <div className="mt-2 text-xs text-amber-700">
                 Detail source: {debug.source} • post id: {debug.postId} • counted: {visibleCommentCount} • rendered: {debug.renderedCommentCount}
+                {debug.relatedCommentPostIds?.length ? ` • your recent comment post ids: ${debug.relatedCommentPostIds.join(', ')}` : ''}
               </div>
             </div>
           )}

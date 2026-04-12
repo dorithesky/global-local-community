@@ -216,7 +216,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
-  const admin = getSupabaseAdminClient();
+  const admin = getSupabaseServerClient ? getSupabaseAdminClient() : null;
   const member = await getCurrentMember();
 
   if (!admin) {
@@ -231,17 +231,19 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
         source: 'live',
         liveCommentCount: 0,
         renderedCommentCount: 0,
+        relatedCommentPostIds: [],
       },
     };
   }
 
-  const [{ count }, { data: rows, error }] = await Promise.all([
+  const [{ count }, { data: rows, error }, { data: memberCommentRows }] = await Promise.all([
     admin.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', id),
     admin
       .from('comments')
       .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
       .eq('post_id', id)
       .order('created_at', { ascending: true }),
+    member ? admin.from('comments').select('post_id').eq('author_id', member.id).order('created_at', { ascending: false }).limit(10) : Promise.resolve({ data: [] }),
   ]);
 
   if (error || !rows?.length) {
@@ -256,6 +258,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
         source: 'live',
         liveCommentCount: count ?? 0,
         renderedCommentCount: 0,
+        relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
       },
     };
   }
@@ -301,6 +304,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
       source: 'live',
       liveCommentCount: count ?? comments.length,
       renderedCommentCount: comments.length,
+      relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
     },
   };
 }
