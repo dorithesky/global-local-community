@@ -3,7 +3,8 @@ import { ArrowRight, Briefcase, Home, LifeBuoy } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getFeedPosts } from '@/lib/data';
-import { getAdminUserSettingsView } from '@/lib/settings';
+import { getCurrentMember } from '@/lib/auth';
+import { getAccountSettings, getAdminUserSettingsView } from '@/lib/settings';
 
 const highlights = [
   { title: 'Housing without the chaos', description: 'Find reliable listings, deposit context, and neighborhood notes from people already here.', icon: Home },
@@ -12,10 +13,16 @@ const highlights = [
 ];
 
 export default async function HomePage() {
-  const [posts, memberSettings] = await Promise.all([getFeedPosts(), getAdminUserSettingsView()]);
+  const member = await getCurrentMember();
+  const [posts, memberSettings, accountSettings] = await Promise.all([
+    getFeedPosts(),
+    getAdminUserSettingsView(),
+    member ? getAccountSettings() : Promise.resolve(null),
+  ]);
   const activeMembers = memberSettings.filter((row) => row.profile?.onboardingCompleted).length;
   const visibleCities = new Set(memberSettings.map((row) => row.profile?.city).filter(Boolean)).size;
   const sanctionedMembers = memberSettings.filter((row) => row.activeSanction).length;
+  const recommendedCategory = accountSettings?.profile.immediateNeed || null;
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
@@ -29,9 +36,23 @@ export default async function HomePage() {
           <Link href="/feed" className="rounded-full bg-sky-500 px-5 py-3 text-sm font-medium text-white hover:bg-sky-400">
             Browse trusted posts
           </Link>
-          <Link href="/settings" className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
-            Set your city and needs first
+          <Link href={member ? '/settings?onboarding=1' : '/#signin'} className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
+            {member ? 'Set your city and needs first' : 'Sign in and build your profile'}
           </Link>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-sky-300">Why this exists</p>
+            <p className="mt-2 text-sm leading-6 text-slate-200">Most foreigners in Korea still rely on scattered chats, stale spreadsheets, and partial advice. This product is built to reduce that drag.</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-sky-300">Why join now</p>
+            <p className="mt-2 text-sm leading-6 text-slate-200">Early members shape the quality bar, city coverage, and the first trustworthy answer set that later users depend on.</p>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-sky-300">What you get</p>
+            <p className="mt-2 text-sm leading-6 text-slate-200">Visible profiles, moderated discussion, and city-aware help that feels closer to a real community product than a noisy chat room.</p>
+          </div>
         </div>
       </section>
 
@@ -58,6 +79,22 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {member ? (
+        <section className="rounded-[30px] border border-emerald-200 bg-emerald-50 p-6 shadow-sm">
+          <p className="text-xs uppercase tracking-[0.24em] text-emerald-700">First action</p>
+          <h2 className="mt-2 text-2xl font-semibold text-slate-900">Make the product useful in your first minute.</h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">{recommendedCategory ? `You already said your biggest need is ${recommendedCategory}. Start there, then post one clear question so the right people can help.` : 'Set your city and immediate need, then ask one useful question so the feed and replies get more relevant fast.'}</p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href={recommendedCategory ? `/feed?category=${recommendedCategory}` : '/settings?onboarding=1'} className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+              {recommendedCategory ? 'Open your recommended feed' : 'Finish onboarding'}
+            </Link>
+            <Link href="/create" className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50">
+              Ask your first question
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Start here</p>
