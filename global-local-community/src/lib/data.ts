@@ -248,17 +248,21 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   ]);
 
   if (error || !rows?.length) {
+    const fallbackComments = member
+      ? (await getUserComments()).filter((comment) => comment.postId === id)
+      : [];
+
     return {
       post: {
         ...post,
-        commentsCount: count ?? 0,
+        commentsCount: count ?? fallbackComments.length,
       },
-      comments: [],
+      comments: fallbackComments,
       debug: {
         postId: id,
         source: 'live',
         liveCommentCount: count ?? 0,
-        renderedCommentCount: 0,
+        renderedCommentCount: fallbackComments.length,
         rawRowCount: rows?.length ?? 0,
         relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
       },
