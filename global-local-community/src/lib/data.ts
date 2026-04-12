@@ -200,19 +200,21 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
-  let comments = await getPostComments(id);
   const detailSource: PostDetailDebug['source'] = post.id.startsWith('post-') ? 'mock' : 'live';
+  let comments = detailSource === 'mock' ? await getPostComments(id) : [];
 
-  if (!comments.length && detailSource === 'live') {
+  if (detailSource === 'live') {
     const admin = getSupabaseAdminClient();
+    const member = await getCurrentMember();
+
     if (admin) {
-      const { data: rawComments } = await admin
+      const { data: rawComments, error } = await admin
         .from('comments')
         .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
         .eq('post_id', id)
         .order('created_at', { ascending: true });
 
-      if (rawComments?.length) {
+      if (!error && rawComments?.length) {
         const authorIds = [...new Set(rawComments.map((row) => row.author_id).filter(Boolean))];
         const deletedByIds = [...new Set(rawComments.map((row) => row.deleted_by).filter(Boolean))];
         const profileIds = [...new Set([...authorIds, ...deletedByIds])];
@@ -224,7 +226,6 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
           : { data: [] };
 
         const profileMap = new Map((profiles ?? []).map((row) => [row.id, normalizeProfile(row)]));
-        const member = await getCurrentMember();
 
         comments = rawComments.map((row) => {
           const author = profileMap.get(row.author_id) ?? {
