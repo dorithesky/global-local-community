@@ -62,17 +62,27 @@ psql "$SUPABASE_DB_URL" -f supabase/seed.sql
 
 - Layered architecture skeleton
 - Mobile-first UI
-- Feed, category, detail, create, profile, admin pages
-- Seeded realistic posts (40 records)
+- Feed, category, detail, create, profile, saved, activity, settings, and admin pages
+- Google auth, email/password auth, and magic link auth
+- Profile sync and editable public profile settings
+- Persistent post creation, comments, likes, bookmarks, reports, and admin moderation reads through Supabase-backed app flows
+- Seeded realistic posts for empty-state resilience
 - Rule-based AI layer and workflow queue
-- API health/posts/reports endpoints
+- DB-aware health endpoint
 
-## What is still missing
+## Current launch blockers being addressed
 
-- Real Supabase auth wiring for email + Google
-- Persistent CRUD against live database
-- Admin auth/permissions
-- GA instrumentation events
-- Vercel/Cloudflare live deployment
-- Background worker runtime for production orchestration
-- Rich search and caching
+- Public API routes for posts and reports still need to be aligned to the same durable persistence path as the main app
+- Production trust controls are still baseline-only and need rate limits, sanction states, and stronger moderation auditability
+- Durable media upload is intentionally not live until secure signed upload and moderation review exist
+- Deployment discipline still needs repeatable migration checks, RLS/policies, and rollback verification
+
+## Product direction
+
+This product is for foreigners living in Korea who need a cleaner, more trustworthy place to ask for help about housing, jobs, and daily life.
+
+The near-term shipping bias is:
+- production stability first
+- low founder maintenance
+- better onboarding and activation copy
+- practical trust and safety controls before broader launch

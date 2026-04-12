@@ -217,7 +217,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
-  const admin = getSupabaseServerClient ? getSupabaseAdminClient() : null;
+  const admin = getSupabaseAdminClient();
   const member = await getCurrentMember();
 
   if (!admin) {
@@ -248,7 +248,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   ]);
 
   if (error || !rows?.length) {
-    const fallbackComments = member
+    const fallbackComments: CommentRecord[] = member
       ? (await getUserComments()).filter((comment) => comment.postId === id)
       : [];
 
@@ -467,7 +467,7 @@ export async function getCommentHistoryForAdmin(limit = 100): Promise<CommentEve
   }));
 }
 
-export async function getUserComments() {
+export async function getUserComments(): Promise<CommentRecord[]> {
   const member = await getCurrentMember();
   if (!member) return [];
 
@@ -482,6 +482,22 @@ export async function getUserComments() {
 
   if (error || !data?.length) return [];
 
+  const { data: profileRow } = await supabase
+    .from('profiles')
+    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+    .eq('id', member.id)
+    .maybeSingle();
+
+  const author: Profile = profileRow
+    ? normalizeProfile(profileRow)
+    : {
+        id: member.id,
+        username: member.username,
+        displayName: member.displayName,
+        city: process.env.NEXT_PUBLIC_CITY ?? 'Daegu',
+        avatarUrl: member.avatarUrl,
+      };
+
   return data.map((row) => ({
     id: row.id,
     postId: row.post_id,
@@ -489,7 +505,7 @@ export async function getUserComments() {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     canEdit: true,
-    author: member,
+    author,
   }));
 }
 

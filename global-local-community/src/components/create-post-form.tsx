@@ -87,11 +87,11 @@ export function CreatePostForm({
         {imageMessage ? <p className="mt-1 text-xs text-rose-600">{imageMessage}</p> : null}
       </div>
       <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
-        <p className="font-medium">What happens when you publish</p>
+        <p className="font-medium">How to get better replies</p>
         <ul className="mt-2 list-disc pl-5">
-          <li>AI classifies the post</li>
-          <li>Spam risk is checked</li>
-          <li>A workflow event is stored for moderation and follow-up</li>
+          <li>Include your city or area, timeline, and budget if relevant</li>
+          <li>Say whether you want advice, referrals, or direct leads</li>
+          <li>Add enough context so other foreigners in Korea can answer fast</li>
         </ul>
       </div>
       <SubmitButton />

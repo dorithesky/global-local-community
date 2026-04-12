@@ -1,17 +1,69 @@
-# Phase 1 outreach messages
+# Growth plan
 
-## Reddit
+## Activation priorities
 
-1. Hey, I put together a small English-first community space for foreigners living in Daegu. Not trying to sell anything, just trying to make housing, job leads, and daily-life questions easier to share in one place. If you're in Daegu and want early access, happy to send it over.
+1. Clarify who the product is for on the homepage
+2. Add first-session onboarding that routes new members by city and immediate need
+3. Make create-post guidance outcome-focused instead of internal/tooling-focused
 
-2. I kept running into scattered answers for basic Korea life stuff, so I built a focused Daegu community for foreigners, mostly around housing, work, and practical local help. If this sounds useful, I’d love honest feedback before I push it wider.
+## Core positioning
 
-## Facebook groups
+Global Local Community is an English-first community for foreigners living in Korea.
 
-3. I’m testing a simple community space for foreigners in Daegu where people can share housing tips, job leads, and practical daily-life advice in English. It’s early, but the goal is usefulness over noise. If a few people want to try it and tell me what’s missing, I’d really appreciate it.
+It should feel better than scattered Facebook groups, Kakao chats, and old Reddit threads because it is:
+- easier to search
+- more trustworthy
+- more local
+- more structured around useful replies
 
-4. Built a small Daegu-focused platform for expats because the useful information is usually buried across chats and old threads. Trying to make it easier for newcomers to find real answers faster. If admins are okay with it, I’d love a few testers and blunt feedback.
+## Homepage copy direction
 
-## Discord
+Hero promise:
+- trusted English-first help for life in Korea
+- housing, jobs, and daily-life questions in one place
+- faster signal, less noise
 
-5. I’ve been building a lightweight community hub for foreigners in Daegu, mostly for housing, jobs, and everyday Korea survival info. It’s still early, but if anyone here wants to poke at it and tell me what feels useful or useless, I’m looking for real feedback, not compliments.
+Trust section themes:
+- local context by city
+- practical answers from people already here
+- safer moderation than open social feeds
+
+## Onboarding direction
+
+New members should be guided through:
+- city
+- origin country
+- life stage or visa context
+- immediate need
+  - housing
+  - jobs
+  - daily life
+  - events
+  - marketplace
+
+## Create-post guidance direction
+
+Good prompts should encourage users to include:
+- city or district
+- timing
+- budget if relevant
+- what kind of help they want
+- enough context for someone else to answer quickly
+
+## Phase 1 outreach messages
+
+### Reddit
+
+1. I’m building an English-first community for foreigners living in Korea, focused on housing, jobs, and practical daily-life help. The goal is simple: better signal than scattered group chats. If that sounds useful, I’d love a few early testers and blunt feedback.
+
+2. A lot of Korea life advice is still buried across Facebook posts, old Reddit threads, and chat groups. I’m testing a cleaner community space for foreigners in Korea so people can ask better questions and get faster useful answers. Happy to share it if you want early access.
+
+### Facebook groups
+
+3. I’m testing a community product for foreigners living in Korea, focused on useful housing, work, and day-to-day questions in English. It’s early, but I’m trying to build something calmer and more useful than the usual scattered threads. If admins are okay with it, I’d love a few honest testers.
+
+4. Built a lightweight English-first community for foreigners in Korea because the useful advice is usually fragmented and hard to search later. Still early, but if a few people want to try it and tell me what feels useful or missing, I’d appreciate it.
+
+### Discord
+
+5. I’m building a community hub for foreigners in Korea around housing, jobs, and daily-life questions. It’s meant to be higher signal and less chaotic than normal social feeds. If anyone wants to test it and give blunt feedback, I’m looking for that now.

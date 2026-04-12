@@ -15,8 +15,8 @@ export default async function CreatePostPage() {
     <div className="space-y-6 pb-24 lg:pb-8">
       <PageHeader
         eyebrow="Create"
-        title="Publish a high-signal post"
-        description="Simple for the member, structured behind the scenes. Classification, spam checks, and workflow metadata all happen automatically."
+        title="Ask for help or share a useful lead"
+        description="Be clear about your situation, location, and what kind of response you need. Good posts get useful replies faster."
       />
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <CreatePostForm action={createPostAction} city={process.env.NEXT_PUBLIC_CITY ?? 'Seoul'} />

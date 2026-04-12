@@ -4,57 +4,53 @@
 - Google auth
 - Email magic link auth
 - Email + password sign up / sign in
-- Profile sync
+- Password reset
+- Profile sync and editable public profiles
 - Korea-wide location support
 - Post creation
-- Comments
+- Comments with edit/delete
 - Reports
 - Likes / bookmarks
-- Admin visibility for reports
+- Saved posts page
+- Activity page
+- Admin visibility for reports and comment history
+- Settings and consent persistence
 
-## Useful features still worth adding soon
+## Current launch blockers
 
-### 1. Saved posts page
-Users can bookmark, but there is no dedicated place to review saved posts yet.
+### 1. API and app persistence are still split
+The main product flows are Supabase-backed, but `/api/posts` and `/api/reports` still do not match the same durable persistence path. That is a source-of-truth problem and should be fixed before launch.
 
-### 2. My posts / my activity
-A profile dashboard should show:
-- posts created
-- comments made
-- saved posts
-- reports submitted (private)
+### 2. Trust and safety baseline is still too light
+The app needs a minimum moderation baseline before broader launch:
+- posting rate limits
+- reporting rate limits
+- one report per user per target
+- comment reporting
+- moderator notes and action log
+- sanction states like warn, mute, suspend, ban
 
-### 3. Password reset
-Now that password auth exists, reset flow should exist too.
+### 3. Deployment guardrails are not fully production-safe yet
+Still needed:
+- Supabase RLS/policies
+- repeatable migration flow
+- rollback checklist
+- deploy verification checklist
+- monitoring/alerting basics
 
-### 4. Better admin actions
-Current admin page is readable, but should support:
-- resolve report
-- hide post
-- move report to reviewing/resolved
+### 4. Onboarding and activation are not strong enough yet
+A first-time user should quickly understand:
+- who this is for
+- why it is better than scattered group chats
+- what to do first
+- how to write a post that gets useful replies
 
-### 5. Empty states and onboarding
-A first-time user should see:
-- how to post well
-- what cities/categories are supported
-- why this community is different
-
-### 6. Search and filters
-This would be one of the most useful near-term product upgrades:
-- city filter
-- category filter
-- keyword search
-- saved filter presets later
-
-### 7. Notifications later
-Not required for MVP, but meaningful later:
-- comment on your post
-- report status
-- useful replies
+### 5. Media remains intentionally deferred
+Image selection UI exists, but durable uploads should not launch until signed upload flow, storage rules, and moderation review exist.
 
 ## Recommendation
-If the goal is launch soon, the best next features after deployment are:
-1. Saved posts page
-2. Password reset
-3. Admin moderation actions
-4. Feed filters/search
+If the goal is launch soon, the best next improvements are:
+1. Align API routes with durable Supabase persistence
+2. Ship minimum trust and safety baseline
+3. Add deployment guardrails and DB hardening
+4. Strengthen onboarding and activation copy

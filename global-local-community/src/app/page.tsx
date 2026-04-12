@@ -19,14 +19,14 @@ export default async function HomePage() {
         <p className="text-xs uppercase tracking-[0.28em] text-sky-300">English-first community for life in Korea</p>
         <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">High-signal local help for foreigners living across Korea.</h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-          Housing, jobs, and daily-life answers in one AI-augmented community layer, starting with Seoul, Busan, Daegu, and everywhere else that still gets ignored.
+          A trusted English-first community for foreigners living in Korea, built to help you solve housing, jobs, and daily-life problems faster than scattered group chats ever will.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href="/feed" className="rounded-full bg-sky-500 px-5 py-3 text-sm font-medium text-white hover:bg-sky-400">
-            Join the community
+            Browse trusted posts
           </Link>
           <Link href="/create" className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
-            Share a post
+            Ask for help or share a lead
           </Link>
         </div>
       </section>
@@ -46,8 +46,8 @@ export default async function HomePage() {
 
       <PageHeader
         eyebrow="Fresh in the feed"
-        title="What people are asking right now"
-        description="Real posts when the database has them, realistic seeded context when it does not, so the product never feels empty."
+        title="What foreigners in Korea need help with right now"
+        description="Start with the most useful recent posts, then join the conversation or add your own situation so the right people can help quickly."
       />
 
       <div className="grid gap-4 lg:grid-cols-2">

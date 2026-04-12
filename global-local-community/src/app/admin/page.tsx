@@ -13,7 +13,7 @@ export default async function AdminPage() {
   const admin = await requireAdmin();
   if (!admin) notFound();
 
-  const { reports, recentPosts, commentHistory } = await getAdminModerationView();
+  const { reports, recentPosts, commentHistory = [] } = await getAdminModerationView();
   const userSettings = await getAdminUserSettingsView();
 
   return (
