@@ -171,20 +171,27 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         </div>
           </section>
 
-          <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+          <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
             <div id="member-operations" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Member operations</p>
-          <h2 className="mt-2 text-lg font-semibold text-slate-900">Members and communication settings</h2>
-          <p className="mt-1 text-sm text-slate-500">Search, filter, inspect, and sanction members from one place.</p>
-          <form className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,2fr)_1fr_1fr_auto]">
+          <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900">Members and communication settings</h2>
+              <p className="mt-1 text-sm text-slate-500">Search, filter, inspect, and sanction members from one place.</p>
+            </div>
+            <div className="rounded-2xl bg-slate-100 px-3 py-2 text-sm text-slate-600">
+              Showing <span className="font-semibold text-slate-900">{filteredUserSettings.length}</span> of {userSettings.length} members
+            </div>
+          </div>
+          <form className="mt-5 grid gap-3 rounded-2xl border-2 border-sky-100 bg-sky-50 p-4 lg:grid-cols-[minmax(0,2fr)_1fr_1fr_auto]">
             <input
               type="text"
               name="q"
               defaultValue={resolvedSearchParams?.q ?? ''}
-              placeholder="Search name, username, city, need, sanction, or user id"
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
+              placeholder="Search by name, username, city, need, sanction, or user id"
+              className="rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
             />
-            <select name="city" defaultValue={cityFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+            <select name="city" defaultValue={cityFilter} className="rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
               <option value="">All cities</option>
               <option value="Seoul">Seoul</option>
               <option value="Busan">Busan</option>
@@ -192,7 +199,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
               <option value="Other">Other</option>
               <option value="Unknown">Unknown</option>
             </select>
-            <select name="status" defaultValue={statusFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+            <select name="status" defaultValue={statusFilter} className="rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
               <option value="">All member states</option>
               <option value="clear">No active sanction</option>
               <option value="sanctioned">Active sanction</option>
@@ -203,7 +210,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
             </button>
           </form>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-            <p>Showing {filteredUserSettings.length} of {userSettings.length} members.</p>
+            <p>The search controls above are the main way to narrow the member list quickly.</p>
             {(query || cityFilter || statusFilter) ? (
               <Link href="/admin" className="font-medium text-sky-700 hover:text-sky-800">Clear filters</Link>
             ) : null}
@@ -240,10 +247,11 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
           </div>
             </div>
 
-            <div className="space-y-6">
-          <section id="admin-watchlist" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div className="space-y-6 xl:sticky xl:top-6">
+          <section id="admin-watchlist" className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Admin-only watchlist</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">Sanctions and onboarding follow-up</h2>
+            <p className="mt-1 text-sm text-slate-500">Compact admin-only watchlist for quick review, not a second workspace competing with search.</p>
             <div className="mt-4 space-y-4">
               <div>
                 <p className="text-sm font-medium text-slate-900">Recently sanctioned members</p>
