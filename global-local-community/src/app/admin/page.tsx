@@ -4,8 +4,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
 import { PostVisibilityForm, ReportStatusForm } from '@/components/admin-actions';
 import { requireAdmin } from '@/lib/auth';
-import { cityScopeLabel } from '@/lib/locations';
 import { getAdminModerationView } from '@/lib/data';
+import { cityScopeLabel } from '@/lib/locations';
+import { getAdminUserSettingsView } from '@/lib/settings';
 import { setReportedPostVisibilityAction, updateReportStatusAction } from './actions';
 
 export default async function AdminPage() {
@@ -13,6 +14,7 @@ export default async function AdminPage() {
   if (!admin) notFound();
 
   const { reports, recentPosts } = await getAdminModerationView();
+  const userSettings = await getAdminUserSettingsView();
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
@@ -76,6 +78,21 @@ export default async function AdminPage() {
               <p className="mt-2 line-clamp-2">{post.body}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">User communication settings</h2>
+        <div className="mt-4 space-y-3">
+          {userSettings.length ? userSettings.map((setting) => (
+            <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="font-medium text-slate-900">User {setting.user_id}</p>
+              <p className="mt-2">Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
+              <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
+              <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
+              <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
+            </div>
+          )) : <p className="text-sm text-slate-500">No user settings saved yet.</p>}
         </div>
       </section>
     </div>
