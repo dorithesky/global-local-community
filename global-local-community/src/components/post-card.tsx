@@ -10,7 +10,7 @@ import { PostImages } from '@/components/post-images';
 
 export function PostCard({ post }: { post: PostRecord }) {
   return (
-    <article className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="rounded-3xl border border-sky-100 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="mb-4 flex items-start justify-between gap-3">
         <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
           {post.author.avatarUrl ? (
@@ -35,7 +35,7 @@ export function PostCard({ post }: { post: PostRecord }) {
           </div>
         </Link>
         <div className="flex items-center gap-2">
-          <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{post.category}</span>
+          <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-800">{post.category}</span>
           {post.author.city ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{post.author.city}</span> : null}
           {post.canEdit ? <FeedDeleteButton action={deletePostAction.bind(null, post.id)} /> : <FeedReportButton action={createReportAction.bind(null, post.id)} />}
         </div>
@@ -62,14 +62,14 @@ export function PostCard({ post }: { post: PostRecord }) {
           <span className="inline-flex items-center gap-1.5"><MessageCircle className="h-4 w-4" /> {post.commentsCount}</span>
         </div>
       </div>
-      <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-3 text-xs leading-6 text-slate-600">
+      <div className="mt-4 rounded-2xl border border-sky-100 bg-gradient-to-r from-sky-50/70 to-cyan-50/40 p-3 text-xs leading-6 text-slate-600">
         <p className="font-semibold text-slate-900">Trust and context</p>
         <p>{cityScopeLabel(post.city, post.district)} • {post.category} • {post.commentsCount} replies</p>
         <p className="mt-1">Posted by a visible member profile{post.author.occupation || post.author.originCountry ? ' with added identity context' : ''}.</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600">Published post</span>
-          {post.commentsCount > 0 ? <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600">Active discussion</span> : null}
-          {(post.author.occupation || post.author.originCountry) ? <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600">Profile has context</span> : null}
+          <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600 ring-1 ring-sky-100">Published post</span>
+          {post.commentsCount > 0 ? <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600 ring-1 ring-cyan-100">Active discussion</span> : null}
+          {(post.author.occupation || post.author.originCountry) ? <span className="rounded-full bg-white px-2 py-1 text-[11px] text-slate-600 ring-1 ring-emerald-100">Profile has context</span> : null}
         </div>
       </div>
     </article>
