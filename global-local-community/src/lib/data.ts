@@ -3,15 +3,22 @@ import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentRecord, PostRecord, Profile } from './types';
 
+function cleanLegacyProfileText(value?: unknown) {
+  if (!value) return undefined;
+  const text = String(value);
+  if (text.startsWith('notifications:') || text.startsWith('consent:')) return undefined;
+  return text;
+}
+
 function normalizeProfile(row: Record<string, unknown>): Profile {
   return {
     id: String(row.id),
     username: String(row.username ?? ''),
     displayName: String(row.display_name ?? ''),
-    bio: row.bio ? String(row.bio) : undefined,
+    bio: cleanLegacyProfileText(row.bio),
     city: String(row.city ?? 'Daegu'),
     originCountry: row.origin_country ? String(row.origin_country) : undefined,
-    occupation: row.occupation ? String(row.occupation) : undefined,
+    occupation: cleanLegacyProfileText(row.occupation),
     avatarUrl: row.avatar_url ? String(row.avatar_url) : undefined,
   };
 }

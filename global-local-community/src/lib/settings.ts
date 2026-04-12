@@ -1,6 +1,12 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
 
+function cleanLegacyProfileText(value?: string | null) {
+  if (!value) return '';
+  if (value.startsWith('notifications:') || value.startsWith('consent:')) return '';
+  return value;
+}
+
 export async function ensureUserSettingsRow(userId: string) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return null;
@@ -32,7 +38,7 @@ export async function getAccountSettings() {
   return {
     profile: {
       displayName: profileData?.display_name ?? member.displayName,
-      bio: profileData?.bio ?? '',
+      bio: cleanLegacyProfileText(profileData?.bio),
       city: profileData?.city ?? 'Seoul',
     },
     notifications: {

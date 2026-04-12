@@ -59,11 +59,13 @@ export async function saveProfileIdentityAction(formData: FormData) {
   const bio = String(formData.get('bio') ?? '').trim();
   const city = String(formData.get('city') ?? '').trim();
 
+  const cleanedBio = (bio.startsWith('notifications:') || bio.startsWith('consent:')) ? '' : bio;
+
   if (!displayName) throw new Error('Display name is required.');
 
   const { error } = await supabase.from('profiles').update({
     display_name: displayName,
-    bio: bio || null,
+    bio: cleanedBio || null,
     city: city || 'Seoul',
     updated_at: new Date().toISOString(),
   }).eq('id', member.id);
