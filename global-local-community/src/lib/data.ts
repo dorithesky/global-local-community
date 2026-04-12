@@ -21,6 +21,8 @@ function normalizeProfile(row: Record<string, unknown>): Profile {
     originCountry: row.origin_country ? String(row.origin_country) : undefined,
     occupation: cleanLegacyProfileText(row.occupation),
     avatarUrl: row.avatar_url ? String(row.avatar_url) : undefined,
+    createdAt: row.created_at ? String(row.created_at) : undefined,
+    onboardingCompleted: typeof row.onboarding_completed === 'boolean' ? row.onboarding_completed : undefined,
   };
 }
 
@@ -102,7 +104,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
   const postIds = data.map((row) => row.id);
   const { data: profilesData } = await supabase
     .from('profiles')
-    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
     .in('id', authorIds);
 
   const [{ data: likesData }, { data: commentsData }, { data: bookmarksData }] = await Promise.all([
@@ -159,7 +161,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
       const [{ data: profileRow }, { data: likesData }, { data: bookmarksData }] = await Promise.all([
         supabase
           .from('profiles')
-          .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+          .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
           .eq('id', row.author_id)
           .maybeSingle(),
         supabase.from('likes').select('user_id').eq('post_id', id),
@@ -333,7 +335,7 @@ export async function getProfile(username: string): Promise<Profile | undefined>
 
   const { data } = await supabase
     .from('profiles')
-    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
     .eq('username', username)
     .maybeSingle();
 

@@ -29,6 +29,8 @@ export function PostCard({ post }: { post: PostRecord }) {
             <div className="mt-1 flex flex-wrap gap-1.5 text-[11px] text-slate-500">
               {post.author.occupation ? <span className="rounded-full bg-slate-100 px-2 py-1">{post.author.occupation}</span> : null}
               {post.author.originCountry ? <span className="rounded-full bg-slate-100 px-2 py-1">From {post.author.originCountry}</span> : null}
+              {post.author.onboardingCompleted ? <span className="rounded-full bg-emerald-50 px-2 py-1 text-emerald-700">Profile completed</span> : null}
+              {post.author.createdAt ? <span className="rounded-full bg-slate-100 px-2 py-1">Member since {formatDistanceToNow(new Date(post.author.createdAt), { addSuffix: true })}</span> : null}
             </div>
           </div>
         </Link>

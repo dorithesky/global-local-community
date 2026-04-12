@@ -11,6 +11,8 @@ export interface Profile {
   originCountry?: string;
   occupation?: string;
   avatarUrl?: string;
+  createdAt?: string;
+  onboardingCompleted?: boolean;
 }
 
 export interface AiAnalysis {

@@ -15,6 +15,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const currentMember = await getCurrentMember();
   const isOwnProfile = currentMember?.username === username;
   const savedPosts = isOwnProfile ? await getSavedPosts() : [];
+  const identitySignals = [profile.city, profile.occupation, profile.originCountry, profile.bio].filter(Boolean).length;
+  const memberAgeLabel = profile.createdAt ? formatDistanceToNow(new Date(profile.createdAt), { addSuffix: true }) : null;
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
@@ -34,7 +36,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <p className="text-lg font-semibold text-slate-950">{profile.displayName}</p>
               <p className="text-sm text-slate-500">@{profile.username}</p>
               <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profileComments.length} comments</p>
-              <p className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700">Profile context {profile.city && profile.occupation ? 'complete enough to trust at a glance' : 'still growing'}</p>
+              <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-medium">
+                <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">Profile context {identitySignals >= 3 ? 'complete enough to trust at a glance' : 'still growing'}</span>
+                {profile.onboardingCompleted ? <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">Onboarding complete</span> : null}
+                {memberAgeLabel ? <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-slate-700">Member since {memberAgeLabel}</span> : null}
+              </div>
             </div>
           </div>
         </div>
@@ -71,7 +77,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             </div>
             <div>
               <p className="font-medium text-slate-900">Account state</p>
-              <p>Signed in and active</p>
+              <p>{profile.onboardingCompleted ? 'Onboarding completed' : 'Profile still needs context'}</p>
             </div>
           </div>
         </section>
