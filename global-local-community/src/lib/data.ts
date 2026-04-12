@@ -1,6 +1,5 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
-import { getSupabaseAdminClient } from './supabase-admin';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
 
@@ -222,10 +221,10 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
-  const admin = getSupabaseAdminClient();
+  const supabase = await getSupabaseServerClient();
   const member = await getCurrentMember();
 
-  if (!admin) {
+  if (!supabase) {
     return {
       post: {
         ...post,
@@ -243,13 +242,13 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   }
 
   const [{ count }, { data: rows, error }, { data: memberCommentRows }] = await Promise.all([
-    admin.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', id),
-    admin
+    supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', id),
+    supabase
       .from('comments')
       .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
       .eq('post_id', id)
       .order('created_at', { ascending: true }),
-    member ? admin.from('comments').select('post_id').eq('author_id', member.id).order('created_at', { ascending: false }).limit(10) : Promise.resolve({ data: [] }),
+    member ? supabase.from('comments').select('post_id').eq('author_id', member.id).order('created_at', { ascending: false }).limit(10) : Promise.resolve({ data: [] }),
   ]);
 
   if (error || !rows?.length) {
@@ -276,7 +275,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
 
   const authorIds = [...new Set(rows.map((row) => row.author_id).filter(Boolean))];
   const { data: profilesData } = authorIds.length
-    ? await admin
+    ? await supabase
         .from('profiles')
         .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
         .in('id', authorIds)

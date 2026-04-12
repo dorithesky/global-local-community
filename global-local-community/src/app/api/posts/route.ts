@@ -4,6 +4,7 @@ import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMemb
 import { getFeedPosts } from '@/lib/data';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { logServerRequest } from '@/lib/request-logging';
+import { sanitizePlainText } from '@/lib/security';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const createPostSchema = z.object({
@@ -50,21 +51,29 @@ export async function POST(request: Request) {
   }
 
   const payload = createPostSchema.parse(await request.json());
-  const classification = classifyContent(payload);
-  const moderation = detectToxicityOrSpam(payload);
+  const sanitizedPayload = {
+    ...payload,
+    title: sanitizePlainText(payload.title, { maxLength: 140, allowNewlines: false }),
+    body: sanitizePlainText(payload.body, { maxLength: 5000, allowNewlines: true }),
+    city: sanitizePlainText(payload.city, { maxLength: 40, allowNewlines: false }),
+    district: sanitizePlainText(payload.district, { maxLength: 80, allowNewlines: false }),
+    tags: (payload.tags ?? []).map((tag) => sanitizePlainText(tag, { maxLength: 32, allowNewlines: false }).toLowerCase()).filter(Boolean).slice(0, 8),
+  };
+  const classification = classifyContent(sanitizedPayload);
+  const moderation = detectToxicityOrSpam(sanitizedPayload);
   const moderationStatus = moderation.label === 'spam-risk' && moderation.score >= 0.7 ? 'review' : 'published';
-  const tags = (payload.tags ?? []).map((tag) => tag.trim().toLowerCase()).filter(Boolean).slice(0, 8);
+  const tags = sanitizedPayload.tags;
   const imageUrls = (payload.imageUrls ?? []).slice(0, 4);
 
   const { data, error } = await supabase
     .from('posts')
     .insert({
       author_id: member.id,
-      category: payload.category,
-      title: payload.title.trim(),
-      body: payload.body.trim(),
-      city: payload.city.trim() || 'Seoul',
-      district: payload.district?.trim() || null,
+      category: sanitizedPayload.category,
+      title: sanitizedPayload.title,
+      body: sanitizedPayload.body,
+      city: sanitizedPayload.city || 'Seoul',
+      district: sanitizedPayload.district || null,
       tags,
       image_urls: imageUrls,
       ai_label: classification.label,
@@ -84,9 +93,9 @@ export async function POST(request: Request) {
     entity_type: 'post',
     entity_id: data.id,
     payload: {
-      title: payload.title,
-      city: payload.city,
-      category: payload.category,
+      title: sanitizedPayload.title,
+      city: sanitizedPayload.city,
+      category: sanitizedPayload.category,
       moderation_status: moderationStatus,
     },
   });

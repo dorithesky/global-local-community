@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { canCurrentMemberManageComment } from '@/lib/data';
 import { logServerRequest } from '@/lib/request-logging';
+import { sanitizePlainText } from '@/lib/security';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -28,7 +29,7 @@ export async function createCommentAction(postId: string, formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const body = String(formData.get('body') ?? '').trim();
+  const body = sanitizePlainText(formData.get('body'), { maxLength: 2000, allowNewlines: true });
   if (!body) throw new Error('Comment body is required.');
 
   const { data, error } = await supabase.from('comments').insert({
@@ -69,7 +70,7 @@ export async function updateCommentAction(postId: string, formData: FormData) {
   if (!supabase) throw new Error('Supabase is not configured.');
 
   const commentId = String(formData.get('commentId') ?? '');
-  const body = String(formData.get('body') ?? '').trim();
+  const body = sanitizePlainText(formData.get('body'), { maxLength: 2000, allowNewlines: true });
   if (!commentId || !body) throw new Error('Comment update is incomplete.');
 
   const { data: existing } = await supabase
@@ -159,8 +160,8 @@ export async function createReportAction(postId: string, formData: FormData) {
   const parsed = reportSchema.safeParse({
     postId,
     commentId: formData.get('commentId') ? String(formData.get('commentId')) : undefined,
-    reason: String(formData.get('reason') ?? '').trim(),
-    details: String(formData.get('details') ?? '').trim() || undefined,
+    reason: sanitizePlainText(formData.get('reason'), { maxLength: 80, allowNewlines: false }),
+    details: sanitizePlainText(formData.get('details'), { maxLength: 500, allowNewlines: true }) || undefined,
   });
 
   if (!parsed.success) {

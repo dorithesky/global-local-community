@@ -10,7 +10,7 @@ export type ActiveSanction = {
 };
 
 const ADMIN_EMAILS = new Set(
-  (process.env.ADMIN_EMAILS ?? 'scottchmoon@gmail.com')
+  (process.env.ADMIN_EMAILS ?? '')
     .split(',')
     .map((value) => value.trim().toLowerCase())
     .filter(Boolean),

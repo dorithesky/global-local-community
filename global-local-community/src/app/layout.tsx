@@ -3,6 +3,7 @@ import './globals.css';
 import { SiteShell } from '@/components/site-shell';
 import { Analytics } from '@/components/analytics';
 import { ThemeProvider } from '@/components/theme-provider';
+import { validateServerEnv } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: 'Global Local Community',
@@ -10,6 +11,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  validateServerEnv();
+
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <body>

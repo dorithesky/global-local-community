@@ -4,17 +4,16 @@ import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getFeedPosts } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
-import { getAccountSettings, getAdminUserSettingsView } from '@/lib/settings';
+import { getAccountSettings } from '@/lib/settings';
 
 export default async function HomePage() {
   const member = await getCurrentMember();
-  const [posts, memberSettings, accountSettings] = await Promise.all([
+  const [posts, accountSettings] = await Promise.all([
     getFeedPosts(),
-    getAdminUserSettingsView(),
     member ? getAccountSettings() : Promise.resolve(null),
   ]);
-  const activeMembers = memberSettings.filter((row) => row.profile?.onboardingCompleted).length;
-  const visibleCities = new Set(memberSettings.map((row) => row.profile?.city).filter(Boolean)).size;
+  const activeMembers = posts.filter((post) => post.author.onboardingCompleted).length;
+  const visibleCities = new Set(posts.map((post) => post.city).filter(Boolean)).size;
   const recommendedCategory = accountSettings?.profile.immediateNeed || null;
 
   return (

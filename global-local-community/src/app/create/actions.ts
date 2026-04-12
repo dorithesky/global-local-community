@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { logServerRequest } from '@/lib/request-logging';
+import { sanitizePlainText, sanitizeTagList } from '@/lib/security';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function createPostAction(formData: FormData) {
@@ -22,12 +23,12 @@ export async function createPostAction(formData: FormData) {
     throw new Error('Supabase is not configured.');
   }
 
-  const title = String(formData.get('title') ?? '').trim();
-  const body = String(formData.get('body') ?? '').trim();
-  const category = String(formData.get('category') ?? 'daily-life').trim();
-  const district = String(formData.get('district') ?? '').trim();
-  const tagsRaw = String(formData.get('tags') ?? '').trim();
-  const city = String(formData.get('city') ?? process.env.NEXT_PUBLIC_CITY ?? 'Seoul').trim() || 'Seoul';
+  const title = sanitizePlainText(formData.get('title'), { maxLength: 140, allowNewlines: false });
+  const body = sanitizePlainText(formData.get('body'), { maxLength: 5000, allowNewlines: true });
+  const category = sanitizePlainText(formData.get('category') ?? 'daily-life', { maxLength: 40, allowNewlines: false });
+  const district = sanitizePlainText(formData.get('district'), { maxLength: 80, allowNewlines: false });
+  const tags = sanitizeTagList(formData.get('tags'));
+  const city = sanitizePlainText(formData.get('city') ?? process.env.NEXT_PUBLIC_CITY ?? 'Seoul', { maxLength: 40, allowNewlines: false }) || 'Seoul';
 
   if (!title || !body) {
     throw new Error('Title and body are required.');
@@ -36,11 +37,7 @@ export async function createPostAction(formData: FormData) {
   const classification = classifyContent({ title, body });
   const safety = detectToxicityOrSpam({ title, body });
   const moderationStatus = safety.label === 'spam-risk' && safety.score >= 0.7 ? 'review' : 'published';
-  const tags = tagsRaw
-    .split(',')
-    .map((tag) => tag.trim().toLowerCase())
-    .filter(Boolean)
-    .slice(0, 8);
+  
   const imageUrls = formData.getAll('imageUrls').map(String).filter(Boolean).slice(0, 4);
   const imageStoragePaths = formData.getAll('imageStoragePaths').map(String).filter(Boolean).slice(0, 4);
   const imageMimeTypes = formData.getAll('imageMimeTypes').map(String).filter(Boolean).slice(0, 4);

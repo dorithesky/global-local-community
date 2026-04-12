@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getCurrentMember } from '@/lib/auth';
+import { sanitizePlainText } from '@/lib/security';
 import { ensureUserSettingsRow } from '@/lib/settings';
 
 export async function saveNotificationPreferencesAction(formData: FormData) {
@@ -55,13 +56,13 @@ export async function saveProfileIdentityAction(formData: FormData) {
   const supabase = await ensureUserSettingsRow(member.id);
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const displayName = String(formData.get('displayName') ?? '').trim();
-  const bio = String(formData.get('bio') ?? '').trim();
-  const city = String(formData.get('city') ?? '').trim();
-  const occupation = String(formData.get('occupation') ?? '').trim();
-  const originCountry = String(formData.get('originCountry') ?? '').trim();
-  const lifeStage = String(formData.get('lifeStage') ?? '').trim();
-  const immediateNeed = String(formData.get('immediateNeed') ?? '').trim();
+  const displayName = sanitizePlainText(formData.get('displayName'), { maxLength: 80, allowNewlines: false });
+  const bio = sanitizePlainText(formData.get('bio'), { maxLength: 500, allowNewlines: true });
+  const city = sanitizePlainText(formData.get('city'), { maxLength: 40, allowNewlines: false });
+  const occupation = sanitizePlainText(formData.get('occupation'), { maxLength: 80, allowNewlines: false });
+  const originCountry = sanitizePlainText(formData.get('originCountry'), { maxLength: 60, allowNewlines: false });
+  const lifeStage = sanitizePlainText(formData.get('lifeStage'), { maxLength: 80, allowNewlines: false });
+  const immediateNeed = sanitizePlainText(formData.get('immediateNeed'), { maxLength: 40, allowNewlines: false });
 
   const cleanedBio = (bio.startsWith('notifications:') || bio.startsWith('consent:')) ? '' : bio;
 
