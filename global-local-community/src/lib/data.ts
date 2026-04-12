@@ -171,16 +171,26 @@ export async function getProfilePosts(username: string): Promise<PostRecord[]> {
 
 export async function getPostComments(postId: string): Promise<CommentRecord[]> {
   const supabase = await getSupabaseServerClient();
-  if (!supabase) return getCommentsByPostId(postId);
-
   const member = await getCurrentMember();
+  if (!supabase) {
+    return getCommentsByPostId(postId).map((comment) => ({
+      ...comment,
+      canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
+    }));
+  }
+
   const { data, error } = await supabase
     .from('comments')
     .select('id, post_id, body, created_at, updated_at, author_id')
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
 
-  if (error || !data?.length) return getCommentsByPostId(postId);
+  if (error || !data?.length) {
+    return getCommentsByPostId(postId).map((comment) => ({
+      ...comment,
+      canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
+    }));
+  }
 
   const authorIds = [...new Set(data.map((row) => row.author_id))];
   const { data: profilesData } = await supabase
@@ -190,20 +200,24 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
 
   const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
 
-  return data.map((row) => ({
-    id: row.id,
-    postId: row.post_id,
-    body: row.body,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    canEdit: member?.id === row.author_id,
-    author: profileMap.get(row.author_id) ?? {
+  return data.map((row) => {
+    const author = profileMap.get(row.author_id) ?? {
       id: row.author_id,
       username: 'unknown',
       displayName: 'Unknown member',
       city: 'Daegu',
-    },
-  }));
+    };
+
+    return {
+      id: row.id,
+      postId: row.post_id,
+      body: row.body,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      canEdit: Boolean(member && (member.id === row.author_id || member.username === author.username)),
+      author,
+    };
+  });
 }
 
 export async function getSavedPosts() {

@@ -52,8 +52,8 @@ export function PostCard({ post }: { post: PostRecord }) {
         </div>
       </div>
       <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-3 text-xs leading-6 text-slate-600">
-        <p className="font-semibold text-slate-900">AI signal</p>
-        <p>{post.analysis.label} • score {post.analysis.score.toFixed(2)} • {post.analysis.explanation}</p>
+        <p className="font-semibold text-slate-900">Quick context</p>
+        <p>{cityScopeLabel(post.city, post.district)} • {post.category} • {post.commentsCount} replies</p>
       </div>
     </article>
   );

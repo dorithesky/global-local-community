@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
@@ -19,7 +20,24 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     <div className="space-y-6 pb-24 lg:pb-8">
       <PageHeader eyebrow="Profile" title={profile.displayName} description={profile.bio ? `${profile.bio} · @${profile.username}` : `@${profile.username}`} />
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-600">
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            {profile.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.avatarUrl} alt={profile.displayName} className="h-16 w-16 rounded-full object-cover ring-2 ring-slate-100" />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-sky-100 text-lg font-semibold text-sky-700 ring-2 ring-slate-100">
+                {profile.displayName.slice(0, 1).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <p className="text-lg font-semibold text-slate-950">{profile.displayName}</p>
+              <p className="text-sm text-slate-500">@{profile.username}</p>
+              <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profileComments.length} comments</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-3">
           <div>
             <p className="font-medium text-slate-900">City</p>
             <p>{profile.city}</p>
@@ -66,6 +84,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <p className="text-sm font-medium text-slate-900">{profile.displayName}</p>
             <p className="mt-1 text-xs text-slate-500">@{profile.username} • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
             <p className="mt-3 text-sm leading-7 text-slate-600">{comment.body}</p>
+            <div className="mt-4">
+              <Link href={`/posts/${comment.postId}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">Open original post</Link>
+            </div>
           </div>
         )) : <div className="rounded-[28px] border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">No comments yet.</div>}
       </section>

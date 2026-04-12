@@ -72,7 +72,9 @@ export function CommentThread({
                           <CommentActionButton label="Delete" />
                         </form>
                       </div>
-                    ) : null}
+                    ) : (
+                      <p className="mt-3 text-xs text-slate-400">Only the author can edit or delete this reply.</p>
+                    )}
                   </>
                 )}
               </div>
