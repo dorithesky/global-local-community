@@ -13,7 +13,7 @@ export async function SessionPill() {
   }
 
   return (
-    <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
+    <Link href="/settings" className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
       {member.avatarUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={member.avatarUrl} alt={member.displayName} className="h-9 w-9 rounded-full object-cover" />
@@ -26,6 +26,6 @@ export async function SessionPill() {
         <p className="truncate text-sm font-semibold text-slate-900">{member.displayName}</p>
         <p className="truncate text-xs text-slate-500">@{member.username}</p>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
-import { NotificationPreferencesForm } from '@/components/notification-preferences-form';
+import { AccountSettingsForm } from '@/components/account-settings-form';
 import { getCurrentMember } from '@/lib/auth';
 
 export default async function SettingsPage() {
@@ -11,10 +11,10 @@ export default async function SettingsPage() {
     <div className="space-y-6 pb-24 lg:pb-8">
       <PageHeader
         eyebrow="Settings"
-        title="Notification preferences"
-        description="Decide whether you want updates when your posts receive likes or comments."
+        title="Account and communication settings"
+        description="Manage how the product reaches you, and what communication you agree to receive."
       />
-      <NotificationPreferencesForm />
+      <AccountSettingsForm />
     </div>
   );
 }
