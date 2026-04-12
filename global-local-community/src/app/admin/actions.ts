@@ -29,12 +29,101 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
 
   const postId = String(formData.get('postId') ?? '');
   const moderationStatus = String(formData.get('moderationStatus') ?? 'published');
+  const note = String(formData.get('note') ?? '').trim();
   if (!postId) throw new Error('Missing post id');
 
+  const { data: post } = await supabase.from('posts').select('author_id').eq('id', postId).maybeSingle();
   const { error } = await supabase.from('posts').update({ moderation_status: moderationStatus }).eq('id', postId);
   if (error) throw new Error(error.message);
+
+  await supabase.from('workflow_events').insert({
+    event_type: 'moderation.post_visibility_updated',
+    entity_type: 'post',
+    entity_id: postId,
+    payload: {
+      moderation_status: moderationStatus,
+      admin_id: admin.id,
+      note,
+    },
+  });
+
+  if (note) {
+    await supabase.from('moderator_notes').insert({
+      target_user_id: post?.author_id ?? null,
+      post_id: postId,
+      author_id: admin.id,
+      note,
+    });
+  }
 
   revalidatePath('/admin');
   revalidatePath(`/posts/${postId}`);
   revalidatePath('/feed');
+}
+
+export async function addModeratorNoteAction(formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) throw new Error('Unauthorized');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const targetUserId = String(formData.get('targetUserId') ?? '').trim() || null;
+  const reportId = String(formData.get('reportId') ?? '').trim() || null;
+  const postId = String(formData.get('postId') ?? '').trim() || null;
+  const commentId = String(formData.get('commentId') ?? '').trim() || null;
+  const note = String(formData.get('note') ?? '').trim();
+
+  if (!note) throw new Error('Note is required.');
+
+  const { error } = await supabase.from('moderator_notes').insert({
+    target_user_id: targetUserId,
+    report_id: reportId,
+    post_id: postId,
+    comment_id: commentId,
+    author_id: admin.id,
+    note,
+  });
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/admin');
+}
+
+export async function applyUserSanctionAction(formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) throw new Error('Unauthorized');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const userId = String(formData.get('userId') ?? '').trim();
+  const sanctionType = String(formData.get('sanctionType') ?? '').trim();
+  const reason = String(formData.get('reason') ?? '').trim();
+  const note = String(formData.get('note') ?? '').trim();
+
+  if (!userId || !sanctionType || !reason) throw new Error('Incomplete sanction request.');
+
+  const { error } = await supabase.from('user_sanctions').insert({
+    user_id: userId,
+    sanction_type: sanctionType,
+    reason,
+    note: note || null,
+    created_by: admin.id,
+  });
+
+  if (error) throw new Error(error.message);
+
+  await supabase.from('workflow_events').insert({
+    event_type: 'moderation.user_sanctioned',
+    entity_type: 'profile',
+    entity_id: userId,
+    payload: {
+      sanction_type: sanctionType,
+      reason,
+      admin_id: admin.id,
+    },
+  });
+
+  revalidatePath('/admin');
 }

@@ -2,9 +2,19 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { z } from 'zod';
 import { getCurrentMember } from '@/lib/auth';
 import { canCurrentMemberManageComment } from '@/lib/data';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
+
+const reportSchema = z.object({
+  postId: z.string().uuid().optional(),
+  commentId: z.string().uuid().optional(),
+  reason: z.string().min(3),
+  details: z.string().optional(),
+}).refine((value) => Boolean(value.postId || value.commentId), {
+  message: 'A postId or commentId is required.',
+});
 
 export async function createCommentAction(postId: string, formData: FormData) {
   const member = await getCurrentMember();
@@ -132,24 +142,39 @@ export async function createReportAction(postId: string, formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const reason = String(formData.get('reason') ?? '').trim();
-  const details = String(formData.get('details') ?? '').trim();
-  if (!reason) throw new Error('Reason is required.');
+  const parsed = reportSchema.safeParse({
+    postId,
+    commentId: formData.get('commentId') ? String(formData.get('commentId')) : undefined,
+    reason: String(formData.get('reason') ?? '').trim(),
+    details: String(formData.get('details') ?? '').trim() || undefined,
+  });
+
+  if (!parsed.success) {
+    throw new Error('Reason is required.');
+  }
+
+  const payload = parsed.data;
 
   const { error } = await supabase.from('reports').insert({
     reporter_id: member.id,
-    post_id: postId,
-    reason,
-    details: details || null,
+    post_id: payload.postId ?? null,
+    comment_id: payload.commentId ?? null,
+    reason: payload.reason,
+    details: payload.details ?? null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.code === '23505') {
+      throw new Error('You already reported this item.');
+    }
+    throw new Error(error.message);
+  }
 
   await supabase.from('workflow_events').insert({
     event_type: 'report.created',
-    entity_type: 'post',
-    entity_id: postId,
-    payload: { reason, reporter_id: member.id },
+    entity_type: payload.commentId ? 'comment' : 'post',
+    entity_id: payload.commentId ?? payload.postId ?? null,
+    payload: { reason: payload.reason, reporter_id: member.id },
   });
 
   revalidatePath('/admin');

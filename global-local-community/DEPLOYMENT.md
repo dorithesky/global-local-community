@@ -1,5 +1,16 @@
 # Deployment
 
+## Prelaunch checklist
+
+- `npm run lint`
+- `npm run build`
+- Apply latest Supabase schema and migrations, including `comment_history_migration.sql`, `comment_soft_delete_migration.sql`, `settings_migration.sql`, and `moderation_baseline_migration.sql`
+- Confirm `/api/health` returns database `ok`
+- Confirm `/api/seed` is blocked in production
+- Confirm admin access is restricted to approved emails only
+- Confirm Google auth, email/password auth, magic link auth, post creation, comments, likes, bookmarks, reports, and admin moderation all work on the target environment
+- Confirm rollback path exists for Vercel deploy and Supabase migration changes
+
 ## Vercel
 
 1. Push `global-local-community` to GitHub.

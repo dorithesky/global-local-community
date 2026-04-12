@@ -13,8 +13,8 @@ export default async function SettingsPage() {
     <div className="space-y-6 pb-24 lg:pb-8">
       <PageHeader
         eyebrow="Settings"
-        title="Account and communication settings"
-        description="Manage how the product reaches you, and what communication you agree to receive."
+        title="Account, onboarding, and communication settings"
+        description="Tell the product who you are, what you need right now, and how it should reach you."
       />
       {settings ? <AccountSettingsForm settings={settings} /> : null}
     </div>

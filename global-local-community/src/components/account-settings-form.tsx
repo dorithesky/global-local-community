@@ -4,7 +4,7 @@ export function AccountSettingsForm({
   settings,
 }: {
   settings: {
-    profile: { displayName: string; bio: string; city: string };
+    profile: { displayName: string; bio: string; city: string; originCountry: string; lifeStage: string; immediateNeed: string };
     notifications: { notifyLikes: boolean; notifyComments: boolean };
     consent: { marketingConsent: boolean; thirdPartyEmailConsent: boolean };
   };
@@ -26,10 +26,30 @@ export function AccountSettingsForm({
               <label className="mb-2 block text-sm font-medium text-slate-900">City</label>
               <input name="city" defaultValue={settings.profile.city} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" />
             </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-900">Origin country</label>
+              <input name="originCountry" defaultValue={settings.profile.originCountry} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Canada, India, UK" />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-900">Life stage or visa context</label>
+              <input name="lifeStage" defaultValue={settings.profile.lifeStage} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Student, teacher, job seeker, spouse visa" />
+            </div>
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-900">Bio</label>
             <textarea name="bio" defaultValue={settings.profile.bio} className="min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" />
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-900">What do you need most right now?</label>
+            <select name="immediateNeed" defaultValue={settings.profile.immediateNeed} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring">
+              <option value="">Choose one</option>
+              <option value="housing">Housing</option>
+              <option value="jobs">Jobs</option>
+              <option value="daily-life">Daily life</option>
+              <option value="events">Events</option>
+              <option value="marketplace">Marketplace</option>
+            </select>
+            <p className="mt-2 text-xs leading-6 text-slate-500">This helps shape the first posts and recommendations you should see.</p>
           </div>
           <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
             Save profile

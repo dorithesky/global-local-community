@@ -25,7 +25,7 @@ export async function getAccountSettings() {
   const [{ data }, { data: profileData }] = await Promise.all([
     supabase
       .from('user_settings')
-      .select('notify_likes, notify_comments, marketing_consent, third_party_email_consent')
+      .select('notify_likes, notify_comments, marketing_consent, third_party_email_consent, origin_country, life_stage, immediate_need')
       .eq('user_id', member.id)
       .maybeSingle(),
     supabase
@@ -40,6 +40,9 @@ export async function getAccountSettings() {
       displayName: profileData?.display_name ?? member.displayName,
       bio: cleanLegacyProfileText(profileData?.bio),
       city: profileData?.city ?? 'Seoul',
+      originCountry: data?.origin_country ?? '',
+      lifeStage: data?.life_stage ?? '',
+      immediateNeed: data?.immediate_need ?? '',
     },
     notifications: {
       notifyLikes: data?.notify_likes ?? true,

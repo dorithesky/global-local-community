@@ -74,8 +74,12 @@ create table if not exists reports (
   reason text not null,
   details text,
   status text not null default 'open' check (status in ('open','reviewing','resolved')),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  check ((post_id is not null) <> (comment_id is not null))
 );
+
+create unique index if not exists idx_reports_unique_post_reporter on reports(reporter_id, post_id) where post_id is not null;
+create unique index if not exists idx_reports_unique_comment_reporter on reports(reporter_id, comment_id) where comment_id is not null;
 
 create table if not exists workflow_events (
   id bigint generated always as identity primary key,
@@ -87,12 +91,39 @@ create table if not exists workflow_events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists moderator_notes (
+  id bigint generated always as identity primary key,
+  target_user_id uuid references profiles(id) on delete cascade,
+  report_id uuid references reports(id) on delete cascade,
+  post_id uuid references posts(id) on delete cascade,
+  comment_id uuid references comments(id) on delete cascade,
+  author_id uuid references profiles(id) on delete set null,
+  note text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists user_sanctions (
+  id bigint generated always as identity primary key,
+  user_id uuid not null references profiles(id) on delete cascade,
+  sanction_type text not null check (sanction_type in ('warn','mute','suspend','ban')),
+  reason text not null,
+  note text,
+  starts_at timestamptz not null default now(),
+  ends_at timestamptz,
+  active boolean not null default true,
+  created_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists user_settings (
   user_id uuid primary key references profiles(id) on delete cascade,
   notify_likes boolean not null default true,
   notify_comments boolean not null default true,
   marketing_consent boolean not null default true,
   third_party_email_consent boolean not null default true,
+  origin_country text,
+  life_stage text,
+  immediate_need text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -102,3 +133,5 @@ create index if not exists idx_posts_author_id_created_at on posts(author_id, cr
 create index if not exists idx_comments_post_id_created_at on comments(post_id, created_at asc);
 create index if not exists idx_reports_status_created_at on reports(status, created_at desc);
 create index if not exists idx_workflow_events_event_type_processed on workflow_events(event_type, processed_at, created_at desc);
+create index if not exists idx_moderator_notes_target_user_created_at on moderator_notes(target_user_id, created_at desc);
+create index if not exists idx_user_sanctions_user_active on user_sanctions(user_id, active, created_at desc);

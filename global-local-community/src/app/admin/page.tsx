@@ -2,12 +2,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
-import { PostVisibilityForm, ReportStatusForm } from '@/components/admin-actions';
+import { ModeratorNoteForm, PostVisibilityForm, ReportStatusForm, UserSanctionForm } from '@/components/admin-actions';
 import { requireAdmin } from '@/lib/auth';
 import { getAdminModerationView } from '@/lib/data';
 import { cityScopeLabel } from '@/lib/locations';
 import { getAdminUserSettingsView } from '@/lib/settings';
-import { setReportedPostVisibilityAction, updateReportStatusAction } from './actions';
+import { addModeratorNoteAction, applyUserSanctionAction, setReportedPostVisibilityAction, updateReportStatusAction } from './actions';
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
@@ -51,6 +51,10 @@ export default async function AdminPage() {
                     <ReportStatusForm reportId={report.id} status="resolved" action={updateReportStatusAction} />
                     <PostVisibilityForm postId={report.post.id} moderationStatus="published" action={setReportedPostVisibilityAction} />
                     <PostVisibilityForm postId={report.post.id} moderationStatus="hidden" action={setReportedPostVisibilityAction} />
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    <ModeratorNoteForm action={addModeratorNoteAction} reportId={report.id} postId={report.post.id} targetUserId={report.post.author_id} />
+                    <UserSanctionForm action={applyUserSanctionAction} userId={report.post.author_id} />
                   </div>
                 </div>
               ) : (

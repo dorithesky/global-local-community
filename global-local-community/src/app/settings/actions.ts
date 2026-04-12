@@ -58,6 +58,9 @@ export async function saveProfileIdentityAction(formData: FormData) {
   const displayName = String(formData.get('displayName') ?? '').trim();
   const bio = String(formData.get('bio') ?? '').trim();
   const city = String(formData.get('city') ?? '').trim();
+  const originCountry = String(formData.get('originCountry') ?? '').trim();
+  const lifeStage = String(formData.get('lifeStage') ?? '').trim();
+  const immediateNeed = String(formData.get('immediateNeed') ?? '').trim();
 
   const cleanedBio = (bio.startsWith('notifications:') || bio.startsWith('consent:')) ? '' : bio;
 
@@ -71,6 +74,15 @@ export async function saveProfileIdentityAction(formData: FormData) {
   }).eq('id', member.id);
 
   if (error) throw new Error(error.message);
+
+  const { error: settingsError } = await supabase.from('user_settings').update({
+    origin_country: originCountry || null,
+    life_stage: lifeStage || null,
+    immediate_need: immediateNeed || null,
+    updated_at: new Date().toISOString(),
+  }).eq('user_id', member.id);
+
+  if (settingsError) throw new Error(settingsError.message);
 
   revalidatePath('/settings');
   revalidatePath(`/profile/${member.username}`);
