@@ -3,9 +3,9 @@ import { PostCard } from '@/components/post-card';
 import { FeedFilters } from '@/components/feed-filters';
 import { getFeedPosts } from '@/lib/data';
 
-export default async function FeedPage({ searchParams }: { searchParams: Promise<{ city?: string; category?: string; q?: string }> }) {
+export default async function FeedPage({ searchParams }: { searchParams: Promise<{ city?: string; category?: string; q?: string; sort?: string }> }) {
   const params = await searchParams;
-  const posts = await getFeedPosts({ city: params.city, category: params.category, query: params.q });
+  const posts = await getFeedPosts({ city: params.city, category: params.category, query: params.q, sort: params.sort });
 
   return (
     <div className="space-y-4 pb-24 lg:pb-8">

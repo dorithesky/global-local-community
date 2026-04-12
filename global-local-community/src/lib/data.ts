@@ -38,7 +38,38 @@ function normalizePost(row: Record<string, unknown>, profile: Profile): PostReco
   };
 }
 
-export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null }): Promise<PostRecord[]> {
+function applyFeedSort(posts: PostRecord[], filters?: { query?: string | null; sort?: string | null }) {
+  const sort = filters?.sort ?? 'relevance';
+  const query = (filters?.query ?? '').trim().toLowerCase();
+
+  if (sort === 'oldest') {
+    return [...posts].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+  }
+
+  if (sort === 'recent') {
+    return [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  if (!query) {
+    return [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }
+
+  const score = (post: PostRecord) => {
+    const haystack = `${post.title} ${post.body} ${post.tags.join(' ')}`.toLowerCase();
+    let points = 0;
+    if (post.title.toLowerCase().includes(query)) points += 8;
+    if (post.body.toLowerCase().includes(query)) points += 4;
+    if (post.tags.some((tag) => tag.includes(query))) points += 3;
+    if (haystack.includes(query)) points += 2;
+    points += post.commentsCount * 0.05;
+    points += post.likesCount * 0.03;
+    return points;
+  };
+
+  return [...posts].sort((a, b) => score(b) - score(a) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return mockPosts;
 
@@ -55,7 +86,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
   const { data, error } = await queryBuilder;
 
-  if (error || !data?.length) return mockPosts;
+  if (error || !data?.length) return applyFeedSort(mockPosts, filters);
 
   const authorIds = [...new Set(data.map((row) => row.author_id))];
   const postIds = data.map((row) => row.id);
@@ -85,7 +116,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     commentCounts.set(row.post_id, (commentCounts.get(row.post_id) ?? 0) + 1);
   });
 
-  return data.map((row) => ({
+  const normalized = data.map((row) => ({
     ...normalizePost(row, profileMap.get(row.author_id) ?? {
       id: String(row.author_id),
       username: 'unknown',
@@ -97,6 +128,8 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     bookmarked: bookmarkedPostIds.has(row.id),
     liked: likedPostIds.has(row.id),
   }));
+
+  return applyFeedSort(normalized, filters);
 }
 
 export async function getPost(id: string): Promise<PostRecord | undefined> {

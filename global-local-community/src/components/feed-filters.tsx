@@ -32,7 +32,7 @@ export function FeedFilters() {
             className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-11 py-3 text-sm outline-none ring-sky-200 focus:ring"
           />
         </div>
-        <div className="grid gap-3 sm:grid-cols-3 lg:w-auto">
+        <div className="grid gap-3 sm:grid-cols-4 lg:w-auto">
           <select
             defaultValue={searchParams.get('city') ?? 'all'}
             onChange={(event) => updateParam('city', event.target.value)}
@@ -49,6 +49,15 @@ export function FeedFilters() {
             {categoryOptions.map((category) => (
               <option key={category} value={category}>{category === 'all' ? 'All categories' : category}</option>
             ))}
+          </select>
+          <select
+            defaultValue={searchParams.get('sort') ?? 'relevance'}
+            onChange={(event) => updateParam('sort', event.target.value)}
+            className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
+          >
+            <option value="relevance">Sort: relevance</option>
+            <option value="recent">Sort: newest first</option>
+            <option value="oldest">Sort: oldest first</option>
           </select>
           <button
             type="button"
