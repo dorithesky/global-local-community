@@ -64,12 +64,12 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/settings?onboarding=1`,
         },
       });
 
       setBusy(false);
-      setMessage(error ? error.message : 'Account created. Check your email if confirmation is required.');
+      setMessage(error ? error.message : 'Account created. Check your email for the confirmation link, then finish your onboarding in settings.');
       if (!error) {
         router.refresh();
         onSuccess?.();

@@ -4,7 +4,7 @@ import { getSupabaseServerClient } from '@/lib/supabase-server';
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
-  const next = requestUrl.searchParams.get('next') ?? '/feed';
+  const next = requestUrl.searchParams.get('next') ?? '/settings?onboarding=1';
 
   const supabase = await getSupabaseServerClient();
   if (code && supabase) {
