@@ -153,7 +153,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
       .maybeSingle();
 
     if (row && !error) {
-      const [{ data: profileRow }, { data: likesData }, { data: bookmarksData }, { count: commentsCount }] = await Promise.all([
+      const [{ data: profileRow }, { data: likesData }, { data: bookmarksData }] = await Promise.all([
         supabase
           .from('profiles')
           .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
@@ -161,7 +161,6 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
           .maybeSingle(),
         supabase.from('likes').select('user_id').eq('post_id', id),
         member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).eq('post_id', id) : Promise.resolve({ data: [] }),
-        supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', id),
       ]);
 
       const author = profileRow ? normalizeProfile(profileRow) : {
@@ -174,7 +173,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
       return {
         ...normalizePost(row, author),
         likesCount: likesData?.length ?? 0,
-        commentsCount: commentsCount ?? 0,
+        commentsCount: 0,
         bookmarked: Boolean(bookmarksData?.length),
         liked: Boolean(member && likesData?.some((like) => like.user_id === member.id)),
         canEdit: Boolean(member?.id === row.author_id),
@@ -261,7 +260,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     debug: {
       postId: id,
       source: detailSource,
-      liveCommentCount: post.commentsCount ?? 0,
+      liveCommentCount: comments.length,
       renderedCommentCount: comments.length,
     },
   };
