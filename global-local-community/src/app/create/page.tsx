@@ -19,7 +19,7 @@ export default async function CreatePostPage() {
         description="Simple for the member, structured behind the scenes. Classification, spam checks, and workflow metadata all happen automatically."
       />
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <CreatePostForm action={createPostAction} city={process.env.NEXT_PUBLIC_CITY ?? 'Daegu'} />
+        <CreatePostForm action={createPostAction} city={process.env.NEXT_PUBLIC_CITY ?? 'Seoul'} />
       </section>
     </div>
   );

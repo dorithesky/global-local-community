@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, Briefcase, Home, LifeBuoy } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
+import { AuthButtons } from '@/components/auth-buttons';
 import { getFeedPosts } from '@/lib/data';
 
 const highlights = [
@@ -17,9 +18,9 @@ export default async function HomePage() {
     <div className="space-y-6 pb-24 lg:pb-8">
       <section className="rounded-[2rem] bg-slate-950 px-6 py-10 text-white shadow-xl">
         <p className="text-xs uppercase tracking-[0.28em] text-sky-300">English-first community for life in Korea</p>
-        <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">High-signal local help for foreigners living in {process.env.NEXT_PUBLIC_CITY ?? 'Daegu'}.</h1>
+        <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">High-signal local help for foreigners living across Korea.</h1>
         <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-          Housing, jobs, and daily-life answers in one AI-augmented community layer. Fewer dead ends, more practical help.
+          Housing, jobs, and daily-life answers in one AI-augmented community layer, starting with Seoul, Busan, Daegu, and everywhere else that still gets ignored.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <Link href="/feed" className="rounded-full bg-sky-500 px-5 py-3 text-sm font-medium text-white hover:bg-sky-400">
@@ -56,16 +57,19 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Initial growth engine</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Start with the first 10 real users, then compound trust.</h2>
+      <section className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Initial growth engine</p>
+              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Start with the first 10 real users, then compound trust.</h2>
+            </div>
+            <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700">
+              View feed <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
-          <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700">
-            View feed <ArrowRight className="h-4 w-4" />
-          </Link>
         </div>
+        <AuthButtons />
       </section>
     </div>
   );

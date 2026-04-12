@@ -42,8 +42,8 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             })}
           </nav>
           <div className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
-            <p className="font-medium text-slate-900">City scope</p>
-            <p>Focused on {process.env.NEXT_PUBLIC_CITY ?? 'Daegu'} first, expandable later.</p>
+            <p className="font-medium text-slate-900">Coverage</p>
+            <p>Korea-wide, with Seoul, Busan, Daegu, and Other supported in the posting flow.</p>
           </div>
         </aside>
         <main className="min-w-0 flex-1">{children}</main>

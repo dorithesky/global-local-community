@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from 'react-dom';
+import { KOREA_CITIES } from '@/lib/locations';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -25,7 +26,20 @@ export function CreatePostForm({
 }) {
   return (
     <form action={action} className="space-y-4">
-      <input type="hidden" name="city" value={city} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-900">City</label>
+          <select name="city" defaultValue={city} className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring">
+            {KOREA_CITIES.map((cityOption) => (
+              <option key={cityOption} value={cityOption}>{cityOption}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-900">District or area</label>
+          <input name="district" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Mapo-gu, Haeundae-gu, Suseong-gu" />
+        </div>
+      </div>
       <div>
         <label className="mb-2 block text-sm font-medium text-slate-900">Category</label>
         <select name="category" defaultValue="housing" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring">
@@ -48,15 +62,9 @@ export function CreatePostForm({
           placeholder="Budget, district, timing, and what kind of help you need."
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-900">District</label>
-          <input name="district" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Jung-gu" />
-        </div>
-        <div>
-          <label className="mb-2 block text-sm font-medium text-slate-900">Tags</label>
-          <input name="tags" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="housing, newcomer, near-subway" />
-        </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-900">Tags</label>
+        <input name="tags" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="housing, newcomer, near-subway" />
       </div>
       <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
         <p className="font-medium">What happens when you publish</p>

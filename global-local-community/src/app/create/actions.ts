@@ -22,7 +22,7 @@ export async function createPostAction(formData: FormData) {
   const category = String(formData.get('category') ?? 'daily-life').trim();
   const district = String(formData.get('district') ?? '').trim();
   const tagsRaw = String(formData.get('tags') ?? '').trim();
-  const city = String(formData.get('city') ?? process.env.NEXT_PUBLIC_CITY ?? 'Daegu').trim() || 'Daegu';
+  const city = String(formData.get('city') ?? process.env.NEXT_PUBLIC_CITY ?? 'Seoul').trim() || 'Seoul';
 
   if (!title || !body) {
     throw new Error('Title and body are required.');
