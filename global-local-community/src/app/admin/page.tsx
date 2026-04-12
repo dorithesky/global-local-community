@@ -79,7 +79,13 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Open reports</h2>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Moderation queue</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-900">Open reports</h2>
+            <p className="mt-1 text-sm text-slate-500">Handle reported posts and comments, resolve cases, and take moderation actions without leaving the dashboard.</p>
+          </div>
+        </div>
         <div className="mt-4 space-y-3">
           {reports.length ? reports.map((report) => (
             <div key={report.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
@@ -136,10 +142,81 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         </div>
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Recent posts</h2>
-        <div className="mt-4 space-y-3">
-          {recentPosts.map((post) => (
+      <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Member operations</p>
+          <h2 className="mt-2 text-lg font-semibold text-slate-900">Members and communication settings</h2>
+          <p className="mt-1 text-sm text-slate-500">Search, filter, inspect, and sanction members from one place.</p>
+          <form className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,2fr)_1fr_1fr_auto]">
+            <input
+              type="text"
+              name="q"
+              defaultValue={resolvedSearchParams?.q ?? ''}
+              placeholder="Search name, username, city, need, sanction, or user id"
+              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
+            />
+            <select name="city" defaultValue={cityFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+              <option value="">All cities</option>
+              <option value="Seoul">Seoul</option>
+              <option value="Busan">Busan</option>
+              <option value="Daegu">Daegu</option>
+              <option value="Other">Other</option>
+              <option value="Unknown">Unknown</option>
+            </select>
+            <select name="status" defaultValue={statusFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+              <option value="">All member states</option>
+              <option value="clear">No active sanction</option>
+              <option value="sanctioned">Active sanction</option>
+              <option value="onboarding-incomplete">Onboarding incomplete</option>
+            </select>
+            <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+              Filter
+            </button>
+          </form>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+            <p>Showing {filteredUserSettings.length} of {userSettings.length} members.</p>
+            {(query || cityFilter || statusFilter) ? (
+              <Link href="/admin" className="font-medium text-sky-700 hover:text-sky-800">Clear filters</Link>
+            ) : null}
+          </div>
+          <div className="mt-4 space-y-3">
+            {filteredUserSettings.length ? filteredUserSettings.map((setting) => (
+              <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
+                    <p className="mt-1 text-xs text-slate-500">User id: {setting.user_id}</p>
+                    <p className="mt-1 text-xs text-slate-500">City: {setting.profile?.city ?? 'Unknown'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
+                    <p className="mt-1 text-xs text-slate-500">Origin country: {setting.origin_country ?? 'Not set'} • Life stage: {setting.life_stage ?? 'Not set'} • Immediate need: {setting.immediate_need ?? 'Not set'}</p>
+                    <p className="mt-1 text-xs text-slate-500">Onboarding completed: {setting.profile?.onboardingCompleted ? 'Yes' : 'No'} • Joined: {setting.profile?.createdAt ? formatDistanceToNow(new Date(setting.profile.createdAt), { addSuffix: true }) : 'Unknown'}</p>
+                    <p className="mt-1 text-xs text-slate-500">Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
+                  </div>
+                  {setting.profile?.username ? (
+                    <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">
+                      Open profile
+                    </Link>
+                  ) : null}
+                </div>
+                <div className="mt-3 grid gap-2 md:grid-cols-2">
+                  <p>Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
+                  <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
+                  <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
+                  <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
+                </div>
+                <div className="mt-3">
+                  <UserSanctionForm action={applyUserSanctionAction} userId={setting.user_id} />
+                </div>
+              </div>
+            )) : <p className="text-sm text-slate-500">No members matched the current filters.</p>}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Community activity</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-900">Recent posts</h2>
+            <div className="mt-4 space-y-3">
+              {recentPosts.map((post) => (
             <div key={post.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -152,14 +229,15 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
               </div>
               <p className="mt-2 line-clamp-2">{post.body}</p>
             </div>
-          ))}
-        </div>
-      </section>
+              ))}
+            </div>
+          </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Comment history</h2>
-        <div className="mt-4 space-y-3">
-          {commentHistory.length ? commentHistory.map((event) => (
+          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Audit trail</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-900">Comment history</h2>
+            <div className="mt-4 space-y-3">
+              {commentHistory.length ? commentHistory.map((event) => (
             <div key={event.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-medium capitalize text-slate-900">{event.eventType}</p>
@@ -171,74 +249,9 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
               {event.newBody ? <p className="mt-2">New: {event.newBody}</p> : null}
               {event.oldBody ? <p className="mt-1 text-xs text-slate-500">Previous: {event.oldBody}</p> : null}
             </div>
-          )) : <p className="text-sm text-slate-500">No comment history yet.</p>}
-        </div>
-      </section>
-
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Members and communication settings</h2>
-        <p className="mt-1 text-sm text-slate-500">A compact member list for admins to understand who is in the community, what they opted into, and where moderation attention may be needed.</p>
-        <form className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,2fr)_1fr_1fr_auto]">
-          <input
-            type="text"
-            name="q"
-            defaultValue={resolvedSearchParams?.q ?? ''}
-            placeholder="Search name, username, city, need, sanction, or user id"
-            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
-          />
-          <select name="city" defaultValue={cityFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
-            <option value="">All cities</option>
-            <option value="Seoul">Seoul</option>
-            <option value="Busan">Busan</option>
-            <option value="Daegu">Daegu</option>
-            <option value="Other">Other</option>
-            <option value="Unknown">Unknown</option>
-          </select>
-          <select name="status" defaultValue={statusFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
-            <option value="">All member states</option>
-            <option value="clear">No active sanction</option>
-            <option value="sanctioned">Active sanction</option>
-            <option value="onboarding-incomplete">Onboarding incomplete</option>
-          </select>
-          <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
-            Filter
-          </button>
-        </form>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
-          <p>Showing {filteredUserSettings.length} of {userSettings.length} members.</p>
-          {(query || cityFilter || statusFilter) ? (
-            <Link href="/admin" className="font-medium text-sky-700 hover:text-sky-800">Clear filters</Link>
-          ) : null}
-        </div>
-        <div className="mt-4 space-y-3">
-          {filteredUserSettings.length ? filteredUserSettings.map((setting) => (
-            <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
-                  <p className="mt-1 text-xs text-slate-500">User id: {setting.user_id}</p>
-                  <p className="mt-1 text-xs text-slate-500">City: {setting.profile?.city ?? 'Unknown'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
-                  <p className="mt-1 text-xs text-slate-500">Origin country: {setting.origin_country ?? 'Not set'} • Life stage: {setting.life_stage ?? 'Not set'} • Immediate need: {setting.immediate_need ?? 'Not set'}</p>
-                  <p className="mt-1 text-xs text-slate-500">Onboarding completed: {setting.profile?.onboardingCompleted ? 'Yes' : 'No'} • Joined: {setting.profile?.createdAt ? formatDistanceToNow(new Date(setting.profile.createdAt), { addSuffix: true }) : 'Unknown'}</p>
-                  <p className="mt-1 text-xs text-slate-500">Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
-                </div>
-                {setting.profile?.username ? (
-                  <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">
-                    Open profile
-                  </Link>
-                ) : null}
-              </div>
-              <div className="mt-3 grid gap-2 md:grid-cols-2">
-                <p>Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
-                <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
-                <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
-                <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
-              </div>
-              <div className="mt-3">
-                <UserSanctionForm action={applyUserSanctionAction} userId={setting.user_id} />
-              </div>
+              )) : <p className="text-sm text-slate-500">No comment history yet.</p>}
             </div>
-          )) : <p className="text-sm text-slate-500">No members matched the current filters.</p>}
+          </section>
         </div>
       </section>
     </div>
