@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SiteShell } from '@/components/site-shell';
 import { Analytics } from '@/components/analytics';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'Global Local Community',
@@ -10,10 +11,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" data-scroll-behavior="smooth">
       <body>
-        <SiteShell>{children}</SiteShell>
-        <Analytics />
+        <ThemeProvider>
+          <SiteShell>{children}</SiteShell>
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );

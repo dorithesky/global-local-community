@@ -24,18 +24,18 @@ export function AuthModal({ open, onClose }: { open: boolean; onClose: () => voi
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-slate-950/45 px-4 py-16 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-[var(--overlay)] px-4 py-16 backdrop-blur-sm" onClick={onClose}>
       <div className="w-full max-w-md" onClick={(event) => event.stopPropagation()}>
         <div className="mb-3 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white text-slate-700 shadow-sm hover:bg-slate-50"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-[var(--surface-primary)] text-[var(--text-secondary)] shadow-sm hover:bg-[var(--surface-muted)]"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
-        <div className="rounded-[32px] border border-slate-200 bg-white p-3 shadow-2xl">
+        <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3 shadow-2xl">
           <AuthButtons compact onSuccess={onClose} />
         </div>
       </div>

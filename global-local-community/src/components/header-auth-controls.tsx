@@ -13,7 +13,7 @@ export function HeaderAuthControls({ signedInContent }: { signedInContent: React
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+          className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-2.5 text-sm font-medium text-[var(--text-primary)] shadow-sm transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)]"
         >
           Sign in
         </button>
