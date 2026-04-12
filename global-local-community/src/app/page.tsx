@@ -25,9 +25,28 @@ export default async function HomePage() {
           <Link href="/feed" className="rounded-full bg-sky-500 px-5 py-3 text-sm font-medium text-white hover:bg-sky-400">
             Browse trusted posts
           </Link>
-          <Link href="/create" className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
-            Ask for help or share a lead
+          <Link href="/settings" className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
+            Set your city and needs first
           </Link>
+        </div>
+      </section>
+
+      <section className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
+        <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Start here</p>
+        <h2 className="mt-2 text-2xl font-semibold text-slate-900">Get to the right part of the community fast</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm font-semibold text-slate-900">1. Choose your city</p>
+            <p className="mt-2 text-sm text-slate-600">Tell the product where you live so Seoul, Busan, Daegu, and other local context feels relevant immediately.</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm font-semibold text-slate-900">2. Pick what you need most</p>
+            <p className="mt-2 text-sm text-slate-600">Housing, jobs, daily life, events, or marketplace. This should shape what you see first.</p>
+          </div>
+          <div className="rounded-2xl bg-slate-50 p-4">
+            <p className="text-sm font-semibold text-slate-900">3. Ask one useful question</p>
+            <p className="mt-2 text-sm text-slate-600">Share your situation clearly and get practical replies from people already living in Korea.</p>
+          </div>
         </div>
       </section>
 

@@ -88,7 +88,7 @@ export function CreatePostForm({
             onImagesSelected?.(files);
           }}
         />
-        <p className="mt-2 text-xs leading-6 text-slate-500">Allowed formats: JPG, JPEG, PNG, and WebP only. Up to 4 images, 5MB each. Images are resized in the layout to avoid aggressive cropping.</p>
+        <p className="mt-2 text-xs leading-6 text-slate-500">Allowed formats: JPG, JPEG, PNG, and WebP only. Up to 4 images, 20MB each, with a 50MB total upload cap per post. Images are resized in the layout to avoid aggressive cropping.</p>
         {imageMessage ? <p className="mt-1 text-xs text-rose-600">{imageMessage}</p> : null}
       </div>
       <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">

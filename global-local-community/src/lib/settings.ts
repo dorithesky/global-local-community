@@ -30,7 +30,7 @@ export async function getAccountSettings() {
       .maybeSingle(),
     supabase
       .from('profiles')
-      .select('display_name, bio, city')
+      .select('display_name, bio, city, occupation')
       .eq('id', member.id)
       .maybeSingle(),
   ]);
@@ -40,6 +40,7 @@ export async function getAccountSettings() {
       displayName: profileData?.display_name ?? member.displayName,
       bio: cleanLegacyProfileText(profileData?.bio),
       city: profileData?.city ?? 'Seoul',
+      occupation: profileData?.occupation ?? '',
       originCountry: data?.origin_country ?? '',
       lifeStage: data?.life_stage ?? '',
       immediateNeed: data?.immediate_need ?? '',

@@ -4,7 +4,7 @@ export function AccountSettingsForm({
   settings,
 }: {
   settings: {
-    profile: { displayName: string; bio: string; city: string; originCountry: string; lifeStage: string; immediateNeed: string };
+    profile: { displayName: string; bio: string; city: string; occupation: string; originCountry: string; lifeStage: string; immediateNeed: string };
     notifications: { notifyLikes: boolean; notifyComments: boolean };
     consent: { marketingConsent: boolean; thirdPartyEmailConsent: boolean };
   };
@@ -25,6 +25,10 @@ export function AccountSettingsForm({
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-900">City</label>
               <input name="city" defaultValue={settings.profile.city} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-900">Occupation</label>
+              <input name="occupation" defaultValue={settings.profile.occupation} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Teacher, designer, student" />
             </div>
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-900">Origin country</label>

@@ -58,6 +58,7 @@ export async function saveProfileIdentityAction(formData: FormData) {
   const displayName = String(formData.get('displayName') ?? '').trim();
   const bio = String(formData.get('bio') ?? '').trim();
   const city = String(formData.get('city') ?? '').trim();
+  const occupation = String(formData.get('occupation') ?? '').trim();
   const originCountry = String(formData.get('originCountry') ?? '').trim();
   const lifeStage = String(formData.get('lifeStage') ?? '').trim();
   const immediateNeed = String(formData.get('immediateNeed') ?? '').trim();
@@ -70,6 +71,7 @@ export async function saveProfileIdentityAction(formData: FormData) {
     display_name: displayName,
     bio: cleanedBio || null,
     city: city || 'Seoul',
+    occupation: occupation || null,
     updated_at: new Date().toISOString(),
   }).eq('id', member.id);
 
