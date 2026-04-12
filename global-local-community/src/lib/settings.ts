@@ -60,5 +60,25 @@ export async function getAdminUserSettingsView() {
     .from('user_settings')
     .select('user_id, notify_likes, notify_comments, marketing_consent, third_party_email_consent');
 
-  return data ?? [];
+  if (!data?.length) return [];
+
+  const userIds = data.map((row) => row.user_id);
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, username, display_name, city')
+    .in('id', userIds);
+
+  const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+
+  return data.map((row) => ({
+    ...row,
+    profile: profileMap.get(row.user_id)
+      ? {
+          id: profileMap.get(row.user_id)?.id,
+          username: profileMap.get(row.user_id)?.username,
+          displayName: profileMap.get(row.user_id)?.display_name,
+          city: profileMap.get(row.user_id)?.city,
+        }
+      : null,
+  }));
 }

@@ -1,7 +1,7 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
-import type { CommentRecord, PostRecord, Profile } from './types';
+import type { CommentEventRecord, CommentRecord, PostRecord, Profile } from './types';
 
 function cleanLegacyProfileText(value?: unknown) {
   if (!value) return undefined;
@@ -172,9 +172,10 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
   const supabase = await getSupabaseServerClient();
   if (!supabase) return getCommentsByPostId(postId);
 
+  const member = await getCurrentMember();
   const { data, error } = await supabase
     .from('comments')
-    .select('id, post_id, body, created_at, author_id')
+    .select('id, post_id, body, created_at, updated_at, author_id')
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
 
@@ -193,6 +194,8 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     postId: row.post_id,
     body: row.body,
     createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    canEdit: member?.id === row.author_id,
     author: profileMap.get(row.author_id) ?? {
       id: row.author_id,
       username: 'unknown',
@@ -242,6 +245,65 @@ export async function getProfileComments(username: string): Promise<CommentRecor
   }));
 }
 
+export async function getCommentHistoryForAdmin(limit = 100): Promise<CommentEventRecord[]> {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('comment_events')
+    .select('id, comment_id, actor_id, event_type, old_body, new_body, created_at')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error || !data?.length) return [];
+
+  const actorIds = [...new Set(data.map((row) => row.actor_id).filter(Boolean))];
+  const { data: profilesData } = actorIds.length
+    ? await supabase
+        .from('profiles')
+        .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+        .in('id', actorIds)
+    : { data: [] };
+
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
+
+  return data.map((row) => ({
+    id: String(row.id),
+    commentId: row.comment_id,
+    actor: row.actor_id ? profileMap.get(row.actor_id) : undefined,
+    eventType: row.event_type,
+    oldBody: row.old_body ?? undefined,
+    newBody: row.new_body ?? undefined,
+    createdAt: row.created_at,
+  }));
+}
+
+export async function getUserComments() {
+  const member = await getCurrentMember();
+  if (!member) return [];
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('comments')
+    .select('id, post_id, body, created_at, updated_at, author_id')
+    .eq('author_id', member.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !data?.length) return [];
+
+  return data.map((row) => ({
+    id: row.id,
+    postId: row.post_id,
+    body: row.body,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    canEdit: true,
+    author: member,
+  }));
+}
+
 export async function getUserCommentedPosts() {
   const member = await getCurrentMember();
   if (!member) return [];
@@ -287,11 +349,14 @@ export async function getAdminModerationView() {
 
   const reportedPostMap = new Map((reportedPosts.data ?? []).map((post) => [post.id, post]));
 
+  const commentHistory = await getCommentHistoryForAdmin();
+
   return {
     reports: (reportsData ?? []).map((report) => ({
       ...report,
       post: report.post_id ? reportedPostMap.get(report.post_id) ?? null : null,
     })),
     recentPosts: recentPosts.slice(0, 8),
+    commentHistory,
   };
 }

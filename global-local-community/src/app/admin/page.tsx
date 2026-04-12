@@ -13,7 +13,7 @@ export default async function AdminPage() {
   const admin = await requireAdmin();
   if (!admin) notFound();
 
-  const { reports, recentPosts } = await getAdminModerationView();
+  const { reports, recentPosts, commentHistory } = await getAdminModerationView();
   const userSettings = await getAdminUserSettingsView();
 
   return (
@@ -82,11 +82,31 @@ export default async function AdminPage() {
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Comment history</h2>
+        <div className="mt-4 space-y-3">
+          {commentHistory.length ? commentHistory.map((event) => (
+            <div key={event.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium capitalize text-slate-900">{event.eventType}</p>
+                <span>•</span>
+                <span>{event.actor ? `${event.actor.displayName} (@${event.actor.username})` : 'Unknown member'}</span>
+                <span>•</span>
+                <span>{formatDistanceToNow(new Date(event.createdAt), { addSuffix: true })}</span>
+              </div>
+              {event.newBody ? <p className="mt-2">New: {event.newBody}</p> : null}
+              {event.oldBody ? <p className="mt-1 text-xs text-slate-500">Previous: {event.oldBody}</p> : null}
+            </div>
+          )) : <p className="text-sm text-slate-500">No comment history yet.</p>}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">User communication settings</h2>
         <div className="mt-4 space-y-3">
           {userSettings.length ? userSettings.map((setting) => (
             <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p className="font-medium text-slate-900">User {setting.user_id}</p>
+              <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
+              <p className="mt-1 text-xs text-slate-500">{setting.user_id}</p>
               <p className="mt-2">Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
               <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
               <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>

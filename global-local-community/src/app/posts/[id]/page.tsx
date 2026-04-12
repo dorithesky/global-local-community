@@ -3,12 +3,13 @@ import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, MessageCircle } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
+import { CommentThread } from '@/components/comment-thread';
 import { CommentForm } from '@/components/post-engagement-forms';
 import { PostDetailReportTrigger } from '@/components/post-detail-report-trigger';
 import { BookmarkButton, LikeButton } from '@/components/post-actions';
 import { cityScopeLabel } from '@/lib/locations';
 import { getPost, getPostComments } from '@/lib/data';
-import { createCommentAction, createReportAction } from './actions';
+import { createCommentAction, createReportAction, deleteCommentAction, updateCommentAction } from './actions';
 import { toggleBookmarkAction, toggleLikeAction } from './engagement-actions';
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -59,35 +60,20 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </details>
       </article>
 
-      <section className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-900">Comments</h2>
-          <div className="mt-4 space-y-4">
-            {comments.length ? comments.map((comment) => (
-              <div key={comment.id} className="rounded-2xl bg-slate-50 p-4">
-                <div className="flex items-start gap-3">
-                  {comment.author.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={comment.author.avatarUrl} alt={comment.author.displayName} className="h-9 w-9 rounded-full object-cover ring-2 ring-white" />
-                  ) : (
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700 ring-2 ring-white">
-                      {comment.author.displayName.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <Link href={`/profile/${comment.author.username}`} className="block rounded-xl transition hover:bg-white/70">
-                      <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
-                      <p className="mt-1 text-xs text-slate-500">@{comment.author.username}</p>
-                    </Link>
-                    <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
-                  </div>
-                </div>
-              </div>
-            )) : <p className="text-sm text-slate-500">No comments yet. Add the first useful reply.</p>}
-          </div>
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold text-slate-900">Discussion</h2>
+          <span className="text-sm text-slate-500">{comments.length} {comments.length === 1 ? 'reply' : 'replies'}</span>
         </div>
-        <div className="space-y-4">
+        <div className="mt-5 border-t border-slate-100 pt-5">
           <CommentForm action={createCommentAction.bind(null, id)} />
+        </div>
+        <div className="mt-5 border-t border-slate-100 pt-5">
+          <CommentThread
+            comments={comments}
+            updateAction={updateCommentAction.bind(null, id)}
+            deleteAction={deleteCommentAction.bind(null, id)}
+          />
         </div>
       </section>
     </div>

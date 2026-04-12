@@ -15,13 +15,20 @@ export async function createCommentAction(postId: string, formData: FormData) {
   const body = String(formData.get('body') ?? '').trim();
   if (!body) throw new Error('Comment body is required.');
 
-  const { error } = await supabase.from('comments').insert({
+  const { data, error } = await supabase.from('comments').insert({
     post_id: postId,
     author_id: member.id,
     body,
-  });
+  }).select('id').single();
 
   if (error) throw new Error(error.message);
+
+  await supabase.from('comment_events').insert({
+    comment_id: data.id,
+    actor_id: member.id,
+    event_type: 'created',
+    new_body: body,
+  });
 
   await supabase.from('workflow_events').insert({
     event_type: 'post.created',
@@ -29,6 +36,70 @@ export async function createCommentAction(postId: string, formData: FormData) {
     entity_id: null,
     payload: { post_id: postId, author_id: member.id, action: 'comment.created' },
   });
+
+  revalidatePath(`/posts/${postId}`);
+}
+
+export async function updateCommentAction(postId: string, formData: FormData) {
+  const member = await getCurrentMember();
+  if (!member) redirect('/#signin');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const commentId = String(formData.get('commentId') ?? '');
+  const body = String(formData.get('body') ?? '').trim();
+  if (!commentId || !body) throw new Error('Comment update is incomplete.');
+
+  const { data: existing } = await supabase
+    .from('comments')
+    .select('author_id, body')
+    .eq('id', commentId)
+    .maybeSingle();
+
+  if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
+
+  const { error } = await supabase.from('comments').update({ body, updated_at: new Date().toISOString() }).eq('id', commentId);
+  if (error) throw new Error(error.message);
+
+  await supabase.from('comment_events').insert({
+    comment_id: commentId,
+    actor_id: member.id,
+    event_type: 'edited',
+    old_body: existing.body,
+    new_body: body,
+  });
+
+  revalidatePath(`/posts/${postId}`);
+}
+
+export async function deleteCommentAction(postId: string, formData: FormData) {
+  const member = await getCurrentMember();
+  if (!member) redirect('/#signin');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const commentId = String(formData.get('commentId') ?? '');
+  if (!commentId) throw new Error('Comment delete is incomplete.');
+
+  const { data: existing } = await supabase
+    .from('comments')
+    .select('author_id, body')
+    .eq('id', commentId)
+    .maybeSingle();
+
+  if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
+
+  await supabase.from('comment_events').insert({
+    comment_id: commentId,
+    actor_id: member.id,
+    event_type: 'deleted',
+    old_body: existing.body,
+  });
+
+  const { error } = await supabase.from('comments').delete().eq('id', commentId);
+  if (error) throw new Error(error.message);
 
   revalidatePath(`/posts/${postId}`);
 }

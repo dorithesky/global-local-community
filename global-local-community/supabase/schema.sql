@@ -40,6 +40,16 @@ create table if not exists comments (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists comment_events (
+  id bigint generated always as identity primary key,
+  comment_id uuid references comments(id) on delete cascade,
+  actor_id uuid references profiles(id) on delete set null,
+  event_type text not null check (event_type in ('created','edited','deleted')),
+  old_body text,
+  new_body text,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists likes (
   user_id uuid not null references profiles(id) on delete cascade,
   post_id uuid not null references posts(id) on delete cascade,

@@ -43,4 +43,16 @@ export interface CommentRecord {
   author: Profile;
   body: string;
   createdAt: string;
+  updatedAt?: string;
+  canEdit?: boolean;
+}
+
+export interface CommentEventRecord {
+  id: string;
+  commentId: string;
+  actor?: Profile;
+  eventType: 'created' | 'edited' | 'deleted';
+  oldBody?: string;
+  newBody?: string;
+  createdAt: string;
 }
