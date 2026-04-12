@@ -43,6 +43,10 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
     return matchesQuery && matchesCity && matchesStatus;
   });
 
+  const sanctionedMembers = userSettings.filter((setting) => Boolean(setting.activeSanction));
+  const onboardingIncompleteMembers = userSettings.filter((setting) => !setting.profile?.onboardingCompleted);
+  const membersNeedingProfileCompletion = userSettings.filter((setting) => !setting.profile?.city || !setting.profile?.occupation || !setting.immediate_need);
+
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
       <PageHeader
@@ -50,6 +54,29 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         title="Moderation and workflow control"
         description="Private moderation space for trusted admins only, with enough context to make quick decisions."
       />
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
+          <p className="mt-3 text-3xl font-semibold text-slate-900">{userSettings.length}</p>
+          <p className="mt-2 text-sm text-slate-500">Known member records available to admin.</p>
+        </div>
+        <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Active sanctions</p>
+          <p className="mt-3 text-3xl font-semibold text-amber-950">{sanctionedMembers.length}</p>
+          <p className="mt-2 text-sm text-amber-800">Members currently restricted and worth monitoring closely.</p>
+        </div>
+        <div className="rounded-3xl border border-sky-200 bg-sky-50 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">Onboarding incomplete</p>
+          <p className="mt-3 text-3xl font-semibold text-sky-950">{onboardingIncompleteMembers.length}</p>
+          <p className="mt-2 text-sm text-sky-800">Members who still have not completed first-run profile setup.</p>
+        </div>
+        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">Profile gaps</p>
+          <p className="mt-3 text-3xl font-semibold text-rose-950">{membersNeedingProfileCompletion.length}</p>
+          <p className="mt-2 text-sm text-rose-800">Members missing city, occupation, or immediate need context.</p>
+        </div>
+      </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">Open reports</h2>
