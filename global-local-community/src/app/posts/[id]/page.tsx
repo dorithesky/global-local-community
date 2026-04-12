@@ -14,7 +14,7 @@ import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from './enga
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ post, comments, debug }, visibleCommentCount] = await Promise.all([
+  const [{ post, comments }, visibleCommentCount] = await Promise.all([
     getPostDetail(id),
     getCommentCountByPostId(id),
   ]);
@@ -67,12 +67,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
               deleteAction={deleteCommentAction.bind(null, id)}
             />
           ) : (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
-              No replies are rendering for this post right now.
-              <div className="mt-2 text-xs text-amber-700">
-                Detail source: {debug.source} • post id: {debug.postId} • counted: {visibleCommentCount} • raw rows: {debug.rawRowCount ?? 0} • rendered: {debug.renderedCommentCount}
-                {debug.relatedCommentPostIds?.length ? ` • your recent comment post ids: ${debug.relatedCommentPostIds.join(', ')}` : ''}
-              </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
+              No comments yet. Add the first useful reply.
             </div>
           )}
         </div>

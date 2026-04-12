@@ -290,7 +290,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     return {
       id: row.id,
       postId: row.post_id,
-      body: row.deleted_at ? 'Comment deleted by author' : row.body,
+      body: row.deleted_at ? `Comment deleted by @${author.username}` : row.body,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at ?? undefined,
@@ -384,7 +384,7 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     return {
       id: row.id,
       postId: row.post_id,
-      body: row.deleted_at ? 'Comment deleted by author' : row.body,
+      body: row.deleted_at ? `Comment deleted by @${author.username}` : row.body,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at ?? undefined,
