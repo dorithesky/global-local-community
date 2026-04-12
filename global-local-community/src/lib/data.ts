@@ -1,5 +1,6 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
+import { getSupabaseAdminClient } from './supabase-admin';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
 
@@ -185,7 +186,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
 }
 
 export async function getPostDetail(id: string): Promise<{ post?: PostRecord; comments: CommentRecord[]; debug: PostDetailDebug }> {
-  const [post, comments] = await Promise.all([getPost(id), getPostComments(id)]);
+  const post = await getPost(id);
 
   if (!post) {
     return {
@@ -200,6 +201,57 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
+  let comments = await getPostComments(id);
+  const detailSource: PostDetailDebug['source'] = post.id.startsWith('post-') ? 'mock' : 'live';
+
+  if (!comments.length && detailSource === 'live') {
+    const admin = getSupabaseAdminClient();
+    if (admin) {
+      const { data: rawComments } = await admin
+        .from('comments')
+        .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
+        .eq('post_id', id)
+        .order('created_at', { ascending: true });
+
+      if (rawComments?.length) {
+        const authorIds = [...new Set(rawComments.map((row) => row.author_id).filter(Boolean))];
+        const deletedByIds = [...new Set(rawComments.map((row) => row.deleted_by).filter(Boolean))];
+        const profileIds = [...new Set([...authorIds, ...deletedByIds])];
+        const { data: profiles } = profileIds.length
+          ? await admin
+              .from('profiles')
+              .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+              .in('id', profileIds)
+          : { data: [] };
+
+        const profileMap = new Map((profiles ?? []).map((row) => [row.id, normalizeProfile(row)]));
+        const member = await getCurrentMember();
+
+        comments = rawComments.map((row) => {
+          const author = profileMap.get(row.author_id) ?? {
+            id: row.author_id,
+            username: `member-${String(row.author_id).slice(0, 6)}`,
+            displayName: 'Member',
+            city: 'Daegu',
+          };
+          const deletedByProfile = row.deleted_by ? profileMap.get(row.deleted_by) : undefined;
+
+          return {
+            id: row.id,
+            postId: row.post_id,
+            body: row.deleted_at ? `Comment deleted by ${deletedByProfile?.username ? `@${deletedByProfile.username}` : 'author'}` : row.body,
+            createdAt: row.created_at,
+            updatedAt: row.updated_at,
+            deletedAt: row.deleted_at ?? undefined,
+            deletedBy: deletedByProfile,
+            canEdit: Boolean(!row.deleted_at && member && (member.id === row.author_id || member.username === author.username)),
+            author,
+          };
+        });
+      }
+    }
+  }
+
   return {
     post: {
       ...post,
@@ -208,7 +260,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     comments,
     debug: {
       postId: id,
-      source: post.id.startsWith('post-') ? 'mock' : 'live',
+      source: detailSource,
       liveCommentCount: post.commentsCount ?? 0,
       renderedCommentCount: comments.length,
     },
