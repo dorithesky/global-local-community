@@ -123,13 +123,6 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     commentCounts.set(row.post_id, (commentCounts.get(row.post_id) ?? 0) + 1);
   });
 
-  for (const postId of postIds) {
-    if (!commentCounts.has(postId)) {
-      const fallbackCount = getCommentsByPostId(String(postId)).length;
-      if (fallbackCount > 0) commentCounts.set(String(postId), fallbackCount);
-    }
-  }
-
   const normalized = data.map((row) => ({
     ...normalizePost(row, profileMap.get(row.author_id) ?? {
       id: String(row.author_id),
@@ -148,14 +141,44 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 }
 
 export async function getPost(id: string): Promise<PostRecord | undefined> {
-  const feed = await getFeedPosts();
-  const feedPost = feed.find((post) => post.id === id);
-  if (feedPost) {
-    const fallbackCount = getCommentsByPostId(id).length;
-    return {
-      ...feedPost,
-      commentsCount: Math.max(feedPost.commentsCount ?? 0, fallbackCount),
-    };
+  const supabase = await getSupabaseServerClient();
+  const member = await getCurrentMember();
+
+  if (supabase) {
+    const { data: row, error } = await supabase
+      .from('posts')
+      .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (row && !error) {
+      const [{ data: profileRow }, { data: likesData }, { data: bookmarksData }, comments] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+          .eq('id', row.author_id)
+          .maybeSingle(),
+        supabase.from('likes').select('user_id').eq('post_id', id),
+        member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).eq('post_id', id) : Promise.resolve({ data: [] }),
+        getPostComments(id),
+      ]);
+
+      const author = profileRow ? normalizeProfile(profileRow) : {
+        id: String(row.author_id),
+        username: 'unknown',
+        displayName: 'Unknown member',
+        city: String(row.city ?? 'Daegu'),
+      };
+
+      return {
+        ...normalizePost(row, author),
+        likesCount: likesData?.length ?? 0,
+        commentsCount: comments.length,
+        bookmarked: Boolean(bookmarksData?.length),
+        liked: Boolean(member && likesData?.some((like) => like.user_id === member.id)),
+        canEdit: Boolean(member?.id === row.author_id),
+      };
+    }
   }
 
   return getPostById(id);
