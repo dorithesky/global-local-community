@@ -73,6 +73,8 @@ export async function updateCommentAction(postId: string, formData: FormData) {
   });
 
   revalidatePath(`/posts/${postId}`);
+  revalidatePath('/activity');
+  revalidatePath('/feed');
 }
 
 export async function deleteCommentAction(postId: string, formData: FormData) {
@@ -119,6 +121,8 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
   }
 
   revalidatePath(`/posts/${postId}`);
+  revalidatePath('/activity');
+  revalidatePath('/feed');
 }
 
 export async function createReportAction(postId: string, formData: FormData) {

@@ -53,7 +53,10 @@ export function CommentThread({
                     {comment.body}
                   </div>
                 ) : isEditing ? (
-                  <form action={updateAction} className="mt-3 space-y-3">
+                  <form action={async (formData) => {
+                    await updateAction(formData);
+                    setEditingId(null);
+                  }} className="mt-3 space-y-3">
                     <input type="hidden" name="commentId" value={comment.id} />
                     <textarea
                       name="body"
