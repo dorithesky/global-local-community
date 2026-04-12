@@ -1,0 +1,9 @@
+# Local Netlify folder
+.netlify
+brand-safety-service/data/raw/
+brand-safety-service/data/*.db
+brand-safety-service/data/*.db-shm
+brand-safety-service/data/*.db-wal
+*.zip
+*.xml
+.DS_Store
