@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getCurrentMember } from '@/lib/auth';
+import { canCurrentMemberManageComment } from '@/lib/data';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function createCommentAction(postId: string, formData: FormData) {
@@ -57,7 +58,7 @@ export async function updateCommentAction(postId: string, formData: FormData) {
     .eq('id', commentId)
     .maybeSingle();
 
-  const canManage = Boolean(existing && existing.author_id === member.id);
+  const canManage = Boolean(existing && existing.author_id === member.id) || await canCurrentMemberManageComment(commentId);
   if (!canManage) throw new Error('Unauthorized');
 
   const { error } = await supabase.from('comments').update({ body, updated_at: new Date().toISOString() }).eq('id', commentId);
@@ -90,7 +91,7 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
     .eq('id', commentId)
     .maybeSingle();
 
-  const canManage = Boolean(existing && existing.author_id === member.id);
+  const canManage = Boolean(existing && existing.author_id === member.id) || await canCurrentMemberManageComment(commentId);
   if (!canManage) throw new Error('Unauthorized');
   if (existing?.deleted_at) {
     revalidatePath(`/posts/${postId}`);
@@ -112,8 +113,7 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
       deleted_by: member.id,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', commentId)
-    .eq('author_id', member.id);
+    .eq('id', commentId);
 
   if (error) throw new Error(error.message);
 

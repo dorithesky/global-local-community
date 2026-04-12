@@ -493,6 +493,14 @@ export async function getUserComments() {
   }));
 }
 
+export async function canCurrentMemberManageComment(commentId: string) {
+  const member = await getCurrentMember();
+  if (!member) return false;
+
+  const comments = await getUserComments();
+  return comments.some((comment) => comment.id === commentId);
+}
+
 export async function getUserCommentedPosts() {
   const member = await getCurrentMember();
   if (!member) return [];
