@@ -47,3 +47,29 @@ export async function saveConsentSettingsAction(formData: FormData) {
   revalidatePath('/settings');
   revalidatePath(`/profile/${member.username}`);
 }
+
+export async function saveProfileIdentityAction(formData: FormData) {
+  const member = await getCurrentMember();
+  if (!member) throw new Error('Unauthorized');
+
+  const supabase = await ensureUserSettingsRow(member.id);
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const displayName = String(formData.get('displayName') ?? '').trim();
+  const bio = String(formData.get('bio') ?? '').trim();
+  const city = String(formData.get('city') ?? '').trim();
+
+  if (!displayName) throw new Error('Display name is required.');
+
+  const { error } = await supabase.from('profiles').update({
+    display_name: displayName,
+    bio: bio || null,
+    city: city || 'Seoul',
+    updated_at: new Date().toISOString(),
+  }).eq('id', member.id);
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/settings');
+  revalidatePath(`/profile/${member.username}`);
+}

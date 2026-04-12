@@ -16,13 +16,25 @@ export async function getAccountSettings() {
   const supabase = await ensureUserSettingsRow(member.id);
   if (!supabase) return null;
 
-  const { data } = await supabase
-    .from('user_settings')
-    .select('notify_likes, notify_comments, marketing_consent, third_party_email_consent')
-    .eq('user_id', member.id)
-    .maybeSingle();
+  const [{ data }, { data: profileData }] = await Promise.all([
+    supabase
+      .from('user_settings')
+      .select('notify_likes, notify_comments, marketing_consent, third_party_email_consent')
+      .eq('user_id', member.id)
+      .maybeSingle(),
+    supabase
+      .from('profiles')
+      .select('display_name, bio, city')
+      .eq('id', member.id)
+      .maybeSingle(),
+  ]);
 
   return {
+    profile: {
+      displayName: profileData?.display_name ?? member.displayName,
+      bio: profileData?.bio ?? '',
+      city: profileData?.city ?? 'Seoul',
+    },
     notifications: {
       notifyLikes: data?.notify_likes ?? true,
       notifyComments: data?.notify_comments ?? true,

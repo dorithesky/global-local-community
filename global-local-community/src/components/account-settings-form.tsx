@@ -1,15 +1,42 @@
-import { saveConsentSettingsAction, saveNotificationPreferencesAction } from '@/app/settings/actions';
+import { saveConsentSettingsAction, saveNotificationPreferencesAction, saveProfileIdentityAction } from '@/app/settings/actions';
 
 export function AccountSettingsForm({
   settings,
 }: {
   settings: {
+    profile: { displayName: string; bio: string; city: string };
     notifications: { notifyLikes: boolean; notifyComments: boolean };
     consent: { marketingConsent: boolean; thirdPartyEmailConsent: boolean };
   };
 }) {
   return (
     <div className="space-y-6">
+      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+        <form action={saveProfileIdentityAction} className="space-y-4">
+          <div>
+            <p className="text-sm font-semibold text-slate-900">Public profile</p>
+            <p className="mt-1 text-sm text-slate-500">Change the name and profile details people see in the community.</p>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-900">Display name</label>
+              <input name="displayName" defaultValue={settings.profile.displayName} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-900">City</label>
+              <input name="city" defaultValue={settings.profile.city} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" />
+            </div>
+          </div>
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-900">Bio</label>
+            <textarea name="bio" defaultValue={settings.profile.bio} className="min-h-28 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring" />
+          </div>
+          <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+            Save profile
+          </button>
+        </form>
+      </section>
+
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
         <form action={saveNotificationPreferencesAction} className="space-y-4">
           <div>
