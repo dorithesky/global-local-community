@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { CommentReportButton } from '@/components/comment-report-button';
+import { AuthModal } from '@/components/auth-modal';
 import type { CommentRecord } from '@/lib/types';
 
 function CommentActionButton({ label }: { label: string }) {
@@ -22,6 +23,7 @@ export function CommentThread({
   reportAction: (formData: FormData) => Promise<void>;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
 
   if (!comments.length) {
     return <p className="text-sm text-slate-500">No comments yet. Add the first useful reply.</p>;
@@ -93,6 +95,12 @@ export function CommentThread({
           </div>
         );
       })}
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-600">
+        <p className="font-medium text-slate-900">Want to reply or report?</p>
+        <p className="mt-1">Sign in first so community actions stay tied to a real profile.</p>
+        <button type="button" onClick={() => setAuthOpen(true)} className="mt-3 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Sign in</button>
+      </div>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
   );
 }

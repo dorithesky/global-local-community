@@ -10,14 +10,17 @@ import { BookmarkButton, DeletePostButton, LikeButton } from '@/components/post-
 import { PostImages } from '@/components/post-images';
 import { cityScopeLabel } from '@/lib/locations';
 import { getCommentCountByPostId, getPostDetail } from '@/lib/data';
+import { getCurrentMember } from '@/lib/auth';
+import { SignInGuard } from '@/components/sign-in-guard';
 import { createCommentAction, createReportAction, deleteCommentAction, updateCommentAction } from './actions';
 import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from './engagement-actions';
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [{ post, comments }, visibleCommentCount] = await Promise.all([
+  const [{ post, comments }, visibleCommentCount, currentMember] = await Promise.all([
     getPostDetail(id),
     getCommentCountByPostId(id),
+    getCurrentMember(),
   ]);
   if (!post) notFound();
 
@@ -59,7 +62,16 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <span className="text-sm text-slate-500">{visibleCommentCount} {visibleCommentCount === 1 ? 'reply' : 'replies'}</span>
         </div>
         <div className="mt-5 border-t border-slate-100 pt-5">
-          <CommentForm action={createCommentAction.bind(null, id)} />
+          {currentMember ? (
+            <CommentForm action={createCommentAction.bind(null, id)} />
+          ) : (
+            <SignInGuard
+              title="Sign in to join the conversation"
+              description="Reading stays open, but posting replies requires an account so profiles, moderation, and trust signals stay meaningful."
+              ctaLabel="Sign in to comment"
+              className="rounded-[28px] border border-sky-200 bg-sky-50 p-5"
+            />
+          )}
         </div>
         <div className="mt-5 border-t border-slate-100 pt-5">
           {comments.length ? (
