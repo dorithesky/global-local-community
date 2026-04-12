@@ -201,56 +201,100 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   }
 
   const detailSource: PostDetailDebug['source'] = post.id.startsWith('post-') ? 'mock' : 'live';
-  let comments = detailSource === 'mock' ? await getPostComments(id) : [];
+  const member = await getCurrentMember();
 
-  if (detailSource === 'live') {
-    const admin = getSupabaseAdminClient();
-    const member = await getCurrentMember();
-
-    if (admin) {
-      const { data: rawComments, error } = await admin
-        .from('comments')
-        .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
-        .eq('post_id', id)
-        .order('created_at', { ascending: true });
-
-      if (!error && rawComments?.length) {
-        const authorIds = [...new Set(rawComments.map((row) => row.author_id).filter(Boolean))];
-        const deletedByIds = [...new Set(rawComments.map((row) => row.deleted_by).filter(Boolean))];
-        const profileIds = [...new Set([...authorIds, ...deletedByIds])];
-        const { data: profiles } = profileIds.length
-          ? await admin
-              .from('profiles')
-              .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
-              .in('id', profileIds)
-          : { data: [] };
-
-        const profileMap = new Map((profiles ?? []).map((row) => [row.id, normalizeProfile(row)]));
-
-        comments = rawComments.map((row) => {
-          const author = profileMap.get(row.author_id) ?? {
-            id: row.author_id,
-            username: `member-${String(row.author_id).slice(0, 6)}`,
-            displayName: 'Member',
-            city: 'Daegu',
-          };
-          const deletedByProfile = row.deleted_by ? profileMap.get(row.deleted_by) : undefined;
-
-          return {
-            id: row.id,
-            postId: row.post_id,
-            body: row.deleted_at ? `Comment deleted by ${deletedByProfile?.username ? `@${deletedByProfile.username}` : 'author'}` : row.body,
-            createdAt: row.created_at,
-            updatedAt: row.updated_at,
-            deletedAt: row.deleted_at ?? undefined,
-            deletedBy: deletedByProfile,
-            canEdit: Boolean(!row.deleted_at && member && (member.id === row.author_id || member.username === author.username)),
-            author,
-          };
-        });
-      }
-    }
+  if (detailSource === 'mock') {
+    const comments = await getPostComments(id);
+    return {
+      post: {
+        ...post,
+        commentsCount: comments.length,
+      },
+      comments,
+      debug: {
+        postId: id,
+        source: 'mock',
+        liveCommentCount: comments.length,
+        renderedCommentCount: comments.length,
+      },
+    };
   }
+
+  const admin = getSupabaseAdminClient();
+  if (!admin) {
+    return {
+      post: {
+        ...post,
+        commentsCount: 0,
+      },
+      comments: [],
+      debug: {
+        postId: id,
+        source: 'live',
+        liveCommentCount: 0,
+        renderedCommentCount: 0,
+      },
+    };
+  }
+
+  const [{ count }, { data: rawComments, error }] = await Promise.all([
+    admin.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', id),
+    admin
+      .from('comments')
+      .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
+      .eq('post_id', id)
+      .order('created_at', { ascending: true }),
+  ]);
+
+  if (error || !rawComments?.length) {
+    return {
+      post: {
+        ...post,
+        commentsCount: count ?? 0,
+      },
+      comments: [],
+      debug: {
+        postId: id,
+        source: 'live',
+        liveCommentCount: count ?? 0,
+        renderedCommentCount: 0,
+      },
+    };
+  }
+
+  const authorIds = [...new Set(rawComments.map((row) => row.author_id).filter(Boolean))];
+  const deletedByIds = [...new Set(rawComments.map((row) => row.deleted_by).filter(Boolean))];
+  const profileIds = [...new Set([...authorIds, ...deletedByIds])];
+  const { data: profiles } = profileIds.length
+    ? await admin
+        .from('profiles')
+        .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+        .in('id', profileIds)
+    : { data: [] };
+
+  const profileMap = new Map((profiles ?? []).map((row) => [row.id, normalizeProfile(row)]));
+
+  const comments = rawComments.map((row) => {
+    const author = profileMap.get(row.author_id) ?? {
+      id: row.author_id,
+      username: `member-${String(row.author_id).slice(0, 6)}`,
+      displayName: 'Member',
+      city: 'Daegu',
+    };
+    const deletedByProfile = row.deleted_by ? profileMap.get(row.deleted_by) : undefined;
+
+    return {
+      id: row.id,
+      postId: row.post_id,
+      body: row.deleted_at ? `Comment deleted by ${deletedByProfile?.username ? `@${deletedByProfile.username}` : 'author'}` : row.body,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
+      deletedAt: row.deleted_at ?? undefined,
+      deletedBy: deletedByProfile,
+      canEdit: Boolean(!row.deleted_at && member && (member.id === row.author_id || member.username === author.username)),
+      author,
+    };
+  });
 
   return {
     post: {
@@ -260,8 +304,8 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     comments,
     debug: {
       postId: id,
-      source: detailSource,
-      liveCommentCount: comments.length,
+      source: 'live',
+      liveCommentCount: count ?? comments.length,
       renderedCommentCount: comments.length,
     },
   };
