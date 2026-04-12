@@ -169,6 +169,11 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       >
         Continue with Google
       </button>
+      {view === 'signin' && signInMethod === 'password' ? (
+        <p className="text-sm text-slate-500">
+          Forgot your password? <a href="/auth/reset" className="font-medium text-sky-700">Reset it here</a>
+        </p>
+      ) : null}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
     </div>
   );

@@ -38,16 +38,22 @@ function normalizePost(row: Record<string, unknown>, profile: Profile): PostReco
   };
 }
 
-export async function getFeedPosts(): Promise<PostRecord[]> {
+export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return mockPosts;
 
   const member = await getCurrentMember();
-  const { data, error } = await supabase
+  let queryBuilder = supabase
     .from('posts')
     .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
     .order('created_at', { ascending: false })
     .limit(50);
+
+  if (filters?.city && filters.city !== 'all') queryBuilder = queryBuilder.eq('city', filters.city);
+  if (filters?.category && filters.category !== 'all') queryBuilder = queryBuilder.eq('category', filters.category);
+  if (filters?.query) queryBuilder = queryBuilder.or(`title.ilike.%${filters.query}%,body.ilike.%${filters.query}%`);
+
+  const { data, error } = await queryBuilder;
 
   if (error || !data?.length) return mockPosts;
 
@@ -154,6 +160,14 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
       city: 'Daegu',
     },
   }));
+}
+
+export async function getSavedPosts() {
+  const member = await getCurrentMember();
+  if (!member) return [];
+
+  const feed = await getFeedPosts();
+  return feed.filter((post) => post.bookmarked);
 }
 
 export async function getAdminModerationView() {

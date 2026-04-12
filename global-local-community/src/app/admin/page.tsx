@@ -2,9 +2,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
+import { HidePostForm, ReportStatusForm } from '@/components/admin-actions';
 import { requireAdmin } from '@/lib/auth';
 import { cityScopeLabel } from '@/lib/locations';
 import { getAdminModerationView } from '@/lib/data';
+import { hideReportedPostAction, updateReportStatusAction } from './actions';
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
@@ -39,9 +41,14 @@ export default async function AdminPage() {
                   <p className="mt-2 font-medium text-slate-900">{report.post.title}</p>
                   <p className="mt-1 text-xs text-slate-500">{report.post.category} • {cityScopeLabel(report.post.city, report.post.district)}</p>
                   <p className="mt-2 line-clamp-2">{report.post.body}</p>
-                  <Link href={`/posts/${report.post.id}`} className="mt-3 inline-flex text-sm font-medium text-sky-700 hover:text-sky-800">
-                    Open post
-                  </Link>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Link href={`/posts/${report.post.id}`} className="inline-flex text-sm font-medium text-sky-700 hover:text-sky-800">
+                      Open post
+                    </Link>
+                    <ReportStatusForm reportId={report.id} status="reviewing" action={updateReportStatusAction} />
+                    <ReportStatusForm reportId={report.id} status="resolved" action={updateReportStatusAction} />
+                    <HidePostForm postId={report.post.id} action={hideReportedPostAction} />
+                  </div>
                 </div>
               ) : (
                 <p className="mt-2 text-xs text-slate-500">Post details unavailable, id: {report.post_id}</p>
