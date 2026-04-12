@@ -1,6 +1,5 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
-import { getSupabaseAdminClient } from './supabase-admin';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
 
@@ -256,31 +255,26 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
 
   const { data, error } = await supabase
     .from('comments')
-    .select(`
-      id,
-      post_id,
-      body,
-      created_at,
-      updated_at,
-      deleted_at,
-      deleted_by,
-      author_id,
-      profiles!comments_author_id_fkey(id, username, display_name, bio, city, origin_country, occupation, avatar_url)
-    `)
+    .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
 
-  if (error) {
+  if (error || !data?.length) {
     return [];
   }
 
-  if (!data?.length) {
-    return [];
-  }
+  const authorIds = [...new Set(data.map((row) => row.author_id).filter(Boolean))];
+  const { data: profilesData } = authorIds.length
+    ? await supabase
+        .from('profiles')
+        .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+        .in('id', authorIds)
+    : { data: [] };
+
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
 
   return data.map((row) => {
-    const profileRow = Array.isArray(row.profiles) ? row.profiles[0] : row.profiles;
-    const author = profileRow ? normalizeProfile(profileRow as Record<string, unknown>) : {
+    const author = profileMap.get(row.author_id) ?? {
       id: String(row.author_id),
       username: `member-${String(row.author_id).slice(0, 6)}`,
       displayName: 'Member',
