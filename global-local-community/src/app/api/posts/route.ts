@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getCurrentMember } from '@/lib/auth';
+import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { getFeedPosts } from '@/lib/data';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
@@ -38,6 +38,10 @@ export async function POST(request: Request) {
   if (!member) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  await assertMemberCan('post');
+  await assertAccountMaturity('post');
+  await assertRateLimit('post');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

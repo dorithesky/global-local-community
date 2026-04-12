@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getCurrentMember } from '@/lib/auth';
+import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -17,6 +17,10 @@ export async function POST(request: Request) {
   if (!member) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  await assertMemberCan('report');
+  await assertAccountMaturity('report');
+  await assertRateLimit('report');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

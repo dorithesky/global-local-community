@@ -3,14 +3,14 @@ import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { AdminShell } from '@/components/admin-shell';
 import { ModeratorNoteForm, PostVisibilityForm, ReportStatusForm, UserSanctionForm } from '@/components/admin-actions';
-import { requireAdmin } from '@/lib/auth';
+import { requireModerator } from '@/lib/auth';
 import { getAdminModerationView } from '@/lib/data';
 import { cityScopeLabel } from '@/lib/locations';
 import { addModeratorNoteAction, applyUserSanctionAction, setReportedPostVisibilityAction, updateReportStatusAction } from '../actions';
 
 export default async function AdminReportsPage() {
-  const admin = await requireAdmin();
-  if (!admin) notFound();
+  const moderator = await requireModerator();
+  if (!moderator) notFound();
 
   const { reports } = await getAdminModerationView();
 
