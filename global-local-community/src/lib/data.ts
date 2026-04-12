@@ -211,12 +211,19 @@ export async function getProfilePosts(username: string): Promise<PostRecord[]> {
 export async function getPostComments(postId: string): Promise<CommentRecord[]> {
   const supabase = await getSupabaseServerClient();
   const member = await getCurrentMember();
+
   if (!supabase) {
     return getCommentsByPostId(postId).map((comment) => ({
       ...comment,
       canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
     }));
   }
+
+  const { data: postExists } = await supabase
+    .from('posts')
+    .select('id')
+    .eq('id', postId)
+    .maybeSingle();
 
   const { data, error } = await supabase
     .from('comments')
@@ -225,19 +232,16 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     .order('created_at', { ascending: true });
 
   if (error) {
-    const fallbackComments = getCommentsByPostId(postId).map((comment) => ({
-      ...comment,
-      canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
-    }));
-    return fallbackComments;
+    return [];
   }
 
   if (!data?.length) {
-    const fallbackComments = getCommentsByPostId(postId).map((comment) => ({
-      ...comment,
-      canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
-    }));
-    return fallbackComments;
+    return postExists
+      ? []
+      : getCommentsByPostId(postId).map((comment) => ({
+          ...comment,
+          canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
+        }));
   }
 
   const profileIds = [...new Set(data.flatMap((row) => [row.author_id, row.deleted_by].filter(Boolean)))];
