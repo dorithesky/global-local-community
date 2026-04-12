@@ -1,5 +1,6 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
+import { getSupabaseAdminClient } from './supabase-admin';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
 
