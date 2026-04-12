@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { ArrowRight, Briefcase, Home, LifeBuoy } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
-import { AuthButtons } from '@/components/auth-buttons';
 import { getFeedPosts } from '@/lib/data';
 
 const highlights = [
@@ -57,19 +56,17 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <section className="grid gap-4 lg:grid-cols-[1.2fr,0.8fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Initial growth engine</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Start with the first 10 real users, then compound trust.</h2>
-            </div>
-            <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700">
-              View feed <ArrowRight className="h-4 w-4" />
-            </Link>
+      <section className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Initial growth engine</p>
+            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Start with the first 10 real users, then compound trust.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Keep the experience clean, city-aware, and useful enough that people come back because it saves time, not because it shouts.</p>
           </div>
+          <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700">
+            View feed <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-        <AuthButtons />
       </section>
     </div>
   );

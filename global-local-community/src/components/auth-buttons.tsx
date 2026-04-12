@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
-export function AuthButtons() {
+export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean; onSuccess?: () => void } = {}) {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState<string | null>(null);
@@ -28,7 +28,10 @@ export function AuthButtons() {
     if (error) {
       setMessage(error.message);
       setBusy(false);
+      return;
     }
+
+    onSuccess?.();
   }
 
   async function signInWithEmail() {
@@ -53,11 +56,14 @@ export function AuthButtons() {
 
     setBusy(false);
     setMessage(error ? error.message : 'Check your email for the sign-in link.');
-    if (!error) router.refresh();
+    if (!error) {
+      router.refresh();
+      onSuccess?.();
+    }
   }
 
   return (
-    <div id="signin" className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div id="signin" className={`space-y-3 rounded-3xl border border-slate-200 bg-white ${compact ? 'p-4 shadow-none' : 'p-5 shadow-sm'}`}>
       <div>
         <p className="text-sm font-semibold text-slate-900">Sign in</p>
         <p className="mt-1 text-sm text-slate-600">Use email magic link or Google. No password friction.</p>

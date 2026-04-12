@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Home, Briefcase, MessageSquare, Shield, Building2, MapPinned } from 'lucide-react';
 import { clsx } from 'clsx';
+import { HeaderAuthControls } from '@/components/header-auth-controls';
 import { SessionPill } from '@/components/session-pill';
 import { SignOutButton } from '@/components/sign-out-button';
 import { getCurrentMember } from '@/lib/auth';
@@ -29,8 +30,14 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-2 sm:gap-3">
-            <SessionPill />
-            {member ? <SignOutButton /> : null}
+            {member ? (
+              <>
+                <SessionPill />
+                <SignOutButton />
+              </>
+            ) : (
+              <HeaderAuthControls signedInContent={<></>} />
+            )}
             <Link href="/create" className="rounded-full bg-sky-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-sky-700">
               Create post
             </Link>
