@@ -56,42 +56,37 @@ export default async function HomePage() {
         </section>
       ) : (
         <>
-          <section className="rounded-[2rem] bg-slate-950 px-6 py-10 text-white shadow-xl">
-            <p className="text-xs uppercase tracking-[0.28em] text-sky-300">English-first community for life in Korea</p>
-            <h1 className="mt-4 max-w-3xl text-4xl font-semibold tracking-tight sm:text-5xl">High-signal local help for foreigners living across Korea.</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300 sm:text-base">
-              A trusted English-first community for foreigners living in Korea, built to help you solve housing, jobs, and daily-life problems faster than scattered group chats ever will.
+          <section className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+            <p className="text-xs uppercase tracking-[0.24em] text-sky-600">English-first community for life in Korea</p>
+            <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">High-signal local help for foreigners living across Korea.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
+              Find housing leads, job context, and daily-life answers in one place, with visible profiles and moderated discussion instead of scattered chat noise.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/feed" className="rounded-full bg-sky-500 px-5 py-3 text-sm font-medium text-white hover:bg-sky-400">
-                Browse trusted posts
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/feed" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+                Browse posts
               </Link>
-              <Link href="/#signin" className="rounded-full border border-white/20 px-5 py-3 text-sm font-medium text-white hover:bg-white/10">
-                Sign in and build your profile
+              <Link href="/#signin" className="rounded-full border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50">
+                Sign in to ask or reply
               </Link>
             </div>
-            <div className="mt-6 grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-sky-300">Why this exists</p>
-                <p className="mt-2 text-sm leading-6 text-slate-200">Most foreigners in Korea still rely on scattered chats, stale spreadsheets, and partial advice. This product is built to reduce that drag.</p>
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-semibold text-slate-900">Visible member profiles</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Replies and posts stay tied to real community identities, not anonymous drops.</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-sky-300">Why join now</p>
-                <p className="mt-2 text-sm leading-6 text-slate-200">Early members shape the quality bar, city coverage, and the first trustworthy answer set that later users depend on.</p>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-semibold text-slate-900">Published posts only</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Public feeds show published content, while reports and moderation stay operator-controlled.</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-sky-300">What you get</p>
-                <p className="mt-2 text-sm leading-6 text-slate-200">Visible profiles, moderated discussion, and city-aware help that feels closer to a real community product than a noisy chat room.</p>
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <p className="text-sm font-semibold text-slate-900">Korea-wide local context</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Seoul, Busan, Daegu, and flexible local areas are built into the posting flow.</p>
               </div>
             </div>
           </section>
 
           <section className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Trust signals</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Built to feel more trustworthy than a random group chat.</h2>
-              <p className="mt-3 text-sm leading-6 text-slate-600">Visible profiles, moderation controls, and city-aware context are part of the product surface, not hidden promises.</p>
-            </div>
             <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
               <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Community snapshot</p>
               <div className="mt-3 space-y-3 text-sm text-slate-600">
@@ -100,46 +95,23 @@ export default async function HomePage() {
                 <p><span className="font-semibold text-slate-900">{visibleCities}</span> city buckets represented</p>
               </div>
             </div>
-            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Safety posture</p>
-              <div className="mt-3 space-y-3 text-sm text-slate-600">
-                <p>Public feeds show published posts only.</p>
-                <p>Reports and moderation actions are operator-gated.</p>
-                <p>{sanctionedMembers ? `${sanctionedMembers} members currently restricted under moderation controls.` : 'No active member restrictions visible right now.'}</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm">
-            <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Start here</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Get to the right part of the community fast</h2>
-            <div className="mt-4 grid gap-3 md:grid-cols-3">
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">1. Choose your city</p>
-                <p className="mt-2 text-sm text-slate-600">Tell the product where you live so Seoul, Busan, Daegu, and other local context feels relevant immediately.</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">2. Pick what you need most</p>
-                <p className="mt-2 text-sm text-slate-600">Housing, jobs, daily life, events, or marketplace. This should shape what you see first.</p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm font-semibold text-slate-900">3. Ask one useful question</p>
-                <p className="mt-2 text-sm text-slate-600">Share your situation clearly and get practical replies from people already living in Korea.</p>
-              </div>
-            </div>
-          </section>
-
-          <section className="grid gap-4 md:grid-cols-3">
-            {highlights.map((item) => {
-              const Icon = item.icon;
-              return (
-                <div key={item.title} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <Icon className="h-5 w-5 text-sky-600" />
-                  <h2 className="mt-4 text-lg font-semibold text-slate-900">{item.title}</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{item.description}</p>
+            <div className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm md:col-span-2">
+              <p className="text-xs uppercase tracking-[0.24em] text-sky-600">How to get value fast</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-900">Browse what people are asking now</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">Start with recent posts to understand the tone, quality, and the kinds of help already flowing.</p>
                 </div>
-              );
-            })}
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-900">Set your city and current need</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">A little profile context makes the feed and future replies much more useful.</p>
+                </div>
+                <div className="rounded-2xl bg-slate-50 p-4">
+                  <p className="text-sm font-semibold text-slate-900">Ask one clear question</p>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">The fastest path to value is a specific question with enough context for someone local to answer well.</p>
+                </div>
+              </div>
+            </div>
           </section>
         </>
       )}
