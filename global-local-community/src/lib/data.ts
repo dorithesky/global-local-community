@@ -203,6 +203,31 @@ export async function getSavedPosts() {
   return feed.filter((post) => post.bookmarked);
 }
 
+export async function getUserLikedPosts() {
+  const member = await getCurrentMember();
+  if (!member) return [];
+
+  const feed = await getFeedPosts();
+  return feed.filter((post) => post.liked);
+}
+
+export async function getUserCommentedPosts() {
+  const member = await getCurrentMember();
+  if (!member) return [];
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return [];
+
+  const { data } = await supabase
+    .from('comments')
+    .select('post_id')
+    .eq('author_id', member.id);
+
+  const commentedPostIds = new Set((data ?? []).map((row) => row.post_id));
+  const feed = await getFeedPosts();
+  return feed.filter((post) => commentedPostIds.has(post.id));
+}
+
 export async function getAdminModerationView() {
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

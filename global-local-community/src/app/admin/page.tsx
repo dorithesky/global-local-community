@@ -2,11 +2,11 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
-import { HidePostForm, ReportStatusForm } from '@/components/admin-actions';
+import { PostVisibilityForm, ReportStatusForm } from '@/components/admin-actions';
 import { requireAdmin } from '@/lib/auth';
 import { cityScopeLabel } from '@/lib/locations';
 import { getAdminModerationView } from '@/lib/data';
-import { hideReportedPostAction, updateReportStatusAction } from './actions';
+import { setReportedPostVisibilityAction, updateReportStatusAction } from './actions';
 
 export default async function AdminPage() {
   const admin = await requireAdmin();
@@ -47,7 +47,8 @@ export default async function AdminPage() {
                     </Link>
                     <ReportStatusForm reportId={report.id} status="reviewing" action={updateReportStatusAction} />
                     <ReportStatusForm reportId={report.id} status="resolved" action={updateReportStatusAction} />
-                    <HidePostForm postId={report.post.id} action={hideReportedPostAction} />
+                    <PostVisibilityForm postId={report.post.id} moderationStatus="published" action={setReportedPostVisibilityAction} />
+                    <PostVisibilityForm postId={report.post.id} moderationStatus="hidden" action={setReportedPostVisibilityAction} />
                   </div>
                 </div>
               ) : (

@@ -20,7 +20,7 @@ export async function updateReportStatusAction(formData: FormData) {
   revalidatePath('/admin');
 }
 
-export async function hideReportedPostAction(formData: FormData) {
+export async function setReportedPostVisibilityAction(formData: FormData) {
   const admin = await requireAdmin();
   if (!admin) throw new Error('Unauthorized');
 
@@ -28,9 +28,10 @@ export async function hideReportedPostAction(formData: FormData) {
   if (!supabase) throw new Error('Supabase is not configured.');
 
   const postId = String(formData.get('postId') ?? '');
+  const moderationStatus = String(formData.get('moderationStatus') ?? 'published');
   if (!postId) throw new Error('Missing post id');
 
-  const { error } = await supabase.from('posts').update({ moderation_status: 'hidden' }).eq('id', postId);
+  const { error } = await supabase.from('posts').update({ moderation_status: moderationStatus }).eq('id', postId);
   if (error) throw new Error(error.message);
 
   revalidatePath('/admin');

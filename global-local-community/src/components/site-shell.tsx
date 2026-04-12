@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Briefcase, MessageSquare, Shield, Building2, MapPinned } from 'lucide-react';
+import { Home, Briefcase, MessageSquare, Shield, Building2, MapPinned, Bookmark, Bell, Activity } from 'lucide-react';
 import { clsx } from 'clsx';
 import { HeaderAuthControls } from '@/components/header-auth-controls';
 import { SessionPill } from '@/components/session-pill';
@@ -13,6 +13,11 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
     { href: '/feed', label: 'Feed', icon: MessageSquare },
     { href: '/categories/housing', label: 'Housing', icon: Building2 },
     { href: '/categories/jobs', label: 'Jobs', icon: Briefcase },
+    ...(member ? [
+      { href: '/saved', label: 'Saved', icon: Bookmark },
+      { href: '/activity', label: 'Activity', icon: Activity },
+      { href: '/settings', label: 'Alerts', icon: Bell },
+    ] : []),
     ...(member?.isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
   ];
 
