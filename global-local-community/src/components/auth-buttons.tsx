@@ -180,9 +180,15 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         type="button"
         onClick={signInWithGoogle}
         disabled={busy}
-        className="w-full rounded-full border border-slate-300 px-5 py-3 text-sm font-medium text-slate-900 hover:bg-slate-50 disabled:opacity-60"
+        className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-900 shadow-sm hover:bg-slate-50 disabled:opacity-60"
       >
-        Continue with Google
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+          <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.3-1.7 3.9-5.4 3.9-3.3 0-5.9-2.7-5.9-6s2.6-6 5.9-6c1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 3.3 14.7 2.4 12 2.4 6.9 2.4 2.8 6.5 2.8 11.6s4.1 9.2 9.2 9.2c5.3 0 8.8-3.7 8.8-8.9 0-.6-.1-1.1-.2-1.7H12Z" />
+          <path fill="#34A853" d="M2.8 11.6c0 1.6.6 3 1.5 4.2l3.5-2.7c-.2-.5-.4-1-.4-1.6s.1-1.1.4-1.6L4.3 7.2c-.9 1.2-1.5 2.7-1.5 4.4Z" />
+          <path fill="#FBBC05" d="M12 20.8c2.5 0 4.6-.8 6.2-2.3l-3-2.4c-.8.6-1.8 1-3.2 1-2.5 0-4.7-1.7-5.4-4l-3.6 2.7c1.6 3 4.8 5 9 5Z" />
+          <path fill="#4285F4" d="M18.2 18.5c1.8-1.6 2.6-4 2.6-6.6 0-.6-.1-1.1-.2-1.7H12v3.9h5.4c-.1.9-.6 2.2-1.7 3.1l2.5 1.3Z" />
+        </svg>
+        <span>Continue with Google</span>
       </button>
       {view === 'signin' && signInMethod === 'password' ? (
         <p className="text-sm text-slate-500">
