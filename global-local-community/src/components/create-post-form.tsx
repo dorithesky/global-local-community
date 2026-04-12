@@ -80,7 +80,7 @@ export function CreatePostForm({
           type="file"
           name="images"
           multiple
-          accept="image/jpeg,image/png,image/webp"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
           className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"
           onChange={(event) => {
             const files = Array.from(event.target.files ?? []);
@@ -88,7 +88,7 @@ export function CreatePostForm({
             onImagesSelected?.(files);
           }}
         />
-        <p className="mt-2 text-xs leading-6 text-slate-500">Safe first pass: JPG, PNG, or WebP only, up to 4 images, 5MB each. Storage + scanning should be added before public launch.</p>
+        <p className="mt-2 text-xs leading-6 text-slate-500">Allowed formats: JPG, JPEG, PNG, and WebP only. Up to 4 images, 5MB each. Images are resized in the layout to avoid aggressive cropping.</p>
         {imageMessage ? <p className="mt-1 text-xs text-rose-600">{imageMessage}</p> : null}
       </div>
       <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">

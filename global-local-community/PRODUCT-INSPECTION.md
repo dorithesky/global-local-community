@@ -45,8 +45,11 @@ A first-time user should quickly understand:
 - what to do first
 - how to write a post that gets useful replies
 
-### 5. Media remains intentionally deferred
-Image selection UI exists, but durable uploads should not launch until signed upload flow, storage rules, and moderation review exist.
+### 5. Media quality still needs one more pass
+Hosted image upload now works, but media quality still needs another product pass:
+- image layouts should feel polished across feed and post detail
+- future resizing/thumbnail generation can improve performance
+- media moderation/review still needs to mature
 
 ## Recommendation
 If the goal is launch soon, the best next improvements are:

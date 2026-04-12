@@ -1,5 +1,6 @@
 export const IMAGE_UPLOAD_RULES = {
-  acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
+  acceptedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+  acceptedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
   maxFiles: 4,
   maxBytesPerFile: 5 * 1024 * 1024,
 };
@@ -10,8 +11,9 @@ export function validateImageFiles(files: File[]) {
   }
 
   for (const file of files) {
-    if (!IMAGE_UPLOAD_RULES.acceptedTypes.includes(file.type)) {
-      return 'Only JPG, PNG, and WebP images are allowed.';
+    const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+    if (!IMAGE_UPLOAD_RULES.acceptedTypes.includes(file.type) || !IMAGE_UPLOAD_RULES.acceptedExtensions.includes(extension)) {
+      return 'Only image files in JPG, JPEG, PNG, or WebP format are allowed.';
     }
     if (file.size > IMAGE_UPLOAD_RULES.maxBytesPerFile) {
       return 'Each image must be 5MB or smaller.';

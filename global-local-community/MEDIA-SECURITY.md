@@ -3,7 +3,7 @@
 Image posting is important, but public uploads need guardrails.
 
 ## Safe first-pass rules
-- Accept only JPG, PNG, WebP
+- Accept only JPG, JPEG, PNG, WebP
 - Max 4 files per post
 - Max 5MB per file
 - Store outside the app filesystem
@@ -42,5 +42,7 @@ Image posting is important, but public uploads need guardrails.
 
 ## Current product state
 - UI allows image selection and validates locally
+- accepted upload formats are currently JPG, JPEG, PNG, and WebP only
 - app is now wired to upload selected images to hosted Supabase Storage before post creation
+- post layouts were adjusted to avoid aggressive image crop behavior by using contain-style rendering instead of hard cover cropping
 - durable image persistence depends on the cloud bucket and DB migration being created/applied
