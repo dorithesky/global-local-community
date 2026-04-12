@@ -1,4 +1,4 @@
-import { getSupabaseServerClient } from './supabase';
+import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentRecord, PostRecord, Profile } from './types';
 
