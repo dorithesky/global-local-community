@@ -48,7 +48,11 @@ export function CommentThread({
                   </p>
                 </Link>
 
-                {isEditing ? (
+                {comment.deletedAt ? (
+                  <div className="mt-2 rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-sm italic text-slate-500">
+                    {comment.body}
+                  </div>
+                ) : isEditing ? (
                   <form action={updateAction} className="mt-3 space-y-3">
                     <input type="hidden" name="commentId" value={comment.id} />
                     <textarea

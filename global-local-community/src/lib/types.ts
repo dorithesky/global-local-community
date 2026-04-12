@@ -45,6 +45,8 @@ export interface CommentRecord {
   body: string;
   createdAt: string;
   updatedAt?: string;
+  deletedAt?: string;
+  deletedBy?: Profile;
   canEdit?: boolean;
 }
 

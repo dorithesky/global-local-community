@@ -85,11 +85,15 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
 
   const { data: existing } = await supabase
     .from('comments')
-    .select('author_id, body')
+    .select('author_id, body, deleted_at')
     .eq('id', commentId)
     .maybeSingle();
 
   if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
+  if (existing.deleted_at) {
+    revalidatePath(`/posts/${postId}`);
+    return;
+  }
 
   await supabase.from('comment_events').insert({
     comment_id: commentId,
@@ -98,7 +102,16 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
     old_body: existing.body,
   });
 
-  const { error } = await supabase.from('comments').delete().eq('id', commentId);
+  const { error } = await supabase
+    .from('comments')
+    .update({
+      body: '',
+      deleted_at: new Date().toISOString(),
+      deleted_by: member.id,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', commentId);
+
   if (error) throw new Error(error.message);
 
   revalidatePath(`/posts/${postId}`);

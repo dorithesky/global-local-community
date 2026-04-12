@@ -181,7 +181,7 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
 
   const { data, error } = await supabase
     .from('comments')
-    .select('id, post_id, body, created_at, updated_at, author_id')
+    .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
 
@@ -192,11 +192,13 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     }));
   }
 
-  const authorIds = [...new Set(data.map((row) => row.author_id))];
-  const { data: profilesData } = await supabase
-    .from('profiles')
-    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
-    .in('id', authorIds);
+  const profileIds = [...new Set(data.flatMap((row) => [row.author_id, row.deleted_by].filter(Boolean)))];
+  const { data: profilesData } = profileIds.length
+    ? await supabase
+        .from('profiles')
+        .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+        .in('id', profileIds)
+    : { data: [] };
 
   const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
 
@@ -211,10 +213,12 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     return {
       id: row.id,
       postId: row.post_id,
-      body: row.body,
+      body: row.deleted_at ? `Comment deleted by ${row.deleted_by && profileMap.get(row.deleted_by)?.username ? `@${profileMap.get(row.deleted_by)?.username}` : 'author'}` : row.body,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
-      canEdit: Boolean(member && (member.id === row.author_id || member.username === author.username)),
+      deletedAt: row.deleted_at ?? undefined,
+      deletedBy: row.deleted_by ? profileMap.get(row.deleted_by) : undefined,
+      canEdit: Boolean(!row.deleted_at && member && (member.id === row.author_id || member.username === author.username)),
       author,
     };
   });
