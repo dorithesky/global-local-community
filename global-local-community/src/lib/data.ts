@@ -218,6 +218,30 @@ export async function getUserLikedPosts() {
   return feed.filter((post) => post.liked);
 }
 
+export async function getProfileComments(username: string): Promise<CommentRecord[]> {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return [];
+
+  const profile = await getProfile(username);
+  if (!profile) return [];
+
+  const { data, error } = await supabase
+    .from('comments')
+    .select('id, post_id, body, created_at, author_id')
+    .eq('author_id', profile.id)
+    .order('created_at', { ascending: false });
+
+  if (error || !data?.length) return [];
+
+  return data.map((row) => ({
+    id: row.id,
+    postId: row.post_id,
+    body: row.body,
+    createdAt: row.created_at,
+    author: profile,
+  }));
+}
+
 export async function getUserCommentedPosts() {
   const member = await getCurrentMember();
   if (!member) return [];

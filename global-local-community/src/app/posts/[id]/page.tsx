@@ -21,6 +21,14 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       <PageHeader eyebrow={post.category} title={post.title} description={`Posted by ${post.author.displayName} in ${cityScopeLabel(post.city, post.district)}.`} />
       <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
+          {post.author.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-100" />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700 ring-2 ring-slate-100">
+              {post.author.displayName.slice(0, 1).toUpperCase()}
+            </div>
+          )}
           <span className="font-medium text-slate-900">{post.author.displayName}</span>
           <span className="text-slate-400">@{post.author.username}</span>
           <span>•</span>
@@ -49,9 +57,21 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <div className="mt-4 space-y-4">
             {comments.length ? comments.map((comment) => (
               <div key={comment.id} className="rounded-2xl bg-slate-50 p-4">
-                <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
-                <p className="mt-1 text-xs text-slate-500">@{comment.author.username}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
+                <div className="flex items-start gap-3">
+                  {comment.author.avatarUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={comment.author.avatarUrl} alt={comment.author.displayName} className="h-9 w-9 rounded-full object-cover ring-2 ring-white" />
+                  ) : (
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700 ring-2 ring-white">
+                      {comment.author.displayName.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
+                    <p className="mt-1 text-xs text-slate-500">@{comment.author.username}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
+                  </div>
+                </div>
               </div>
             )) : <p className="text-sm text-slate-500">No comments yet. Add the first useful reply.</p>}
           </div>

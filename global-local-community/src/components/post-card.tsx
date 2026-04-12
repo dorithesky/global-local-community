@@ -11,11 +11,21 @@ export function PostCard({ post }: { post: PostRecord }) {
   return (
     <article className="rounded-[30px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
       <div className="mb-4 flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-slate-900">{post.author.displayName}</p>
-          <p className="truncate text-xs text-slate-500">
-            @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-          </p>
+        <div className="flex min-w-0 items-center gap-3">
+          {post.author.avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-100" />
+          ) : (
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700 ring-2 ring-slate-100">
+              {post.author.displayName.slice(0, 1).toUpperCase()}
+            </div>
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900">{post.author.displayName}</p>
+            <p className="truncate text-xs text-slate-500">
+              @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{post.category}</span>

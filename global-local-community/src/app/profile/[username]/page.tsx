@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation';
+import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getCurrentMember } from '@/lib/auth';
-import { getProfile, getProfilePosts, getSavedPosts } from '@/lib/data';
+import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params;
   const profile = await getProfile(username);
   if (!profile) notFound();
   const authoredPosts = await getProfilePosts(username);
+  const profileComments = await getProfileComments(username);
   const currentMember = await getCurrentMember();
   const isOwnProfile = currentMember?.username === username;
   const savedPosts = isOwnProfile ? await getSavedPosts() : [];
@@ -50,11 +52,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           </div>
         </section>
       ) : null}
-      <div className="space-y-4">
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-slate-950">Posts</h2>
         {authoredPosts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
-      </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-xl font-semibold text-slate-950">Comments</h2>
+        {profileComments.length ? profileComments.map((comment) => (
+          <div key={comment.id} className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-sm font-medium text-slate-900">{profile.displayName}</p>
+            <p className="mt-1 text-xs text-slate-500">@{profile.username} • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
+            <p className="mt-3 text-sm leading-7 text-slate-600">{comment.body}</p>
+          </div>
+        )) : <div className="rounded-[28px] border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">No comments yet.</div>}
+      </section>
     </div>
   );
 }
