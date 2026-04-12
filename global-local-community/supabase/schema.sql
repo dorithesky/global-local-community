@@ -140,6 +140,14 @@ create table if not exists user_settings (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists user_roles (
+  user_id uuid not null references profiles(id) on delete cascade,
+  role text not null check (role in ('admin','moderator')),
+  created_by uuid references profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, role)
+);
+
 create index if not exists idx_posts_city_category_created_at on posts(city, category, created_at desc);
 create index if not exists idx_posts_author_id_created_at on posts(author_id, created_at desc);
 create index if not exists idx_comments_post_id_created_at on comments(post_id, created_at asc);
@@ -148,3 +156,4 @@ create index if not exists idx_workflow_events_event_type_processed on workflow_
 create index if not exists idx_post_media_post_id_created_at on post_media(post_id, created_at desc);
 create index if not exists idx_moderator_notes_target_user_created_at on moderator_notes(target_user_id, created_at desc);
 create index if not exists idx_user_sanctions_user_active on user_sanctions(user_id, active, created_at desc);
+create index if not exists idx_user_roles_role_user_id on user_roles(role, user_id);

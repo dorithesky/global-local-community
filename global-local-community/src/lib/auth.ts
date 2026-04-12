@@ -45,6 +45,8 @@ export const getCurrentMember = cache(async () => {
     .eq('id', user.id)
     .maybeSingle();
 
+  const envAdmin = ADMIN_EMAILS.has(email.toLowerCase());
+
   if (!existing) {
     const { error } = await supabase.from('profiles').insert({
       id: user.id,
@@ -55,6 +57,10 @@ export const getCurrentMember = cache(async () => {
       onboarding_completed: false,
     });
 
+    if (!error && envAdmin) {
+      await supabase.from('user_roles').upsert({ user_id: user.id, role: 'admin' }, { onConflict: 'user_id,role' });
+    }
+
     if (error) {
       return {
         id: user.id,
@@ -62,9 +68,12 @@ export const getCurrentMember = cache(async () => {
         displayName,
         username: preferredUsername,
         avatarUrl,
-        isAdmin: ADMIN_EMAILS.has(email.toLowerCase()),
+        isAdmin: envAdmin,
       };
     }
+
+    const { data: createdRoles } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+    const roles = (createdRoles ?? []).map((row) => row.role);
 
     return {
       id: user.id,
@@ -72,9 +81,17 @@ export const getCurrentMember = cache(async () => {
       displayName,
       username: `${preferredUsername}-${user.id.slice(0, 6)}`,
       avatarUrl,
-      isAdmin: ADMIN_EMAILS.has(email.toLowerCase()),
+      isAdmin: envAdmin || roles.includes('admin'),
+      roles,
     };
   }
+
+  if (envAdmin) {
+    await supabase.from('user_roles').upsert({ user_id: user.id, role: 'admin' }, { onConflict: 'user_id,role' });
+  }
+
+  const { data: roleRows } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
+  const roles = (roleRows ?? []).map((row) => row.role);
 
   return {
     id: user.id,
@@ -82,7 +99,8 @@ export const getCurrentMember = cache(async () => {
     displayName: existing.display_name,
     username: existing.username,
     avatarUrl: existing.avatar_url ?? avatarUrl,
-    isAdmin: ADMIN_EMAILS.has(email.toLowerCase()),
+    isAdmin: envAdmin || roles.includes('admin'),
+    roles,
   };
 });
 

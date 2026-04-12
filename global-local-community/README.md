@@ -73,7 +73,7 @@ psql "$SUPABASE_DB_URL" -f supabase/seed.sql
 ## Current launch blockers being addressed
 
 - Public API routes for posts and reports still need to be aligned to the same durable persistence path as the main app
-- Production trust controls are still baseline-only and need rate limits, sanction states, and stronger moderation auditability
+- Production trust controls are still baseline-only and need rate limits, sanction states, stronger moderation auditability, and durable role management rollout
 - Durable media upload is intentionally not live until secure signed upload and moderation review exist
 - Deployment discipline still needs repeatable migration checks, RLS/policies, and rollback verification
 
@@ -86,3 +86,4 @@ The near-term shipping bias is:
 - low founder maintenance
 - better onboarding and activation copy
 - practical trust and safety controls before broader launch
+- durable admin and moderator roles instead of brittle config-only access
