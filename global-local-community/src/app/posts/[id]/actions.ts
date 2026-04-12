@@ -57,7 +57,8 @@ export async function updateCommentAction(postId: string, formData: FormData) {
     .eq('id', commentId)
     .maybeSingle();
 
-  if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
+  const canManage = Boolean(existing && existing.author_id === member.id);
+  if (!canManage) throw new Error('Unauthorized');
 
   const { error } = await supabase.from('comments').update({ body, updated_at: new Date().toISOString() }).eq('id', commentId);
   if (error) throw new Error(error.message);
@@ -66,7 +67,7 @@ export async function updateCommentAction(postId: string, formData: FormData) {
     comment_id: commentId,
     actor_id: member.id,
     event_type: 'edited',
-    old_body: existing.body,
+    old_body: existing?.body,
     new_body: body,
   });
 
@@ -89,8 +90,9 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
     .eq('id', commentId)
     .maybeSingle();
 
-  if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
-  if (existing.deleted_at) {
+  const canManage = Boolean(existing && existing.author_id === member.id);
+  if (!canManage) throw new Error('Unauthorized');
+  if (existing?.deleted_at) {
     revalidatePath(`/posts/${postId}`);
     return;
   }
@@ -99,7 +101,7 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
     comment_id: commentId,
     actor_id: member.id,
     event_type: 'deleted',
-    old_body: existing.body,
+    old_body: existing?.body,
   });
 
   const { error } = await supabase
@@ -110,7 +112,8 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
       deleted_by: member.id,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', commentId);
+    .eq('id', commentId)
+    .eq('author_id', member.id);
 
   if (error) throw new Error(error.message);
 
