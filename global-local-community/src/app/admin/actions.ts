@@ -1,12 +1,12 @@
 "use server";
 
 import { revalidatePath } from 'next/cache';
-import { requireAdmin } from '@/lib/auth';
+import { requireAdmin, requireModerator } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function updateReportStatusAction(formData: FormData) {
-  const admin = await requireAdmin();
-  if (!admin) throw new Error('Unauthorized');
+  const moderator = await requireModerator();
+  if (!moderator) throw new Error('Unauthorized');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -17,12 +17,23 @@ export async function updateReportStatusAction(formData: FormData) {
   const { error } = await supabase.from('reports').update({ status }).eq('id', reportId);
   if (error) throw new Error(error.message);
 
+  await supabase.from('workflow_events').insert({
+    event_type: 'moderation.report_status_updated',
+    entity_type: 'report',
+    entity_id: reportId,
+    payload: {
+      status,
+      moderator_id: moderator.id,
+    },
+  });
+
   revalidatePath('/admin');
+  revalidatePath('/admin/reports');
 }
 
 export async function setReportedPostVisibilityAction(formData: FormData) {
-  const admin = await requireAdmin();
-  if (!admin) throw new Error('Unauthorized');
+  const moderator = await requireModerator();
+  if (!moderator) throw new Error('Unauthorized');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -42,7 +53,7 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
     entity_id: postId,
     payload: {
       moderation_status: moderationStatus,
-      admin_id: admin.id,
+      moderator_id: moderator.id,
       note,
     },
   });
@@ -51,19 +62,20 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
     await supabase.from('moderator_notes').insert({
       target_user_id: post?.author_id ?? null,
       post_id: postId,
-      author_id: admin.id,
+      author_id: moderator.id,
       note,
     });
   }
 
   revalidatePath('/admin');
+  revalidatePath('/admin/reports');
   revalidatePath(`/posts/${postId}`);
   revalidatePath('/feed');
 }
 
 export async function addModeratorNoteAction(formData: FormData) {
-  const admin = await requireAdmin();
-  if (!admin) throw new Error('Unauthorized');
+  const moderator = await requireModerator();
+  if (!moderator) throw new Error('Unauthorized');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -81,13 +93,14 @@ export async function addModeratorNoteAction(formData: FormData) {
     report_id: reportId,
     post_id: postId,
     comment_id: commentId,
-    author_id: admin.id,
+    author_id: moderator.id,
     note,
   });
 
   if (error) throw new Error(error.message);
 
   revalidatePath('/admin');
+  revalidatePath('/admin/reports');
 }
 
 export async function applyUserSanctionAction(formData: FormData) {

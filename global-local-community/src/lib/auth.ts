@@ -161,6 +161,18 @@ export async function requireAdmin() {
   return member;
 }
 
+export async function requireModerator() {
+  const member = await getCurrentMember();
+  if (!member) return null;
+  if (member.isAdmin || member.roles?.includes('moderator')) return member;
+  return null;
+}
+
+export async function requireRole(role: 'admin' | 'moderator') {
+  if (role === 'admin') return requireAdmin();
+  return requireModerator();
+}
+
 export const getActiveSanctions = cache(async (): Promise<ActiveSanction[]> => {
   const member = await getCurrentMember();
   if (!member) return [];
