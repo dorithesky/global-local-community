@@ -26,10 +26,15 @@ export function PostCard({ post }: { post: PostRecord }) {
             <p className="truncate text-xs text-slate-500">
               @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
             </p>
+            <div className="mt-1 flex flex-wrap gap-1.5 text-[11px] text-slate-500">
+              {post.author.occupation ? <span className="rounded-full bg-slate-100 px-2 py-1">{post.author.occupation}</span> : null}
+              {post.author.originCountry ? <span className="rounded-full bg-slate-100 px-2 py-1">From {post.author.originCountry}</span> : null}
+            </div>
           </div>
         </Link>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{post.category}</span>
+          {post.author.city ? <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{post.author.city}</span> : null}
           {post.canEdit ? <FeedDeleteButton action={deletePostAction.bind(null, post.id)} /> : <FeedReportButton action={createReportAction.bind(null, post.id)} />}
         </div>
       </div>
@@ -56,8 +61,9 @@ export function PostCard({ post }: { post: PostRecord }) {
         </div>
       </div>
       <div className="mt-4 rounded-2xl border border-slate-100 bg-slate-50/80 p-3 text-xs leading-6 text-slate-600">
-        <p className="font-semibold text-slate-900">Quick context</p>
+        <p className="font-semibold text-slate-900">Trust and context</p>
         <p>{cityScopeLabel(post.city, post.district)} • {post.category} • {post.commentsCount} replies</p>
+        <p className="mt-1">Posted by a visible member profile{post.author.occupation || post.author.originCountry ? ' with added identity context' : ''}.</p>
       </div>
     </article>
   );

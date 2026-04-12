@@ -1,4 +1,5 @@
 import { saveConsentSettingsAction, saveNotificationPreferencesAction, saveProfileIdentityAction } from '@/app/settings/actions';
+import Link from 'next/link';
 
 export function AccountSettingsForm({
   settings,
@@ -13,9 +14,12 @@ export function AccountSettingsForm({
     <div className="space-y-6">
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
         <form action={saveProfileIdentityAction} className="space-y-4">
-          <div>
-            <p className="text-sm font-semibold text-slate-900">Public profile</p>
-            <p className="mt-1 text-sm text-slate-500">Change the name and profile details people see in the community.</p>
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">Public profile</p>
+              <p className="mt-1 text-sm text-slate-500">Change the identity details people see in the community.</p>
+            </div>
+            <Link href="#account-controls" className="text-sm font-medium text-sky-700 hover:text-sky-800">Jump to account controls</Link>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -83,7 +87,7 @@ export function AccountSettingsForm({
         </form>
       </section>
 
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+      <section id="account-controls" className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
         <form action={saveConsentSettingsAction} className="space-y-4">
           <div>
             <p className="text-sm font-semibold text-slate-900">Marketing and data consent</p>
