@@ -18,7 +18,7 @@ export default async function CreatePostPage() {
         title="Ask for help or share a useful lead"
         description="Be clear about your situation, location, and what kind of response you need. Good posts get useful replies faster."
       />
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/40 p-6 shadow-sm">
         <CreatePostClientShell action={createPostAction} city={process.env.NEXT_PUBLIC_CITY ?? 'Seoul'} memberId={member.id} />
       </section>
     </div>
