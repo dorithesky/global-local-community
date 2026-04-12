@@ -36,6 +36,10 @@ export async function createPostAction(formData: FormData) {
     .map((tag) => tag.trim().toLowerCase())
     .filter(Boolean)
     .slice(0, 8);
+  const imageUrls = formData.getAll('imageUrls').map(String).filter(Boolean).slice(0, 4);
+  const imageStoragePaths = formData.getAll('imageStoragePaths').map(String).filter(Boolean).slice(0, 4);
+  const imageMimeTypes = formData.getAll('imageMimeTypes').map(String).filter(Boolean).slice(0, 4);
+  const imageSizeBytes = formData.getAll('imageSizeBytes').map((value) => Number(value)).filter((value) => Number.isFinite(value)).slice(0, 4);
 
   const { data, error } = await supabase
     .from('posts')
@@ -47,6 +51,7 @@ export async function createPostAction(formData: FormData) {
       city,
       district: district || null,
       tags,
+      image_urls: imageUrls,
       ai_label: classification.label,
       ai_score: classification.score,
       ai_explanation: `${classification.explanation} ${safety.explanation}`,
@@ -57,6 +62,19 @@ export async function createPostAction(formData: FormData) {
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  if (imageUrls.length) {
+    const mediaRows = imageUrls.map((publicUrl, index) => ({
+      post_id: data.id,
+      storage_path: imageStoragePaths[index] ?? publicUrl,
+      public_url: publicUrl,
+      mime_type: imageMimeTypes[index] ?? 'image/jpeg',
+      size_bytes: imageSizeBytes[index] ?? 0,
+      moderation_status: moderationStatus,
+    }));
+
+    await supabase.from('post_media').insert(mediaRows);
   }
 
   await supabase.from('workflow_events').insert({

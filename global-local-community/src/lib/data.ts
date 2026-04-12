@@ -34,6 +34,7 @@ function normalizePost(row: Record<string, unknown>, profile: Profile): PostReco
     city: String(row.city ?? 'Daegu'),
     district: row.district ? String(row.district) : undefined,
     tags: Array.isArray(row.tags) ? row.tags.map(String) : [],
+    imageUrls: Array.isArray(row.image_urls) ? row.image_urls.map(String) : [],
     createdAt: String(row.created_at ?? new Date().toISOString()),
     likesCount: Number(row.likes_count ?? 0),
     commentsCount: Number(row.comments_count ?? 0),
@@ -84,7 +85,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
   const member = await getCurrentMember();
   let queryBuilder = supabase
     .from('posts')
-    .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
+    .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at')
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -148,7 +149,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
   if (supabase) {
     const { data: row, error } = await supabase
       .from('posts')
-      .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
+      .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at')
       .eq('id', id)
       .maybeSingle();
 

@@ -7,6 +7,7 @@ import { CommentThread } from '@/components/comment-thread';
 import { CommentForm } from '@/components/post-engagement-forms';
 import { PostDetailReportTrigger } from '@/components/post-detail-report-trigger';
 import { BookmarkButton, DeletePostButton, LikeButton } from '@/components/post-actions';
+import { PostImages } from '@/components/post-images';
 import { cityScopeLabel } from '@/lib/locations';
 import { getCommentCountByPostId, getPostDetail } from '@/lib/data';
 import { createCommentAction, createReportAction, deleteCommentAction, updateCommentAction } from './actions';
@@ -43,6 +44,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <span>{cityScopeLabel(post.city, post.district)}</span>
         </div>
         <div className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-700">{post.body}</div>
+        <PostImages imageUrls={post.imageUrls} title={post.title} />
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />

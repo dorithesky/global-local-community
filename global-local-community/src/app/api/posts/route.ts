@@ -12,6 +12,7 @@ const createPostSchema = z.object({
   city: z.string().default('Daegu'),
   district: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  imageUrls: z.array(z.string().url()).optional(),
 });
 
 export async function GET(request: Request) {
@@ -48,6 +49,7 @@ export async function POST(request: Request) {
   const moderation = detectToxicityOrSpam(payload);
   const moderationStatus = moderation.label === 'spam-risk' && moderation.score >= 0.7 ? 'review' : 'published';
   const tags = (payload.tags ?? []).map((tag) => tag.trim().toLowerCase()).filter(Boolean).slice(0, 8);
+  const imageUrls = (payload.imageUrls ?? []).slice(0, 4);
 
   const { data, error } = await supabase
     .from('posts')
@@ -59,6 +61,7 @@ export async function POST(request: Request) {
       city: payload.city.trim() || 'Seoul',
       district: payload.district?.trim() || null,
       tags,
+      image_urls: imageUrls,
       ai_label: classification.label,
       ai_score: classification.score,
       ai_explanation: `${classification.explanation} ${moderation.explanation}`,

@@ -5,7 +5,7 @@ import { useFormStatus } from 'react-dom';
 import { KOREA_CITIES } from '@/lib/locations';
 import { validateImageFiles } from '@/lib/media';
 
-function SubmitButton() {
+function SubmitButton({ label }: { label?: string }) {
   const { pending } = useFormStatus();
 
   return (
@@ -14,7 +14,7 @@ function SubmitButton() {
       type="submit"
       disabled={pending}
     >
-      {pending ? 'Publishing...' : 'Publish post'}
+      {pending ? 'Publishing...' : label ?? 'Publish post'}
     </button>
   );
 }
@@ -22,9 +22,13 @@ function SubmitButton() {
 export function CreatePostForm({
   action,
   city,
+  onImagesSelected,
+  submitLabel,
 }: {
   action: (formData: FormData) => Promise<void>;
   city: string;
+  onImagesSelected?: (files: File[]) => void;
+  submitLabel?: string;
 }) {
   const [imageMessage, setImageMessage] = useState<string | null>(null);
 
@@ -81,6 +85,7 @@ export function CreatePostForm({
           onChange={(event) => {
             const files = Array.from(event.target.files ?? []);
             setImageMessage(validateImageFiles(files));
+            onImagesSelected?.(files);
           }}
         />
         <p className="mt-2 text-xs leading-6 text-slate-500">Safe first pass: JPG, PNG, or WebP only, up to 4 images, 5MB each. Storage + scanning should be added before public launch.</p>
@@ -94,7 +99,7 @@ export function CreatePostForm({
           <li>Add enough context so other foreigners in Korea can answer fast</li>
         </ul>
       </div>
-      <SubmitButton />
+      <SubmitButton label={submitLabel} />
     </form>
   );
 }

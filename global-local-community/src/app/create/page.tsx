@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
-import { CreatePostForm } from '@/components/create-post-form';
+import { CreatePostClientShell } from '@/components/create-post-client-shell';
 import { getCurrentMember } from '@/lib/auth';
 import { createPostAction } from './actions';
 
@@ -19,7 +19,7 @@ export default async function CreatePostPage() {
         description="Be clear about your situation, location, and what kind of response you need. Good posts get useful replies faster."
       />
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <CreatePostForm action={createPostAction} city={process.env.NEXT_PUBLIC_CITY ?? 'Seoul'} />
+        <CreatePostClientShell action={createPostAction} city={process.env.NEXT_PUBLIC_CITY ?? 'Seoul'} memberId={member.id} />
       </section>
     </div>
   );

@@ -23,6 +23,7 @@ create table if not exists posts (
   city text not null default 'Daegu',
   district text,
   tags text[] not null default '{}',
+  image_urls text[] not null default '{}',
   ai_label text,
   ai_score numeric(5,4),
   ai_explanation text,
@@ -91,6 +92,17 @@ create table if not exists workflow_events (
   created_at timestamptz not null default now()
 );
 
+create table if not exists post_media (
+  id bigint generated always as identity primary key,
+  post_id uuid not null references posts(id) on delete cascade,
+  storage_path text not null,
+  public_url text not null,
+  mime_type text not null,
+  size_bytes bigint not null,
+  moderation_status text not null default 'published' check (moderation_status in ('published','review','hidden')),
+  created_at timestamptz not null default now()
+);
+
 create table if not exists moderator_notes (
   id bigint generated always as identity primary key,
   target_user_id uuid references profiles(id) on delete cascade,
@@ -133,5 +145,6 @@ create index if not exists idx_posts_author_id_created_at on posts(author_id, cr
 create index if not exists idx_comments_post_id_created_at on comments(post_id, created_at asc);
 create index if not exists idx_reports_status_created_at on reports(status, created_at desc);
 create index if not exists idx_workflow_events_event_type_processed on workflow_events(event_type, processed_at, created_at desc);
+create index if not exists idx_post_media_post_id_created_at on post_media(post_id, created_at desc);
 create index if not exists idx_moderator_notes_target_user_created_at on moderator_notes(target_user_id, created_at desc);
 create index if not exists idx_user_sanctions_user_active on user_sanctions(user_id, active, created_at desc);

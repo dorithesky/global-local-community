@@ -4,7 +4,7 @@
 
 - `npm run lint`
 - `npm run build`
-- Apply latest Supabase schema and migrations, including `comment_history_migration.sql`, `comment_soft_delete_migration.sql`, `settings_migration.sql`, and `moderation_baseline_migration.sql`
+- Apply latest Supabase schema and migrations, including `comment_history_migration.sql`, `comment_soft_delete_migration.sql`, `settings_migration.sql`, `moderation_baseline_migration.sql`, and `media_storage_migration.sql`
 - Confirm `/api/health` returns database `ok`
 - Confirm `/api/seed` is blocked in production
 - Confirm admin access is restricted to approved emails only
@@ -23,6 +23,7 @@
    - `SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>`
    - `NEXT_PUBLIC_SITE_URL=https://<your-domain>`
    - `NEXT_PUBLIC_GA_ID=<your-ga-id>`
+   - `NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET=post-media`
 4. Deploy.
 
 ## Cloudflare DNS
@@ -45,4 +46,5 @@ If using a custom domain:
 - Supabase env vars present
 - Create post page renders
 - Admin page renders
+- Image upload bucket exists and test upload works
 - Analytics script present when `NEXT_PUBLIC_GA_ID` is set

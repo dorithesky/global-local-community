@@ -6,6 +6,7 @@ import { createReportAction } from '@/app/posts/[id]/actions';
 import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from '@/app/posts/[id]/engagement-actions';
 import { cityScopeLabel } from '@/lib/locations';
 import type { PostRecord } from '@/lib/types';
+import { PostImages } from '@/components/post-images';
 
 export function PostCard({ post }: { post: PostRecord }) {
   return (
@@ -35,9 +36,12 @@ export function PostCard({ post }: { post: PostRecord }) {
       <Link href={`/posts/${post.id}`} className="block">
         <h2 className="text-xl font-semibold tracking-tight text-slate-950">{post.title}</h2>
         <p className="mt-3 line-clamp-3 text-sm leading-7 text-slate-600">{post.body}</p>
-        <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-          <span className="inline-flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> Images coming to this post flow</span>
-        </div>
+        {post.imageUrls?.length ? (
+          <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+            <span className="inline-flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> {post.imageUrls.length} image{post.imageUrls.length === 1 ? '' : 's'}</span>
+          </div>
+        ) : null}
+       <PostImages imageUrls={post.imageUrls} title={post.title} />
       </Link>
       <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
         {post.tags.slice(0, 4).map((tag) => (
