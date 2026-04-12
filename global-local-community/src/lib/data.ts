@@ -259,6 +259,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
         source: 'live',
         liveCommentCount: count ?? 0,
         renderedCommentCount: 0,
+        rawRowCount: rows?.length ?? 0,
         relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
       },
     };
@@ -294,17 +295,20 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   });
 
+  const safeComments = comments.filter((comment) => Boolean(comment.id && comment.postId));
+
   return {
     post: {
       ...post,
-      commentsCount: count ?? comments.length,
+      commentsCount: count ?? safeComments.length,
     },
-    comments,
+    comments: safeComments,
     debug: {
       postId: id,
       source: 'live',
-      liveCommentCount: count ?? comments.length,
-      renderedCommentCount: comments.length,
+      liveCommentCount: count ?? safeComments.length,
+      renderedCommentCount: safeComments.length,
+      rawRowCount: rows.length,
       relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
     },
   };

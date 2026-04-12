@@ -65,5 +65,6 @@ export interface PostDetailDebug {
   source: 'live' | 'mock' | 'missing';
   liveCommentCount: number;
   renderedCommentCount: number;
+  rawRowCount?: number;
   relatedCommentPostIds?: string[];
 }

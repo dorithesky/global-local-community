@@ -70,7 +70,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
               No replies are rendering for this post right now.
               <div className="mt-2 text-xs text-amber-700">
-                Detail source: {debug.source} • post id: {debug.postId} • counted: {visibleCommentCount} • rendered: {debug.renderedCommentCount}
+                Detail source: {debug.source} • post id: {debug.postId} • counted: {visibleCommentCount} • raw rows: {debug.rawRowCount ?? 0} • rendered: {debug.renderedCommentCount}
                 {debug.relatedCommentPostIds?.length ? ` • your recent comment post ids: ${debug.relatedCommentPostIds.join(', ')}` : ''}
               </div>
             </div>
