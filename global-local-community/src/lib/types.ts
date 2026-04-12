@@ -33,6 +33,7 @@ export interface PostRecord {
   commentsCount: number;
   bookmarked?: boolean;
   liked?: boolean;
+  imageUrls?: string[];
   analysis: AiAnalysis;
 }
 

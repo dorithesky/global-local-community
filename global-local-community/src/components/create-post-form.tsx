@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { KOREA_CITIES } from '@/lib/locations';
+import { validateImageFiles } from '@/lib/media';
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -24,6 +26,8 @@ export function CreatePostForm({
   action: (formData: FormData) => Promise<void>;
   city: string;
 }) {
+  const [imageMessage, setImageMessage] = useState<string | null>(null);
+
   return (
     <form action={action} className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2">
@@ -65,6 +69,22 @@ export function CreatePostForm({
       <div>
         <label className="mb-2 block text-sm font-medium text-slate-900">Tags</label>
         <input name="tags" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="housing, newcomer, near-subway" />
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-900">Images</label>
+        <input
+          type="file"
+          name="images"
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+          className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm"
+          onChange={(event) => {
+            const files = Array.from(event.target.files ?? []);
+            setImageMessage(validateImageFiles(files));
+          }}
+        />
+        <p className="mt-2 text-xs leading-6 text-slate-500">Safe first pass: JPG, PNG, or WebP only, up to 4 images, 5MB each. Storage + scanning should be added before public launch.</p>
+        {imageMessage ? <p className="mt-1 text-xs text-rose-600">{imageMessage}</p> : null}
       </div>
       <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
         <p className="font-medium">What happens when you publish</p>
