@@ -275,15 +275,25 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
         }));
   }
 
-  const profileIds = [...new Set(data.flatMap((row) => [row.author_id, row.deleted_by].filter(Boolean)))];
-  const { data: profilesData } = profileIds.length
-    ? await supabase
-        .from('profiles')
-        .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
-        .in('id', profileIds)
-    : { data: [] };
+  const authorIds = [...new Set(data.map((row) => row.author_id).filter(Boolean))];
+  const deletedByIds = [...new Set(data.map((row) => row.deleted_by).filter(Boolean))];
 
-  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
+  const [{ data: authorProfiles }, { data: deletedByProfiles }] = await Promise.all([
+    authorIds.length
+      ? supabase
+          .from('profiles')
+          .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+          .in('id', authorIds)
+      : Promise.resolve({ data: [] }),
+    deletedByIds.length
+      ? supabase
+          .from('profiles')
+          .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+          .in('id', deletedByIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
+  const profileMap = new Map([...(authorProfiles ?? []), ...(deletedByProfiles ?? [])].map((row) => [row.id, normalizeProfile(row)]));
 
   return data.map((row) => {
     const author = profileMap.get(row.author_id) ?? {
