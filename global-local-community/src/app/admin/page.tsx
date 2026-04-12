@@ -46,6 +46,8 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
   const sanctionedMembers = userSettings.filter((setting) => Boolean(setting.activeSanction));
   const onboardingIncompleteMembers = userSettings.filter((setting) => !setting.profile?.onboardingCompleted);
   const membersNeedingProfileCompletion = userSettings.filter((setting) => !setting.profile?.city || !setting.profile?.occupation || !setting.immediate_need);
+  const recentSanctionedMembers = sanctionedMembers.slice(0, 5);
+  const recentOnboardingGaps = onboardingIncompleteMembers.slice(0, 5);
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
@@ -55,7 +57,18 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         description="Private moderation space for trusted admins only, with enough context to make quick decisions."
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <span className="font-semibold text-slate-900">Sections</span>
+          <a href="#overview" className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 hover:bg-slate-200">Overview</a>
+          <a href="#moderation-queue" className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 hover:bg-slate-200">Moderation queue</a>
+          <a href="#member-operations" className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 hover:bg-slate-200">Member operations</a>
+          <a href="#community-activity" className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 hover:bg-slate-200">Community activity</a>
+          <a href="#audit-trail" className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700 hover:bg-slate-200">Audit trail</a>
+        </div>
+      </section>
+
+      <section id="overview" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
           <p className="mt-3 text-3xl font-semibold text-slate-900">{userSettings.length}</p>
@@ -78,7 +91,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         </div>
       </section>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section id="moderation-queue" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Moderation queue</p>
@@ -143,7 +156,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div id="member-operations" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Member operations</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900">Members and communication settings</h2>
           <p className="mt-1 text-sm text-slate-500">Search, filter, inspect, and sanction members from one place.</p>
@@ -213,6 +226,35 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
 
         <div className="space-y-6">
           <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Admin-only watchlist</p>
+            <h2 className="mt-2 text-lg font-semibold text-slate-900">Sanctions and onboarding follow-up</h2>
+            <div className="mt-4 space-y-4">
+              <div>
+                <p className="text-sm font-medium text-slate-900">Recently sanctioned members</p>
+                <div className="mt-2 space-y-2">
+                  {recentSanctionedMembers.length ? recentSanctionedMembers.map((setting) => (
+                    <div key={`sanction-${setting.user_id}`} className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">
+                      <p className="font-medium">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
+                      <p className="mt-1 text-xs text-amber-800">{setting.activeSanction?.type} • {setting.activeSanction?.reason}</p>
+                    </div>
+                  )) : <p className="text-sm text-slate-500">No active sanctions right now.</p>}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-slate-900">Members needing onboarding follow-up</p>
+                <div className="mt-2 space-y-2">
+                  {recentOnboardingGaps.length ? recentOnboardingGaps.map((setting) => (
+                    <div key={`onboarding-${setting.user_id}`} className="rounded-2xl bg-sky-50 p-3 text-sm text-sky-950">
+                      <p className="font-medium">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
+                      <p className="mt-1 text-xs text-sky-800">City: {setting.profile?.city ?? 'Unknown'} • Need: {setting.immediate_need ?? 'Not set'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
+                    </div>
+                  )) : <p className="text-sm text-slate-500">No onboarding follow-up needed right now.</p>}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section id="community-activity" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Community activity</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">Recent posts</h2>
             <div className="mt-4 space-y-3">
@@ -233,7 +275,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section id="audit-trail" className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Audit trail</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">Comment history</h2>
             <div className="mt-4 space-y-3">
