@@ -57,7 +57,7 @@ export function AuthButtons() {
   }
 
   return (
-    <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div id="signin" className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
       <div>
         <p className="text-sm font-semibold text-slate-900">Sign in</p>
         <p className="mt-1 text-sm text-slate-600">Use email magic link or Google. No password friction.</p>

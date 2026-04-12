@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Home, Briefcase, MessageSquare, Shield } from 'lucide-react';
 import { clsx } from 'clsx';
+import { SessionPill } from '@/components/session-pill';
 
 const nav = [
   { href: '/', label: 'Home', icon: Home },
@@ -10,7 +11,7 @@ const nav = [
   { href: '/admin', label: 'Admin', icon: Shield },
 ];
 
-export function SiteShell({ children }: { children: React.ReactNode }) {
+export async function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -19,9 +20,12 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             <p className="text-xs uppercase tracking-[0.24em] text-sky-600">Global Local Community</p>
             <h1 className="text-lg font-semibold">English-first support for life in Korea</h1>
           </div>
-          <Link href="/create" className="rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700">
-            Create post
-          </Link>
+          <div className="flex items-center gap-3">
+            <SessionPill />
+            <Link href="/create" className="rounded-full bg-sky-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-sky-700">
+              Create post
+            </Link>
+          </div>
         </div>
       </header>
       <div className="mx-auto flex max-w-6xl gap-6 px-4 py-6">
