@@ -60,22 +60,48 @@ export async function getAdminUserSettingsView() {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
 
-  const { data } = await supabase
-    .from('user_settings')
-    .select('user_id, notify_likes, notify_comments, marketing_consent, third_party_email_consent, origin_country, life_stage, immediate_need, created_at, updated_at');
-
-  if (!data?.length) return [];
-
-  const userIds = data.map((row) => row.user_id);
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, username, display_name, city, occupation, onboarding_completed, created_at')
-    .in('id', userIds);
+  const [{ data }, { data: profiles }, { data: sanctions }] = await Promise.all([
+    supabase
+      .from('user_settings')
+      .select('user_id, notify_likes, notify_comments, marketing_consent, third_party_email_consent, origin_country, life_stage, immediate_need, created_at, updated_at'),
+    supabase
+      .from('profiles')
+      .select('id, username, display_name, city, occupation, onboarding_completed, created_at'),
+    supabase
+      .from('user_sanctions')
+      .select('user_id, sanction_type, reason, active, created_at')
+      .eq('active', true),
+  ]);
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+  const sanctionMap = new Map((sanctions ?? []).map((sanction) => [sanction.user_id, sanction]));
 
-  return data.map((row) => ({
+  const rows = data ?? [];
+  const knownUserIds = new Set(rows.map((row) => row.user_id));
+  const profileOnlyRows = (profiles ?? [])
+    .filter((profile) => !knownUserIds.has(profile.id))
+    .map((profile) => ({
+      user_id: profile.id,
+      notify_likes: true,
+      notify_comments: true,
+      marketing_consent: true,
+      third_party_email_consent: true,
+      origin_country: null,
+      life_stage: null,
+      immediate_need: null,
+      created_at: profile.created_at,
+      updated_at: profile.created_at,
+    }));
+
+  return [...rows, ...profileOnlyRows].map((row) => ({
     ...row,
+    activeSanction: sanctionMap.get(row.user_id)
+      ? {
+          type: sanctionMap.get(row.user_id)?.sanction_type,
+          reason: sanctionMap.get(row.user_id)?.reason,
+          createdAt: sanctionMap.get(row.user_id)?.created_at,
+        }
+      : null,
     profile: profileMap.get(row.user_id)
       ? {
           id: profileMap.get(row.user_id)?.id,

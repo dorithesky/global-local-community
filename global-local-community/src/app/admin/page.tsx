@@ -134,6 +134,7 @@ export default async function AdminPage() {
                   <p className="mt-1 text-xs text-slate-500">City: {setting.profile?.city ?? 'Unknown'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
                   <p className="mt-1 text-xs text-slate-500">Origin country: {setting.origin_country ?? 'Not set'} • Life stage: {setting.life_stage ?? 'Not set'} • Immediate need: {setting.immediate_need ?? 'Not set'}</p>
                   <p className="mt-1 text-xs text-slate-500">Onboarding completed: {setting.profile?.onboardingCompleted ? 'Yes' : 'No'} • Joined: {setting.profile?.createdAt ? formatDistanceToNow(new Date(setting.profile.createdAt), { addSuffix: true }) : 'Unknown'}</p>
+                  <p className="mt-1 text-xs text-slate-500">Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
                 </div>
                 {setting.profile?.username ? (
                   <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">
@@ -146,6 +147,9 @@ export default async function AdminPage() {
                 <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
                 <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
                 <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
+              </div>
+              <div className="mt-3">
+                <UserSanctionForm action={applyUserSanctionAction} userId={setting.user_id} />
               </div>
             </div>
           )) : <p className="text-sm text-slate-500">No user settings saved yet.</p>}

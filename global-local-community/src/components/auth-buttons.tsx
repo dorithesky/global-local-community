@@ -191,7 +191,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       ) : null}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
       {view === 'signup' && !message ? (
-        <p className="text-sm text-slate-500">After creating your account, check your inbox for a confirmation email if Supabase email confirmation is enabled.</p>
+        <p className="text-sm text-slate-500">After creating your account, check your inbox for a confirmation email if Supabase email confirmation is enabled, then finish your profile settings so your city and immediate needs are reflected correctly.</p>
       ) : null}
     </div>
   );
