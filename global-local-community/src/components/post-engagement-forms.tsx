@@ -18,13 +18,13 @@ function PendingButton({ label, pendingLabel }: { label: string; pendingLabel: s
 
 export function CommentForm({ action }: { action: (formData: FormData) => Promise<void> }) {
   return (
-    <form action={action} className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <form action={action} className="space-y-3 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-900">Add a comment</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-900">Join the conversation</label>
         <textarea
           name="body"
-          className="min-h-28 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring"
-          placeholder="Add useful context, a lead, or a caution."
+          className="min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring"
+          placeholder="Add a useful reply, answer, lead, or caution."
         />
       </div>
       <PendingButton label="Post comment" pendingLabel="Posting..." />

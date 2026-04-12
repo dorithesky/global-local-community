@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle } from 'lucide-react';
+import { ChevronDown, MessageCircle } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { CommentForm } from '@/components/post-engagement-forms';
 import { PostDetailReportTrigger } from '@/components/post-detail-report-trigger';
@@ -46,12 +46,17 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {post.commentsCount} comments</span>
           <PostDetailReportTrigger action={createReportAction.bind(null, id)} />
         </div>
-        <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-          <p className="font-medium text-slate-900">AI moderation + classification</p>
-          <p className="mt-2">Label: {post.analysis.label}</p>
-          <p>Score: {post.analysis.score.toFixed(2)}</p>
-          <p>Why: {post.analysis.explanation}</p>
-        </div>
+        <details className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-600">
+          <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-slate-900">
+            <span>Post quality signals</span>
+            <ChevronDown className="h-4 w-4" />
+          </summary>
+          <div className="mt-3 space-y-1">
+            <p>Label: {post.analysis.label}</p>
+            <p>Score: {post.analysis.score.toFixed(2)}</p>
+            <p>Why: {post.analysis.explanation}</p>
+          </div>
+        </details>
       </article>
 
       <section className="grid gap-6 lg:grid-cols-[1.2fr,0.8fr]">
