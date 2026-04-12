@@ -1,3 +1,4 @@
+import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
 import type { CommentRecord, PostRecord, Profile } from './types';
@@ -41,6 +42,7 @@ export async function getFeedPosts(): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return mockPosts;
 
+  const member = await getCurrentMember();
   const { data, error } = await supabase
     .from('posts')
     .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
@@ -50,18 +52,44 @@ export async function getFeedPosts(): Promise<PostRecord[]> {
   if (error || !data?.length) return mockPosts;
 
   const authorIds = [...new Set(data.map((row) => row.author_id))];
+  const postIds = data.map((row) => row.id);
   const { data: profilesData } = await supabase
     .from('profiles')
     .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
     .in('id', authorIds);
 
-  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
+  const [{ data: likesData }, { data: commentsData }, { data: bookmarksData }] = await Promise.all([
+    supabase.from('likes').select('post_id, user_id').in('post_id', postIds),
+    supabase.from('comments').select('post_id, id').in('post_id', postIds),
+    member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).in('post_id', postIds) : Promise.resolve({ data: [] }),
+  ]);
 
-  return data.map((row) => normalizePost(row, profileMap.get(row.author_id) ?? {
-    id: String(row.author_id),
-    username: 'unknown',
-    displayName: 'Unknown member',
-    city: String(row.city ?? 'Daegu'),
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
+  const likeCounts = new Map<string, number>();
+  const likedPostIds = new Set<string>();
+  const commentCounts = new Map<string, number>();
+  const bookmarkedPostIds = new Set((bookmarksData ?? []).map((row) => row.post_id));
+
+  (likesData ?? []).forEach((row) => {
+    likeCounts.set(row.post_id, (likeCounts.get(row.post_id) ?? 0) + 1);
+    if (member && row.user_id === member.id) likedPostIds.add(row.post_id);
+  });
+
+  (commentsData ?? []).forEach((row) => {
+    commentCounts.set(row.post_id, (commentCounts.get(row.post_id) ?? 0) + 1);
+  });
+
+  return data.map((row) => ({
+    ...normalizePost(row, profileMap.get(row.author_id) ?? {
+      id: String(row.author_id),
+      username: 'unknown',
+      displayName: 'Unknown member',
+      city: String(row.city ?? 'Daegu'),
+    }),
+    likesCount: likeCounts.get(row.id) ?? 0,
+    commentsCount: commentCounts.get(row.id) ?? 0,
+    bookmarked: bookmarkedPostIds.has(row.id),
+    liked: likedPostIds.has(row.id),
   }));
 }
 
@@ -126,4 +154,28 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
       city: 'Daegu',
     },
   }));
+}
+
+export async function getAdminModerationView() {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) {
+    return {
+      reports: [],
+      recentPosts: mockPosts.slice(0, 8),
+    };
+  }
+
+  const [{ data: reportsData }, recentPosts] = await Promise.all([
+    supabase
+      .from('reports')
+      .select('id, reason, details, status, created_at, reporter_id, post_id')
+      .order('created_at', { ascending: false })
+      .limit(20),
+    getFeedPosts(),
+  ]);
+
+  return {
+    reports: reportsData ?? [],
+    recentPosts: recentPosts.slice(0, 8),
+  };
 }

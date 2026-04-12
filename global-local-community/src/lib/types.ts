@@ -32,6 +32,7 @@ export interface PostRecord {
   likesCount: number;
   commentsCount: number;
   bookmarked?: boolean;
+  liked?: boolean;
   analysis: AiAnalysis;
 }
 

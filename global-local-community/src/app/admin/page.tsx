@@ -1,26 +1,46 @@
+import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
-import { drainWorkflowQueue, enqueueWorkflow } from '@/lib/orchestration';
+import { cityScopeLabel } from '@/lib/locations';
+import { getAdminModerationView } from '@/lib/data';
 
-enqueueWorkflow('report.created', { postId: 'post-3', reason: 'Potential misinformation' });
-enqueueWorkflow('user.created', { userId: 'demo-user', city: 'Daegu' });
-const events = drainWorkflowQueue();
+export default async function AdminPage() {
+  const { reports, recentPosts } = await getAdminModerationView();
 
-export default function AdminPage() {
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
       <PageHeader
         eyebrow="Admin"
         title="Moderation and workflow control"
-        description="A lightweight moderation queue, designed so reports and onboarding tasks stay decoupled from the request path."
+        description="Real reports and recent posts, with just enough workflow structure to keep moderation practical."
       />
+
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">Open moderation events</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Open reports</h2>
         <div className="mt-4 space-y-3">
-          {events.map((event, index) => (
-            <div key={`${event.type}-${index}`} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p className="font-medium text-slate-900">{event.type}</p>
-              <p className="mt-1">Created at {event.createdAt}</p>
-              <pre className="mt-3 overflow-x-auto rounded-2xl bg-slate-900 p-3 text-xs text-slate-100">{JSON.stringify(event.payload, null, 2)}</pre>
+          {reports.length ? reports.map((report) => (
+            <div key={report.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium text-slate-900">{report.reason}</p>
+                <span>•</span>
+                <span>{report.status}</span>
+                <span>•</span>
+                <span>{formatDistanceToNow(new Date(report.created_at), { addSuffix: true })}</span>
+              </div>
+              {report.details ? <p className="mt-2">{report.details}</p> : null}
+              <p className="mt-2 text-xs text-slate-500">post_id: {report.post_id}</p>
+            </div>
+          )) : <p className="text-sm text-slate-500">No open reports yet.</p>}
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-900">Recent posts</h2>
+        <div className="mt-4 space-y-3">
+          {recentPosts.map((post) => (
+            <div key={post.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+              <p className="font-medium text-slate-900">{post.title}</p>
+              <p className="mt-1">{post.category} • {cityScopeLabel(post.city, post.district)}</p>
+              <p className="mt-2 line-clamp-2">{post.body}</p>
             </div>
           ))}
         </div>
