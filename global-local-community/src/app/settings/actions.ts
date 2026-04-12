@@ -3,7 +3,6 @@
 import { revalidatePath } from 'next/cache';
 import { getCurrentMember } from '@/lib/auth';
 import { ensureUserSettingsRow } from '@/lib/settings';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function saveNotificationPreferencesAction(formData: FormData) {
   const member = await getCurrentMember();
