@@ -57,8 +57,25 @@ export default async function AdminPage() {
                     <UserSanctionForm action={applyUserSanctionAction} userId={report.post.author_id} />
                   </div>
                 </div>
+              ) : report.comment ? (
+                <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-4">
+                  <p className="text-xs uppercase tracking-[0.18em] text-amber-600">Reported comment</p>
+                  <p className="mt-2 line-clamp-3 text-slate-700">{report.comment.deleted_at ? 'Comment already deleted' : report.comment.body}</p>
+                  <p className="mt-2 text-xs text-slate-500">Comment id: {report.comment.id}</p>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Link href={`/posts/${report.comment.post_id}`} className="inline-flex text-sm font-medium text-sky-700 hover:text-sky-800">
+                      Open parent post
+                    </Link>
+                    <ReportStatusForm reportId={report.id} status="reviewing" action={updateReportStatusAction} />
+                    <ReportStatusForm reportId={report.id} status="resolved" action={updateReportStatusAction} />
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    <ModeratorNoteForm action={addModeratorNoteAction} reportId={report.id} commentId={report.comment.id} targetUserId={report.comment.author_id} />
+                    <UserSanctionForm action={applyUserSanctionAction} userId={report.comment.author_id} />
+                  </div>
+                </div>
               ) : (
-                <p className="mt-2 text-xs text-slate-500">Post details unavailable, id: {report.post_id}</p>
+                <p className="mt-2 text-xs text-slate-500">Reported item unavailable.</p>
               )}
             </div>
           )) : <p className="text-sm text-slate-500">No open reports yet.</p>}

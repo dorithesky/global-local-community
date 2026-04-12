@@ -86,6 +86,57 @@ export const getCurrentMember = cache(async () => {
   };
 });
 
+export const getCurrentUserCreatedAt = cache(async () => {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return null;
+
+  const { data } = await supabase.auth.getUser();
+  return data.user?.created_at ?? null;
+});
+
+export async function assertAccountMaturity(action: 'post' | 'comment' | 'report') {
+  const createdAt = await getCurrentUserCreatedAt();
+  if (!createdAt) return;
+
+  const created = new Date(createdAt).getTime();
+  const ageMinutes = (Date.now() - created) / (1000 * 60);
+
+  if (action === 'post' && ageMinutes < 2) {
+    throw new Error('New accounts need a short warm-up before posting. Please try again in a couple of minutes.');
+  }
+
+  if ((action === 'comment' || action === 'report') && ageMinutes < 1) {
+    throw new Error('Please wait a moment before using this action on a brand-new account.');
+  }
+}
+
+export async function assertRateLimit(action: 'post' | 'comment' | 'report') {
+  const member = await getCurrentMember();
+  if (!member) return;
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return;
+
+  const windows = {
+    post: { table: 'posts', field: 'author_id', minutes: 10, limit: 5 },
+    comment: { table: 'comments', field: 'author_id', minutes: 5, limit: 12 },
+    report: { table: 'reports', field: 'reporter_id', minutes: 10, limit: 8 },
+  } as const;
+
+  const config = windows[action];
+  const since = new Date(Date.now() - config.minutes * 60 * 1000).toISOString();
+
+  const query = supabase.from(config.table).select('*', { count: 'exact', head: true }).gte('created_at', since);
+  const scoped = config.field === 'reporter_id'
+    ? query.eq('reporter_id', member.id)
+    : query.eq('author_id', member.id);
+
+  const { count } = await scoped;
+  if ((count ?? 0) >= config.limit) {
+    throw new Error(`Rate limit reached for ${action}. Please wait a bit and try again.`);
+  }
+}
+
 export async function requireAdmin() {
   const member = await getCurrentMember();
   if (!member?.isAdmin) return null;

@@ -561,21 +561,31 @@ export async function getAdminModerationView() {
   const [{ data: reportsData }, recentPosts] = await Promise.all([
     supabase
       .from('reports')
-      .select('id, reason, details, status, created_at, reporter_id, post_id')
+      .select('id, reason, details, status, created_at, reporter_id, post_id, comment_id')
       .order('created_at', { ascending: false })
       .limit(20),
     getFeedPosts(),
   ]);
 
   const postIds = (reportsData ?? []).map((report) => report.post_id).filter(Boolean);
-  const reportedPosts = postIds.length
-    ? await supabase
-        .from('posts')
-        .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
-        .in('id', postIds)
-    : { data: [] };
+  const commentIds = (reportsData ?? []).map((report) => report.comment_id).filter(Boolean);
+  const [reportedPosts, reportedComments] = await Promise.all([
+    postIds.length
+      ? supabase
+          .from('posts')
+          .select('id, author_id, category, title, body, city, district, tags, ai_label, ai_score, ai_explanation, created_at')
+          .in('id', postIds)
+      : Promise.resolve({ data: [] }),
+    commentIds.length
+      ? supabase
+          .from('comments')
+          .select('id, post_id, author_id, body, created_at, updated_at, deleted_at')
+          .in('id', commentIds)
+      : Promise.resolve({ data: [] }),
+  ]);
 
   const reportedPostMap = new Map((reportedPosts.data ?? []).map((post) => [post.id, post]));
+  const reportedCommentMap = new Map((reportedComments.data ?? []).map((comment) => [comment.id, comment]));
 
   const commentHistory = await getCommentHistoryForAdmin();
 
@@ -583,6 +593,7 @@ export async function getAdminModerationView() {
     reports: (reportsData ?? []).map((report) => ({
       ...report,
       post: report.post_id ? reportedPostMap.get(report.post_id) ?? null : null,
+      comment: report.comment_id ? reportedCommentMap.get(report.comment_id) ?? null : null,
     })),
     recentPosts: recentPosts.slice(0, 8),
     commentHistory,

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
-import { assertMemberCan, getCurrentMember } from '@/lib/auth';
+import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { canCurrentMemberManageComment } from '@/lib/data';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
@@ -21,6 +21,8 @@ export async function createCommentAction(postId: string, formData: FormData) {
   if (!member) redirect('/#signin');
 
   await assertMemberCan('comment');
+  await assertAccountMaturity('comment');
+  await assertRateLimit('comment');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -142,6 +144,8 @@ export async function createReportAction(postId: string, formData: FormData) {
   if (!member) redirect('/#signin');
 
   await assertMemberCan('report');
+  await assertAccountMaturity('report');
+  await assertRateLimit('report');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');

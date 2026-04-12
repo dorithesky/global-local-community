@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
-import { assertMemberCan, getCurrentMember } from '@/lib/auth';
+import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function createPostAction(formData: FormData) {
@@ -13,6 +13,8 @@ export async function createPostAction(formData: FormData) {
   }
 
   await assertMemberCan('post');
+  await assertAccountMaturity('post');
+  await assertRateLimit('post');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

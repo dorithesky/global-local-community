@@ -47,11 +47,12 @@ export function PostVisibilityForm({ postId, moderationStatus, action }: { postI
   );
 }
 
-export function ModeratorNoteForm({ action, reportId, postId, targetUserId }: { action: (formData: FormData) => Promise<void>; reportId?: string; postId?: string; targetUserId?: string }) {
+export function ModeratorNoteForm({ action, reportId, postId, commentId, targetUserId }: { action: (formData: FormData) => Promise<void>; reportId?: string; postId?: string; commentId?: string; targetUserId?: string }) {
   return (
     <form action={action} className="flex flex-wrap items-center gap-2">
       {reportId ? <input type="hidden" name="reportId" value={reportId} /> : null}
       {postId ? <input type="hidden" name="postId" value={postId} /> : null}
+      {commentId ? <input type="hidden" name="commentId" value={commentId} /> : null}
       {targetUserId ? <input type="hidden" name="targetUserId" value={targetUserId} /> : null}
       <input
         type="text"
