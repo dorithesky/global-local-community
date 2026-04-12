@@ -1,6 +1,14 @@
 import { cache } from 'react';
 import { getSupabaseServerClient } from './supabase-server';
 
+export type ActiveSanction = {
+  sanctionType: 'warn' | 'mute' | 'suspend' | 'ban';
+  reason: string;
+  note?: string;
+  active: boolean;
+  endsAt?: string;
+};
+
 const ADMIN_EMAILS = new Set(
   (process.env.ADMIN_EMAILS ?? 'scottchmoon@gmail.com')
     .split(',')
@@ -82,4 +90,44 @@ export async function requireAdmin() {
   const member = await getCurrentMember();
   if (!member?.isAdmin) return null;
   return member;
+}
+
+export const getActiveSanctions = cache(async (): Promise<ActiveSanction[]> => {
+  const member = await getCurrentMember();
+  if (!member) return [];
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return [];
+
+  const now = new Date().toISOString();
+  const { data, error } = await supabase
+    .from('user_sanctions')
+    .select('sanction_type, reason, note, active, ends_at')
+    .eq('user_id', member.id)
+    .eq('active', true)
+    .or(`ends_at.is.null,ends_at.gt.${now}`);
+
+  if (error || !data?.length) return [];
+
+  return data.map((row) => ({
+    sanctionType: row.sanction_type,
+    reason: row.reason,
+    note: row.note ?? undefined,
+    active: row.active,
+    endsAt: row.ends_at ?? undefined,
+  }));
+});
+
+export async function assertMemberCan(action: 'post' | 'comment' | 'engage' | 'report') {
+  const sanctions = await getActiveSanctions();
+  const blocking = sanctions.find((sanction) => {
+    if (sanction.sanctionType === 'ban' || sanction.sanctionType === 'suspend') return true;
+    if (action === 'comment' && sanction.sanctionType === 'mute') return true;
+    if ((action === 'post' || action === 'engage' || action === 'report') && sanction.sanctionType === 'mute') return true;
+    return false;
+  });
+
+  if (blocking) {
+    throw new Error(`Account restricted: ${blocking.sanctionType}. ${blocking.reason}`);
+  }
 }

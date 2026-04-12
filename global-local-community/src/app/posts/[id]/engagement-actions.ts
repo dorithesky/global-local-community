@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { getCurrentMember } from '@/lib/auth';
+import { assertMemberCan, getCurrentMember } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 function isUuid(value: string) {
@@ -18,6 +18,8 @@ export async function toggleLikeAction(postId: string) {
 
   const member = await getCurrentMember();
   if (!member) redirect('/#signin');
+
+  await assertMemberCan('engage');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -50,6 +52,8 @@ export async function toggleBookmarkAction(postId: string) {
 
   const member = await getCurrentMember();
   if (!member) redirect('/#signin');
+
+  await assertMemberCan('engage');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');

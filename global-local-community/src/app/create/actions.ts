@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
-import { getCurrentMember } from '@/lib/auth';
+import { assertMemberCan, getCurrentMember } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function createPostAction(formData: FormData) {
@@ -11,6 +11,8 @@ export async function createPostAction(formData: FormData) {
   if (!member) {
     redirect('/#signin');
   }
+
+  await assertMemberCan('post');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

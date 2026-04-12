@@ -85,7 +85,8 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
   const member = await getCurrentMember();
   let queryBuilder = supabase
     .from('posts')
-    .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at')
+    .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at, moderation_status')
+    .eq('moderation_status', 'published')
     .order('created_at', { ascending: false })
     .limit(50);
 
@@ -149,8 +150,9 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
   if (supabase) {
     const { data: row, error } = await supabase
       .from('posts')
-      .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at')
+      .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at, moderation_status')
       .eq('id', id)
+      .eq('moderation_status', 'published')
       .maybeSingle();
 
     if (row && !error) {

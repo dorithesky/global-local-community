@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
 
 function PendingButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
@@ -32,11 +33,12 @@ export function CommentForm({ action }: { action: (formData: FormData) => Promis
   );
 }
 
-export function ReportForm({ action, compact = false }: { action: (formData: FormData) => Promise<void>; compact?: boolean }) {
+export function ReportForm({ action, compact = false, targetLabel = 'Report this post', children }: { action: (formData: FormData) => Promise<void>; compact?: boolean; targetLabel?: string; children?: ReactNode }) {
   return (
     <form action={action} className={`space-y-3 rounded-2xl border border-rose-200 bg-rose-50 ${compact ? 'p-4' : 'p-4'}`}>
+      {children}
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-900">Report this post</label>
+        <label className="mb-2 block text-sm font-medium text-slate-900">{targetLabel}</label>
         <select name="reason" defaultValue="" className="w-full rounded-2xl border border-rose-200 px-4 py-3 outline-none ring-rose-200 focus:ring">
           <option value="" disabled>Select a reason</option>
           <option value="spam">Spam</option>

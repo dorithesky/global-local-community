@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
+import { CommentReportButton } from '@/components/comment-report-button';
 import type { CommentRecord } from '@/lib/types';
 
 function CommentActionButton({ label }: { label: string }) {
@@ -13,10 +14,12 @@ export function CommentThread({
   comments,
   updateAction,
   deleteAction,
+  reportAction,
 }: {
   comments: CommentRecord[];
   updateAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
+  reportAction: (formData: FormData) => Promise<void>;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -82,6 +85,7 @@ export function CommentThread({
                     ) : (
                       <p className="mt-3 text-xs text-slate-400">Only the author can edit or delete this reply.</p>
                     )}
+                    {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} /> : null}
                   </>
                 )}
               </div>
