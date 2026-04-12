@@ -34,6 +34,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <p className="text-lg font-semibold text-slate-950">{profile.displayName}</p>
               <p className="text-sm text-slate-500">@{profile.username}</p>
               <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profileComments.length} comments</p>
+              <p className="mt-2 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-700">Profile context {profile.city && profile.occupation ? 'complete enough to trust at a glance' : 'still growing'}</p>
             </div>
           </div>
         </div>
@@ -50,6 +51,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             <p className="font-medium text-slate-900">Occupation</p>
             <p>{profile.occupation}</p>
           </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">{profile.city ? `Based in ${profile.city}` : 'City not set'}</span>
+          <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">{profile.occupation ? profile.occupation : 'Occupation not set'}</span>
+          <span className="rounded-full bg-slate-100 px-3 py-1.5 text-slate-700">{profile.originCountry ? `From ${profile.originCountry}` : 'Origin not set'}</span>
         </div>
       </section>
       {isOwnProfile ? (

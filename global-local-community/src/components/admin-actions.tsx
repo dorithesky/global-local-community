@@ -68,7 +68,7 @@ export function ModeratorNoteForm({ action, reportId, postId, commentId, targetU
 
 export function UserSanctionForm({ action, userId }: { action: (formData: FormData) => Promise<void>; userId: string }) {
   return (
-    <form action={action} className="flex flex-wrap items-center gap-2">
+    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3">
       <input type="hidden" name="userId" value={userId} />
       <select name="sanctionType" required className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700">
         <option value="warn">Warn</option>
@@ -83,12 +83,14 @@ export function UserSanctionForm({ action, userId }: { action: (formData: FormDa
         placeholder="Reason"
         className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
       />
+      <input type="hidden" name="confirm" value="yes" />
       <input
         type="text"
         name="note"
         placeholder="Optional note"
         className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
       />
+      <p className="basis-full text-[11px] leading-5 text-rose-700">Sanctions are admin-only. Use a clear reason and apply carefully.</p>
       <AdminButton label="Apply sanction" tone="danger" />
     </form>
   );

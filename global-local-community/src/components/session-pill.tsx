@@ -13,7 +13,7 @@ export async function SessionPill() {
   }
 
   return (
-    <Link href="/settings" className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
+    <Link href={`/profile/${member.username}`} className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm transition hover:border-slate-300 hover:bg-slate-50">
       {member.avatarUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={member.avatarUrl} alt={member.displayName} className="h-9 w-9 rounded-full object-cover" />

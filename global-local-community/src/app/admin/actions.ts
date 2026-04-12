@@ -114,8 +114,10 @@ export async function applyUserSanctionAction(formData: FormData) {
   const sanctionType = String(formData.get('sanctionType') ?? '').trim();
   const reason = String(formData.get('reason') ?? '').trim();
   const note = String(formData.get('note') ?? '').trim();
+  const confirm = String(formData.get('confirm') ?? '').trim();
 
   if (!userId || !sanctionType || !reason) throw new Error('Incomplete sanction request.');
+  if (confirm !== 'yes') throw new Error('Sanction confirmation missing.');
 
   const { error } = await supabase.from('user_sanctions').insert({
     user_id: userId,
