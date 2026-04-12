@@ -13,9 +13,10 @@ export async function saveNotificationPreferencesAction(formData: FormData) {
 
   const notifyLikes = formData.get('notifyLikes') === 'on';
   const notifyComments = formData.get('notifyComments') === 'on';
+  const marketingEmails = formData.get('marketingEmails') === 'on';
 
   const { error } = await supabase.from('profiles').update({
-    bio: `notifications:${JSON.stringify({ notifyLikes, notifyComments })}`,
+    bio: `notifications:${JSON.stringify({ notifyLikes, notifyComments, marketingEmails })}`,
   }).eq('id', member.id);
 
   if (error) throw new Error(error.message);
