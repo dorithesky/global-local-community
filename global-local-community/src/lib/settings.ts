@@ -62,14 +62,14 @@ export async function getAdminUserSettingsView() {
 
   const { data } = await supabase
     .from('user_settings')
-    .select('user_id, notify_likes, notify_comments, marketing_consent, third_party_email_consent');
+    .select('user_id, notify_likes, notify_comments, marketing_consent, third_party_email_consent, origin_country, life_stage, immediate_need, created_at, updated_at');
 
   if (!data?.length) return [];
 
   const userIds = data.map((row) => row.user_id);
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('id, username, display_name, city')
+    .select('id, username, display_name, city, occupation, onboarding_completed, created_at')
     .in('id', userIds);
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
@@ -82,6 +82,9 @@ export async function getAdminUserSettingsView() {
           username: profileMap.get(row.user_id)?.username,
           displayName: profileMap.get(row.user_id)?.display_name,
           city: profileMap.get(row.user_id)?.city,
+          occupation: profileMap.get(row.user_id)?.occupation,
+          onboardingCompleted: profileMap.get(row.user_id)?.onboarding_completed,
+          createdAt: profileMap.get(row.user_id)?.created_at,
         }
       : null,
   }));

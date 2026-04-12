@@ -131,6 +131,16 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       ) : null}
 
       <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        {view === 'signup' ? (
+          <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+            <p className="font-medium">Before you create your account</p>
+            <ul className="mt-2 list-disc pl-5 text-sm leading-6 text-sky-900">
+              <li>Use a real email you can access right now</li>
+              <li>You may need to confirm the account from your inbox before signing in</li>
+              <li>Password must be at least 6 characters</li>
+            </ul>
+          </div>
+        ) : null}
         <input
           type="email"
           value={email}
@@ -139,13 +149,18 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-sky-200 focus:ring"
         />
         {(view === 'signup' || signInMethod === 'password') ? (
-          <input
-            type="password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder={view === 'signup' ? 'Create a password' : 'Enter your password'}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-sky-200 focus:ring"
-          />
+          <div className="space-y-2">
+            <input
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={view === 'signup' ? 'Create a password' : 'Enter your password'}
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-sky-200 focus:ring"
+            />
+            <p className="text-xs leading-6 text-slate-500">
+              Password rules: minimum 6 characters. For a real public launch, use a stronger password than something short or reused.
+            </p>
+          </div>
         ) : null}
         <button
           type="button"
@@ -175,6 +190,9 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         </p>
       ) : null}
       {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+      {view === 'signup' && !message ? (
+        <p className="text-sm text-slate-500">After creating your account, check your inbox for a confirmation email if Supabase email confirmation is enabled.</p>
+      ) : null}
     </div>
   );
 }

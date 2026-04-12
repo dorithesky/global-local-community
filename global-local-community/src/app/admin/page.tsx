@@ -122,16 +122,31 @@ export default async function AdminPage() {
       </section>
 
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-semibold text-slate-900">User communication settings</h2>
+        <h2 className="text-lg font-semibold text-slate-900">Members and communication settings</h2>
+        <p className="mt-1 text-sm text-slate-500">A compact member list for admins to understand who is in the community, what they opted into, and where moderation attention may be needed.</p>
         <div className="mt-4 space-y-3">
           {userSettings.length ? userSettings.map((setting) => (
             <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
-              <p className="mt-1 text-xs text-slate-500">{setting.user_id}</p>
-              <p className="mt-2">Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
-              <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
-              <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
-              <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
+                  <p className="mt-1 text-xs text-slate-500">User id: {setting.user_id}</p>
+                  <p className="mt-1 text-xs text-slate-500">City: {setting.profile?.city ?? 'Unknown'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
+                  <p className="mt-1 text-xs text-slate-500">Origin country: {setting.origin_country ?? 'Not set'} • Life stage: {setting.life_stage ?? 'Not set'} • Immediate need: {setting.immediate_need ?? 'Not set'}</p>
+                  <p className="mt-1 text-xs text-slate-500">Onboarding completed: {setting.profile?.onboardingCompleted ? 'Yes' : 'No'} • Joined: {setting.profile?.createdAt ? formatDistanceToNow(new Date(setting.profile.createdAt), { addSuffix: true }) : 'Unknown'}</p>
+                </div>
+                {setting.profile?.username ? (
+                  <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">
+                    Open profile
+                  </Link>
+                ) : null}
+              </div>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">
+                <p>Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
+                <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
+                <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
+                <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
+              </div>
             </div>
           )) : <p className="text-sm text-slate-500">No user settings saved yet.</p>}
         </div>
