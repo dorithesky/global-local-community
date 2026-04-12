@@ -123,6 +123,13 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     commentCounts.set(row.post_id, (commentCounts.get(row.post_id) ?? 0) + 1);
   });
 
+  for (const postId of postIds) {
+    if (!commentCounts.has(postId)) {
+      const fallbackCount = getCommentsByPostId(String(postId)).length;
+      if (fallbackCount > 0) commentCounts.set(String(postId), fallbackCount);
+    }
+  }
+
   const normalized = data.map((row) => ({
     ...normalizePost(row, profileMap.get(row.author_id) ?? {
       id: String(row.author_id),
@@ -142,7 +149,16 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
 export async function getPost(id: string): Promise<PostRecord | undefined> {
   const feed = await getFeedPosts();
-  return feed.find((post) => post.id === id) ?? getPostById(id);
+  const feedPost = feed.find((post) => post.id === id);
+  if (feedPost) {
+    const fallbackCount = getCommentsByPostId(id).length;
+    return {
+      ...feedPost,
+      commentsCount: Math.max(feedPost.commentsCount ?? 0, fallbackCount),
+    };
+  }
+
+  return getPostById(id);
 }
 
 export async function getCategoryPosts(category: string): Promise<PostRecord[]> {
