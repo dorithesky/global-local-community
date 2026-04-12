@@ -1,0 +1,72 @@
+"use client";
+
+import { useFormStatus } from 'react-dom';
+
+function SubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      className="rounded-full bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-60"
+      type="submit"
+      disabled={pending}
+    >
+      {pending ? 'Publishing...' : 'Publish post'}
+    </button>
+  );
+}
+
+export function CreatePostForm({
+  action,
+  city,
+}: {
+  action: (formData: FormData) => Promise<void>;
+  city: string;
+}) {
+  return (
+    <form action={action} className="space-y-4">
+      <input type="hidden" name="city" value={city} />
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-900">Category</label>
+        <select name="category" defaultValue="housing" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring">
+          <option value="housing">Housing</option>
+          <option value="jobs">Jobs</option>
+          <option value="daily-life">Daily life</option>
+          <option value="events">Events</option>
+          <option value="marketplace">Marketplace</option>
+        </select>
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-900">Title</label>
+        <input name="title" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Need a short-term officetel near Banwoldang" />
+      </div>
+      <div>
+        <label className="mb-2 block text-sm font-medium text-slate-900">Body</label>
+        <textarea
+          name="body"
+          className="min-h-40 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring"
+          placeholder="Budget, district, timing, and what kind of help you need."
+        />
+      </div>
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-900">District</label>
+          <input name="district" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="Jung-gu" />
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-slate-900">Tags</label>
+          <input name="tags" className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none ring-sky-200 focus:ring" placeholder="housing, newcomer, near-subway" />
+        </div>
+      </div>
+      <div className="rounded-2xl border border-dashed border-sky-200 bg-sky-50 p-4 text-sm text-sky-900">
+        <p className="font-medium">What happens when you publish</p>
+        <ul className="mt-2 list-disc pl-5">
+          <li>AI classifies the post</li>
+          <li>Spam risk is checked</li>
+          <li>A workflow event is stored for moderation and follow-up</li>
+        </ul>
+      </div>
+      <SubmitButton />
+    </form>
+  );
+}
