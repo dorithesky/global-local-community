@@ -278,39 +278,42 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
   const authorIds = [...new Set(data.map((row) => row.author_id).filter(Boolean))];
   const deletedByIds = [...new Set(data.map((row) => row.deleted_by).filter(Boolean))];
 
-  const [{ data: authorProfiles }, { data: deletedByProfiles }] = await Promise.all([
+  const [{ data: authorProfiles, error: authorProfilesError }, { data: deletedByProfiles, error: deletedByProfilesError }] = await Promise.all([
     authorIds.length
       ? supabase
           .from('profiles')
           .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
           .in('id', authorIds)
-      : Promise.resolve({ data: [] }),
+      : Promise.resolve({ data: [], error: null }),
     deletedByIds.length
       ? supabase
           .from('profiles')
           .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
           .in('id', deletedByIds)
-      : Promise.resolve({ data: [] }),
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
-  const profileMap = new Map([...(authorProfiles ?? []), ...(deletedByProfiles ?? [])].map((row) => [row.id, normalizeProfile(row)]));
+  const canUseProfiles = !authorProfilesError && !deletedByProfilesError;
+  const profileMap = new Map(canUseProfiles ? [...(authorProfiles ?? []), ...(deletedByProfiles ?? [])].map((row) => [row.id, normalizeProfile(row)]) : []);
 
   return data.map((row) => {
     const author = profileMap.get(row.author_id) ?? {
       id: row.author_id,
-      username: 'unknown',
-      displayName: 'Unknown member',
+      username: canUseProfiles ? 'unknown' : `member-${String(row.author_id).slice(0, 6)}`,
+      displayName: canUseProfiles ? 'Unknown member' : 'Member',
       city: 'Daegu',
     };
+
+    const deletedByProfile = row.deleted_by ? profileMap.get(row.deleted_by) : undefined;
 
     return {
       id: row.id,
       postId: row.post_id,
-      body: row.deleted_at ? `Comment deleted by ${row.deleted_by && profileMap.get(row.deleted_by)?.username ? `@${profileMap.get(row.deleted_by)?.username}` : 'author'}` : row.body,
+      body: row.deleted_at ? `Comment deleted by ${deletedByProfile?.username ? `@${deletedByProfile.username}` : 'author'}` : row.body,
       createdAt: row.created_at,
       updatedAt: row.updated_at,
       deletedAt: row.deleted_at ?? undefined,
-      deletedBy: row.deleted_by ? profileMap.get(row.deleted_by) : undefined,
+      deletedBy: deletedByProfile,
       canEdit: Boolean(!row.deleted_at && member && (member.id === row.author_id || member.username === author.username)),
       author,
     };
