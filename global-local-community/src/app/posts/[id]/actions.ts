@@ -87,16 +87,12 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
 
   const { data: existing } = await supabase
     .from('comments')
-    .select('author_id, body, deleted_at')
+    .select('author_id, body')
     .eq('id', commentId)
     .maybeSingle();
 
   const canManage = Boolean(existing && existing.author_id === member.id) || await canCurrentMemberManageComment(commentId);
   if (!canManage) throw new Error('Unauthorized');
-  if (existing?.deleted_at) {
-    revalidatePath(`/posts/${postId}`);
-    return;
-  }
 
   await supabase.from('comment_events').insert({
     comment_id: commentId,
@@ -105,7 +101,7 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
     old_body: existing?.body,
   });
 
-  const { error } = await supabase
+  const softDeleteAttempt = await supabase
     .from('comments')
     .update({
       body: '',
@@ -115,7 +111,12 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
     })
     .eq('id', commentId);
 
-  if (error) throw new Error(error.message);
+  if (softDeleteAttempt.error && softDeleteAttempt.error.message.includes("deleted_at")) {
+    const hardFallback = await supabase.from('comments').delete().eq('id', commentId);
+    if (hardFallback.error) throw new Error(hardFallback.error.message);
+  } else if (softDeleteAttempt.error) {
+    throw new Error(softDeleteAttempt.error.message);
+  }
 
   revalidatePath(`/posts/${postId}`);
 }
