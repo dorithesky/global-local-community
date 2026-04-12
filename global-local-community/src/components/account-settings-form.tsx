@@ -1,4 +1,4 @@
-import { saveNotificationPreferencesAction } from '@/app/settings/actions';
+import { saveConsentSettingsAction, saveNotificationPreferencesAction } from '@/app/settings/actions';
 
 export function AccountSettingsForm() {
   return (
@@ -26,7 +26,7 @@ export function AccountSettingsForm() {
       </section>
 
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="space-y-4">
+        <form action={saveConsentSettingsAction} className="space-y-4">
           <div>
             <p className="text-sm font-semibold text-slate-900">Marketing and data consent</p>
             <p className="mt-1 text-sm text-slate-500">Separate consent for marketing communication and approved third-party delivery tools.</p>
@@ -45,8 +45,11 @@ export function AccountSettingsForm() {
             </span>
             <input type="checkbox" name="thirdPartyEmailConsent" defaultChecked className="mt-1 h-4 w-4" />
           </label>
+          <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+            Save consent settings
+          </button>
           <p className="text-xs leading-6 text-slate-500">If you need stricter compliance handling later, this should move into a dedicated consent table with audit timestamps.</p>
-        </div>
+        </form>
       </section>
     </div>
   );
