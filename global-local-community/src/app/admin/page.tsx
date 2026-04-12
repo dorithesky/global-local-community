@@ -9,12 +9,39 @@ import { cityScopeLabel } from '@/lib/locations';
 import { getAdminUserSettingsView } from '@/lib/settings';
 import { addModeratorNoteAction, applyUserSanctionAction, setReportedPostVisibilityAction, updateReportStatusAction } from './actions';
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams?: Promise<{ q?: string; city?: string; status?: string }> }) {
   const admin = await requireAdmin();
   if (!admin) notFound();
 
   const { reports, recentPosts, commentHistory = [] } = await getAdminModerationView();
   const userSettings = await getAdminUserSettingsView();
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+  const query = (resolvedSearchParams?.q ?? '').trim().toLowerCase();
+  const cityFilter = (resolvedSearchParams?.city ?? '').trim();
+  const statusFilter = (resolvedSearchParams?.status ?? '').trim();
+  const filteredUserSettings = userSettings.filter((setting) => {
+    const haystack = [
+      setting.profile?.displayName,
+      setting.profile?.username,
+      setting.profile?.city,
+      setting.profile?.occupation,
+      setting.origin_country,
+      setting.life_stage,
+      setting.immediate_need,
+      setting.activeSanction?.reason,
+      setting.activeSanction?.type,
+      setting.user_id,
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    const matchesQuery = !query || haystack.includes(query);
+    const matchesCity = !cityFilter || (setting.profile?.city ?? 'Unknown') === cityFilter;
+    const matchesStatus = !statusFilter
+      || (statusFilter === 'sanctioned' && Boolean(setting.activeSanction))
+      || (statusFilter === 'onboarding-incomplete' && !setting.profile?.onboardingCompleted)
+      || (statusFilter === 'clear' && !setting.activeSanction);
+
+    return matchesQuery && matchesCity && matchesStatus;
+  });
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
@@ -124,8 +151,40 @@ export default async function AdminPage() {
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 className="text-lg font-semibold text-slate-900">Members and communication settings</h2>
         <p className="mt-1 text-sm text-slate-500">A compact member list for admins to understand who is in the community, what they opted into, and where moderation attention may be needed.</p>
+        <form className="mt-4 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-[minmax(0,2fr)_1fr_1fr_auto]">
+          <input
+            type="text"
+            name="q"
+            defaultValue={resolvedSearchParams?.q ?? ''}
+            placeholder="Search name, username, city, need, sanction, or user id"
+            className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
+          />
+          <select name="city" defaultValue={cityFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+            <option value="">All cities</option>
+            <option value="Seoul">Seoul</option>
+            <option value="Busan">Busan</option>
+            <option value="Daegu">Daegu</option>
+            <option value="Other">Other</option>
+            <option value="Unknown">Unknown</option>
+          </select>
+          <select name="status" defaultValue={statusFilter} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+            <option value="">All member states</option>
+            <option value="clear">No active sanction</option>
+            <option value="sanctioned">Active sanction</option>
+            <option value="onboarding-incomplete">Onboarding incomplete</option>
+          </select>
+          <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+            Filter
+          </button>
+        </form>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+          <p>Showing {filteredUserSettings.length} of {userSettings.length} members.</p>
+          {(query || cityFilter || statusFilter) ? (
+            <Link href="/admin" className="font-medium text-sky-700 hover:text-sky-800">Clear filters</Link>
+          ) : null}
+        </div>
         <div className="mt-4 space-y-3">
-          {userSettings.length ? userSettings.map((setting) => (
+          {filteredUserSettings.length ? filteredUserSettings.map((setting) => (
             <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -152,7 +211,7 @@ export default async function AdminPage() {
                 <UserSanctionForm action={applyUserSanctionAction} userId={setting.user_id} />
               </div>
             </div>
-          )) : <p className="text-sm text-slate-500">No user settings saved yet.</p>}
+          )) : <p className="text-sm text-slate-500">No members matched the current filters.</p>}
         </div>
       </section>
     </div>
