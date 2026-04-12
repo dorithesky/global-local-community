@@ -1,7 +1,7 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
-import type { CommentEventRecord, CommentRecord, PostRecord, Profile } from './types';
+import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
 
 function cleanLegacyProfileText(value?: unknown) {
   if (!value) return undefined;
@@ -184,11 +184,20 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
   return getPostById(id);
 }
 
-export async function getPostDetail(id: string): Promise<{ post?: PostRecord; comments: CommentRecord[] }> {
+export async function getPostDetail(id: string): Promise<{ post?: PostRecord; comments: CommentRecord[]; debug: PostDetailDebug }> {
   const [post, comments] = await Promise.all([getPost(id), getPostComments(id)]);
 
   if (!post) {
-    return { post: undefined, comments: [] };
+    return {
+      post: undefined,
+      comments: [],
+      debug: {
+        postId: id,
+        source: 'missing',
+        liveCommentCount: 0,
+        renderedCommentCount: 0,
+      },
+    };
   }
 
   return {
@@ -197,6 +206,12 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
       commentsCount: comments.length,
     },
     comments,
+    debug: {
+      postId: id,
+      source: post.id.startsWith('post-') ? 'mock' : 'live',
+      liveCommentCount: post.commentsCount ?? 0,
+      renderedCommentCount: comments.length,
+    },
   };
 }
 

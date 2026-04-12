@@ -59,3 +59,10 @@ export interface CommentEventRecord {
   newBody?: string;
   createdAt: string;
 }
+
+export interface PostDetailDebug {
+  postId: string;
+  source: 'live' | 'mock' | 'missing';
+  liveCommentCount: number;
+  renderedCommentCount: number;
+}

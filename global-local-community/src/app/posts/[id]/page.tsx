@@ -14,7 +14,7 @@ import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from './enga
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const { post, comments } = await getPostDetail(id);
+  const { post, comments, debug } = await getPostDetail(id);
   if (!post) notFound();
 
   return (
@@ -57,11 +57,20 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <CommentForm action={createCommentAction.bind(null, id)} />
         </div>
         <div className="mt-5 border-t border-slate-100 pt-5">
-          <CommentThread
-            comments={comments}
-            updateAction={updateCommentAction.bind(null, id)}
-            deleteAction={deleteCommentAction.bind(null, id)}
-          />
+          {comments.length ? (
+            <CommentThread
+              comments={comments}
+              updateAction={updateCommentAction.bind(null, id)}
+              deleteAction={deleteCommentAction.bind(null, id)}
+            />
+          ) : (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-800">
+              No replies are rendering for this post right now.
+              <div className="mt-2 text-xs text-amber-700">
+                Detail source: {debug.source} • post id: {debug.postId} • counted: {debug.liveCommentCount} • rendered: {debug.renderedCommentCount}
+              </div>
+            </div>
+          )}
         </div>
         <details className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-600">
           <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-slate-900">
