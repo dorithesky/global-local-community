@@ -1,6 +1,13 @@
 import { saveConsentSettingsAction, saveNotificationPreferencesAction } from '@/app/settings/actions';
 
-export function AccountSettingsForm() {
+export function AccountSettingsForm({
+  settings,
+}: {
+  settings: {
+    notifications: { notifyLikes: boolean; notifyComments: boolean };
+    consent: { marketingConsent: boolean; thirdPartyEmailConsent: boolean };
+  };
+}) {
   return (
     <div className="space-y-6">
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
@@ -12,11 +19,11 @@ export function AccountSettingsForm() {
           <div className="space-y-3">
             <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800">
               <span>Get Likes</span>
-              <input type="checkbox" name="notifyLikes" defaultChecked className="h-4 w-4" />
+              <input type="checkbox" name="notifyLikes" defaultChecked={settings.notifications.notifyLikes} className="h-4 w-4" />
             </label>
             <label className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800">
               <span>Get Comments</span>
-              <input type="checkbox" name="notifyComments" defaultChecked className="h-4 w-4" />
+              <input type="checkbox" name="notifyComments" defaultChecked={settings.notifications.notifyComments} className="h-4 w-4" />
             </label>
           </div>
           <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
@@ -36,14 +43,14 @@ export function AccountSettingsForm() {
               <span className="block font-medium text-slate-900">I agree to receive marketing information</span>
               <span className="mt-1 block text-slate-500">Includes product updates, launches, and community announcements.</span>
             </span>
-            <input type="checkbox" name="marketingConsent" defaultChecked className="mt-1 h-4 w-4" />
+            <input type="checkbox" name="marketingConsent" defaultChecked={settings.consent.marketingConsent} className="mt-1 h-4 w-4" />
           </label>
           <label className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700">
             <span>
               <span className="block font-medium text-slate-900">I allow approved third-party providers to help deliver those emails</span>
               <span className="mt-1 block text-slate-500">Used only for sending the communication you agreed to receive.</span>
             </span>
-            <input type="checkbox" name="thirdPartyEmailConsent" defaultChecked className="mt-1 h-4 w-4" />
+            <input type="checkbox" name="thirdPartyEmailConsent" defaultChecked={settings.consent.thirdPartyEmailConsent} className="mt-1 h-4 w-4" />
           </label>
           <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
             Save consent settings
