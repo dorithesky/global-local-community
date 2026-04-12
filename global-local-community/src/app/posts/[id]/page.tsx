@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { MessageCircle } from 'lucide-react';
@@ -21,16 +22,18 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       <PageHeader eyebrow={post.category} title={post.title} description={`Posted by ${post.author.displayName} in ${cityScopeLabel(post.city, post.district)}.`} />
       <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-          {post.author.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-100" />
-          ) : (
-            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700 ring-2 ring-slate-100">
-              {post.author.displayName.slice(0, 1).toUpperCase()}
-            </div>
-          )}
-          <span className="font-medium text-slate-900">{post.author.displayName}</span>
-          <span className="text-slate-400">@{post.author.username}</span>
+          <Link href={`/profile/${post.author.username}`} className="flex items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
+            {post.author.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-100" />
+            ) : (
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100 text-sm font-semibold text-sky-700 ring-2 ring-slate-100">
+                {post.author.displayName.slice(0, 1).toUpperCase()}
+              </div>
+            )}
+            <span className="font-medium text-slate-900">{post.author.displayName}</span>
+            <span className="text-slate-400">@{post.author.username}</span>
+          </Link>
           <span>•</span>
           <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
           <span>•</span>
@@ -67,8 +70,10 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
-                    <p className="mt-1 text-xs text-slate-500">@{comment.author.username}</p>
+                    <Link href={`/profile/${comment.author.username}`} className="block rounded-xl transition hover:bg-white/70">
+                      <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
+                      <p className="mt-1 text-xs text-slate-500">@{comment.author.username}</p>
+                    </Link>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
                   </div>
                 </div>
