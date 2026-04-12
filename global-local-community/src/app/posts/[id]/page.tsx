@@ -21,7 +21,8 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       <PageHeader eyebrow={post.category} title={post.title} description={`Posted by ${post.author.displayName} in ${cityScopeLabel(post.city, post.district)}.`} />
       <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-          <span>@{post.author.username}</span>
+          <span className="font-medium text-slate-900">{post.author.displayName}</span>
+          <span className="text-slate-400">@{post.author.username}</span>
           <span>•</span>
           <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
           <span>•</span>

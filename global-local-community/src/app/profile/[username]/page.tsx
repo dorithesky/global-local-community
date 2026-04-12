@@ -15,7 +15,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   return (
     <div className="space-y-6 pb-24 lg:pb-8">
-      <PageHeader eyebrow="Profile" title={profile.displayName} description={profile.bio ?? 'Community member'} />
+      <PageHeader eyebrow="Profile" title={profile.displayName} description={profile.bio ? `${profile.bio} · @${profile.username}` : `@${profile.username}`} />
       <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm text-sm text-slate-600">
         <div className="grid gap-3 md:grid-cols-3">
           <div>
