@@ -72,3 +72,33 @@ export async function toggleBookmarkAction(postId: string) {
   revalidatePath(`/posts/${postId}`);
   revalidatePath('/feed');
 }
+
+export async function deletePostAction(postId: string) {
+  if (!isUuid(postId)) {
+    revalidatePath(`/posts/${postId}`);
+    revalidatePath('/feed');
+    return;
+  }
+
+  const member = await getCurrentMember();
+  if (!member) redirect('/#signin');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const { data: existing } = await supabase
+    .from('posts')
+    .select('id, author_id')
+    .eq('id', postId)
+    .maybeSingle();
+
+  if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
+
+  const { error } = await supabase.from('posts').delete().eq('id', postId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath('/');
+  revalidatePath('/feed');
+  revalidatePath('/activity');
+  redirect('/feed');
+}

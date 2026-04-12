@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { ImageIcon, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { FeedBookmarkButton, FeedLikeButton, FeedReportButton } from '@/components/post-card-actions';
+import { FeedBookmarkButton, FeedDeleteButton, FeedLikeButton, FeedReportButton } from '@/components/post-card-actions';
 import { createReportAction } from '@/app/posts/[id]/actions';
-import { toggleBookmarkAction, toggleLikeAction } from '@/app/posts/[id]/engagement-actions';
+import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from '@/app/posts/[id]/engagement-actions';
 import { cityScopeLabel } from '@/lib/locations';
 import type { PostRecord } from '@/lib/types';
 
@@ -29,7 +29,7 @@ export function PostCard({ post }: { post: PostRecord }) {
         </Link>
         <div className="flex items-center gap-2">
           <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">{post.category}</span>
-          <FeedReportButton action={createReportAction.bind(null, post.id)} />
+          {post.canEdit ? <FeedDeleteButton action={deletePostAction.bind(null, post.id)} /> : <FeedReportButton action={createReportAction.bind(null, post.id)} />}
         </div>
       </div>
       <Link href={`/posts/${post.id}`} className="block">

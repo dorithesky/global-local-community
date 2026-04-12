@@ -1,6 +1,6 @@
 "use client";
 
-import { Flag, Bookmark, Heart } from 'lucide-react';
+import { Flag, Bookmark, Heart, Trash2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 
 function ActionButton({ label, icon, tone = 'neutral' }: { label: string; icon: React.ReactNode; tone?: 'neutral' | 'danger' }) {
@@ -39,6 +39,14 @@ export function FeedReportButton({ action }: { action: (formData: FormData) => P
       <input type="hidden" name="reason" value="other" />
       <input type="hidden" name="details" value="Quick report from feed card." />
       <ActionButton label="Report" icon={<Flag className="h-3.5 w-3.5" />} tone="danger" />
+    </form>
+  );
+}
+
+export function FeedDeleteButton({ action }: { action: (formData: FormData) => Promise<void> }) {
+  return (
+    <form action={action}>
+      <ActionButton label="Delete" icon={<Trash2 className="h-3.5 w-3.5" />} tone="danger" />
     </form>
   );
 }

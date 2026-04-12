@@ -6,11 +6,11 @@ import { PageHeader } from '@/components/page-header';
 import { CommentThread } from '@/components/comment-thread';
 import { CommentForm } from '@/components/post-engagement-forms';
 import { PostDetailReportTrigger } from '@/components/post-detail-report-trigger';
-import { BookmarkButton, LikeButton } from '@/components/post-actions';
+import { BookmarkButton, DeletePostButton, LikeButton } from '@/components/post-actions';
 import { cityScopeLabel } from '@/lib/locations';
 import { getPost, getPostComments } from '@/lib/data';
 import { createCommentAction, createReportAction, deleteCommentAction, updateCommentAction } from './actions';
-import { toggleBookmarkAction, toggleLikeAction } from './engagement-actions';
+import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from './engagement-actions';
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -45,7 +45,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {post.commentsCount} comments</span>
-          <PostDetailReportTrigger action={createReportAction.bind(null, id)} />
+          {post.canEdit ? <DeletePostButton action={deletePostAction.bind(null, id)} /> : <PostDetailReportTrigger action={createReportAction.bind(null, id)} />}
         </div>
         <details className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-600">
           <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-slate-900">

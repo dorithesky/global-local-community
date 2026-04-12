@@ -134,6 +134,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     commentsCount: commentCounts.get(row.id) ?? 0,
     bookmarked: bookmarkedPostIds.has(row.id),
     liked: likedPostIds.has(row.id),
+    canEdit: member?.id === row.author_id,
   }));
 
   return applyFeedSort(normalized, filters);
