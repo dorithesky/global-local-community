@@ -48,7 +48,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
       title="Member operations"
       description="Search members, inspect identity and role context, and apply operational restrictions from one focused workspace."
     >
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm">
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
@@ -76,7 +76,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
             <option value="sanctioned">Active sanction</option>
             <option value="onboarding-incomplete">Onboarding incomplete</option>
           </select>
-          <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">Filter</button>
+          <button type="submit" className="rounded-full bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700">Filter</button>
         </form>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
@@ -86,7 +86,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
 
         <div className="mt-4 space-y-3">
           {filteredUserSettings.length ? filteredUserSettings.map((setting) => (
-            <div key={setting.user_id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+            <div key={setting.user_id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>

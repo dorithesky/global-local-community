@@ -19,12 +19,12 @@ export default async function AdminActivityPage() {
       description="Review recent community activity and inspect comment history without competing with moderation or member management controls."
     >
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/30 p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Community activity</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900">Recent posts</h2>
           <div className="mt-4 space-y-3">
             {recentPosts.map((post) => (
-              <div key={post.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+              <div key={post.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="font-medium text-slate-900">{post.title}</p>
@@ -38,12 +38,12 @@ export default async function AdminActivityPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <section className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Audit trail</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900">Comment history</h2>
           <div className="mt-4 space-y-3">
             {commentHistory.length ? commentHistory.map((event) => (
-              <div key={event.id} className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+              <div key={event.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-medium capitalize text-slate-900">{event.eventType}</p>
                   <span>•</span>

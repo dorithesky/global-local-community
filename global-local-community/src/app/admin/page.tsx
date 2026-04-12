@@ -42,17 +42,17 @@ export default async function AdminOverviewPage() {
       description="High-level community state for admins, with quick visibility into privileged roles, moderation pressure, and member onboarding health."
     >
       <section className="grid gap-6 xl:grid-cols-[repeat(3,minmax(0,1fr))]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/40 p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
           <p className="mt-3 text-4xl font-semibold text-slate-900">{userSettings.length}</p>
           <p className="mt-2 text-sm text-slate-500">Total known member records across the current community.</p>
         </div>
-        <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+        <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Needs review</p>
           <p className="mt-3 text-4xl font-semibold text-amber-950">{sanctionedMembers.length + onboardingIncompleteMembers.length}</p>
           <p className="mt-2 text-sm text-amber-800">Combined sanction and onboarding follow-up pressure.</p>
         </div>
-        <div className="rounded-3xl border border-sky-200 bg-sky-50 p-6 shadow-sm">
+        <div className="rounded-3xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-white p-6 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">Member health</p>
           <p className="mt-3 text-4xl font-semibold text-sky-950">{Math.max(userSettings.length - membersNeedingProfileCompletion.length, 0)}</p>
           <p className="mt-2 text-sm text-sky-800">Members with enough basic profile context to operate cleanly.</p>
@@ -75,7 +75,7 @@ export default async function AdminOverviewPage() {
               <a
                 key={item.label}
                 href={item.href}
-                className={`block rounded-2xl border p-4 transition hover:bg-white ${item.tone === 'amber' ? 'border-amber-200 bg-amber-50' : item.tone === 'sky' ? 'border-sky-200 bg-sky-50' : item.tone === 'rose' ? 'border-rose-200 bg-rose-50' : 'border-slate-200 bg-slate-50'}`}
+                className={`block rounded-2xl border p-4 transition hover:bg-white ${item.tone === 'amber' ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-white' : item.tone === 'sky' ? 'border-sky-200 bg-gradient-to-br from-sky-50 to-white' : item.tone === 'rose' ? 'border-rose-200 bg-gradient-to-br from-rose-50 to-white' : 'border-slate-200 bg-slate-50'}`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div>
@@ -90,7 +90,7 @@ export default async function AdminOverviewPage() {
         </section>
 
         <div className="space-y-6">
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/30 p-6 shadow-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Quick links</p>
@@ -98,13 +98,13 @@ export default async function AdminOverviewPage() {
               </div>
             </div>
             <div className="mt-4 space-y-2 text-sm">
-              <a href="/admin/reports" className="block rounded-2xl bg-slate-50 px-4 py-3 text-slate-700 hover:bg-slate-100">Reports queue</a>
-              <a href="/admin/members" className="block rounded-2xl bg-slate-50 px-4 py-3 text-slate-700 hover:bg-slate-100">Members</a>
-              <a href="/admin/activity" className="block rounded-2xl bg-slate-50 px-4 py-3 text-slate-700 hover:bg-slate-100">Activity log</a>
+              <a href="/admin/reports" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Reports queue</a>
+              <a href="/admin/members" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Members</a>
+              <a href="/admin/activity" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Activity log</a>
             </div>
           </section>
 
-          <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+          <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Overview note</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">Keep this page light</h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">Detailed moderation queues, full member lists, and long audit trails now belong to their dedicated admin routes. This overview should stay focused on summary and exceptions.</p>
