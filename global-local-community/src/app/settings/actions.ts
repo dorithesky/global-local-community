@@ -67,11 +67,14 @@ export async function saveProfileIdentityAction(formData: FormData) {
 
   if (!displayName) throw new Error('Display name is required.');
 
+  const onboardingCompleted = Boolean(city || occupation || originCountry || lifeStage || immediateNeed || cleanedBio);
+
   const { error } = await supabase.from('profiles').update({
     display_name: displayName,
     bio: cleanedBio || null,
     city: city || 'Seoul',
     occupation: occupation || null,
+    onboarding_completed: onboardingCompleted,
     updated_at: new Date().toISOString(),
   }).eq('id', member.id);
 
