@@ -32,9 +32,9 @@ export function CommentForm({ action }: { action: (formData: FormData) => Promis
   );
 }
 
-export function ReportForm({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function ReportForm({ action, compact = false }: { action: (formData: FormData) => Promise<void>; compact?: boolean }) {
   return (
-    <form action={action} className="space-y-3 rounded-2xl border border-rose-200 bg-rose-50 p-4">
+    <form action={action} className={`space-y-3 rounded-2xl border border-rose-200 bg-rose-50 ${compact ? 'p-4' : 'p-4'}`}>
       <div>
         <label className="mb-2 block text-sm font-medium text-slate-900">Report this post</label>
         <select name="reason" defaultValue="" className="w-full rounded-2xl border border-rose-200 px-4 py-3 outline-none ring-rose-200 focus:ring">

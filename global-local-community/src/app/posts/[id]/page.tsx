@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageCircle, ShieldAlert } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
-import { CommentForm, ReportForm } from '@/components/post-engagement-forms';
+import { CommentForm } from '@/components/post-engagement-forms';
+import { PostDetailReportTrigger } from '@/components/post-detail-report-trigger';
 import { BookmarkButton, LikeButton } from '@/components/post-actions';
 import { cityScopeLabel } from '@/lib/locations';
 import { getPost, getPostComments } from '@/lib/data';
@@ -27,11 +28,11 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <span>{cityScopeLabel(post.city, post.district)}</span>
         </div>
         <div className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-700">{post.body}</div>
-        <div className="mt-6 flex flex-wrap gap-3 text-sm text-slate-500">
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />
-          <span className="inline-flex items-center gap-2"><MessageCircle className="h-4 w-4" /> {post.commentsCount} comments</span>
-          <span className="inline-flex items-center gap-2"><ShieldAlert className="h-4 w-4" /> Report below</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {post.commentsCount} comments</span>
+          <PostDetailReportTrigger action={createReportAction.bind(null, id)} />
         </div>
         <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
           <p className="font-medium text-slate-900">AI moderation + classification</p>
@@ -56,7 +57,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </div>
         <div className="space-y-4">
           <CommentForm action={createCommentAction.bind(null, id)} />
-          <ReportForm action={createReportAction.bind(null, id)} />
         </div>
       </section>
     </div>
