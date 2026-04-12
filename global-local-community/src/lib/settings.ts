@@ -60,7 +60,7 @@ export async function getAdminUserSettingsView() {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
 
-  const [{ data }, { data: profiles }, { data: sanctions }] = await Promise.all([
+  const [{ data }, { data: profiles }, { data: sanctions }, { data: roles }] = await Promise.all([
     supabase
       .from('user_settings')
       .select('user_id, notify_likes, notify_comments, marketing_consent, third_party_email_consent, origin_country, life_stage, immediate_need, created_at, updated_at'),
@@ -71,10 +71,19 @@ export async function getAdminUserSettingsView() {
       .from('user_sanctions')
       .select('user_id, sanction_type, reason, active, created_at')
       .eq('active', true),
+    supabase
+      .from('user_roles')
+      .select('user_id, role'),
   ]);
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
   const sanctionMap = new Map((sanctions ?? []).map((sanction) => [sanction.user_id, sanction]));
+  const roleMap = new Map<string, string[]>();
+  for (const roleRow of roles ?? []) {
+    const existingRoles = roleMap.get(roleRow.user_id) ?? [];
+    existingRoles.push(roleRow.role);
+    roleMap.set(roleRow.user_id, existingRoles);
+  }
 
   const rows = data ?? [];
   const knownUserIds = new Set(rows.map((row) => row.user_id));
@@ -95,6 +104,7 @@ export async function getAdminUserSettingsView() {
 
   return [...rows, ...profileOnlyRows].map((row) => ({
     ...row,
+    roles: roleMap.get(row.user_id) ?? [],
     activeSanction: sanctionMap.get(row.user_id)
       ? {
           type: sanctionMap.get(row.user_id)?.sanction_type,

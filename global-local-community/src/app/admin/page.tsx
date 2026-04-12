@@ -46,6 +46,8 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
   const sanctionedMembers = userSettings.filter((setting) => Boolean(setting.activeSanction));
   const onboardingIncompleteMembers = userSettings.filter((setting) => !setting.profile?.onboardingCompleted);
   const membersNeedingProfileCompletion = userSettings.filter((setting) => !setting.profile?.city || !setting.profile?.occupation || !setting.immediate_need);
+  const adminRoleMembers = userSettings.filter((setting) => setting.roles.includes('admin'));
+  const moderatorRoleMembers = userSettings.filter((setting) => setting.roles.includes('moderator'));
   const recentSanctionedMembers = sanctionedMembers.slice(0, 5);
   const recentOnboardingGaps = onboardingIncompleteMembers.slice(0, 5);
 
@@ -68,11 +70,16 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
         </div>
       </section>
 
-      <section id="overview" className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <section id="overview" className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
           <p className="mt-3 text-3xl font-semibold text-slate-900">{userSettings.length}</p>
           <p className="mt-2 text-sm text-slate-500">Known member records available to admin.</p>
+        </div>
+        <div className="rounded-3xl border border-violet-200 bg-violet-50 p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-700">Privileged roles</p>
+          <p className="mt-3 text-3xl font-semibold text-violet-950">{adminRoleMembers.length + moderatorRoleMembers.length}</p>
+          <p className="mt-2 text-sm text-violet-800">Admins: {adminRoleMembers.length} • Moderators: {moderatorRoleMembers.length}</p>
         </div>
         <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Active sanctions</p>
@@ -202,7 +209,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                     <p className="mt-1 text-xs text-slate-500">City: {setting.profile?.city ?? 'Unknown'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
                     <p className="mt-1 text-xs text-slate-500">Origin country: {setting.origin_country ?? 'Not set'} • Life stage: {setting.life_stage ?? 'Not set'} • Immediate need: {setting.immediate_need ?? 'Not set'}</p>
                     <p className="mt-1 text-xs text-slate-500">Onboarding completed: {setting.profile?.onboardingCompleted ? 'Yes' : 'No'} • Joined: {setting.profile?.createdAt ? formatDistanceToNow(new Date(setting.profile.createdAt), { addSuffix: true }) : 'Unknown'}</p>
-                    <p className="mt-1 text-xs text-slate-500">Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
+                    <p className="mt-1 text-xs text-slate-500">Roles: {setting.roles.length ? setting.roles.join(', ') : 'member'} • Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
                   </div>
                   {setting.profile?.username ? (
                     <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">
@@ -236,6 +243,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                     <div key={`sanction-${setting.user_id}`} className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">
                       <p className="font-medium">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
                       <p className="mt-1 text-xs text-amber-800">{setting.activeSanction?.type} • {setting.activeSanction?.reason}</p>
+                      <p className="mt-1 text-xs text-amber-700">Role: {setting.roles.length ? setting.roles.join(', ') : 'member'}</p>
                     </div>
                   )) : <p className="text-sm text-slate-500">No active sanctions right now.</p>}
                 </div>
@@ -247,6 +255,7 @@ export default async function AdminPage({ searchParams }: { searchParams?: Promi
                     <div key={`onboarding-${setting.user_id}`} className="rounded-2xl bg-sky-50 p-3 text-sm text-sky-950">
                       <p className="font-medium">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
                       <p className="mt-1 text-xs text-sky-800">City: {setting.profile?.city ?? 'Unknown'} • Need: {setting.immediate_need ?? 'Not set'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
+                      <p className="mt-1 text-xs text-sky-700">Role: {setting.roles.length ? setting.roles.join(', ') : 'member'}</p>
                     </div>
                   )) : <p className="text-sm text-slate-500">No onboarding follow-up needed right now.</p>}
                 </div>
