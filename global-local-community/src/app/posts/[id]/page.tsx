@@ -44,7 +44,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />
-          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {post.commentsCount} comments</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {comments.length} comments</span>
           {post.canEdit ? <DeletePostButton action={deletePostAction.bind(null, id)} /> : <PostDetailReportTrigger action={createReportAction.bind(null, id)} />}
         </div>
       </article>

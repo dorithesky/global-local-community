@@ -185,11 +185,20 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
 
-  if (error || !data?.length) {
-    return getCommentsByPostId(postId).map((comment) => ({
+  if (error) {
+    const fallbackComments = getCommentsByPostId(postId).map((comment) => ({
       ...comment,
       canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
     }));
+    return fallbackComments;
+  }
+
+  if (!data?.length) {
+    const fallbackComments = getCommentsByPostId(postId).map((comment) => ({
+      ...comment,
+      canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
+    }));
+    return fallbackComments;
   }
 
   const profileIds = [...new Set(data.flatMap((row) => [row.author_id, row.deleted_by].filter(Boolean)))];
