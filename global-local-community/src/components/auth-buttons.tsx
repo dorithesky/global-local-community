@@ -69,7 +69,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       });
 
       setBusy(false);
-      setMessage(error ? error.message : 'Account created. Check your email for the confirmation link, then finish your onboarding in settings.');
+      setMessage(error ? error.message : 'Account created. Check your email for the confirmation link, then finish your onboarding in settings. Authentication events will be logged after callback/login completes.');
       if (!error) {
         router.refresh();
         onSuccess?.();

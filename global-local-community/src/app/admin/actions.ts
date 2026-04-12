@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireAdmin, requireModerator } from '@/lib/auth';
+import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function updateReportStatusAction(formData: FormData) {
@@ -26,6 +27,8 @@ export async function updateReportStatusAction(formData: FormData) {
       moderator_id: moderator.id,
     },
   });
+
+  await logServerRequest({ userId: moderator.id, path: '/admin/actions/report-status' });
 
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
@@ -67,6 +70,8 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
     });
   }
 
+  await logServerRequest({ userId: moderator.id, path: '/admin/actions/post-visibility' });
+
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
   revalidatePath(`/posts/${postId}`);
@@ -98,6 +103,8 @@ export async function addModeratorNoteAction(formData: FormData) {
   });
 
   if (error) throw new Error(error.message);
+
+  await logServerRequest({ userId: moderator.id, path: '/admin/actions/moderator-note' });
 
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
@@ -139,6 +146,8 @@ export async function applyUserSanctionAction(formData: FormData) {
       admin_id: admin.id,
     },
   });
+
+  await logServerRequest({ userId: admin.id, path: '/admin/actions/user-sanction' });
 
   revalidatePath('/admin');
 }

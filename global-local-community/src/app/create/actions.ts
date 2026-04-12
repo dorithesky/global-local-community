@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
+import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function createPostAction(formData: FormData) {
@@ -92,6 +93,11 @@ export async function createPostAction(formData: FormData) {
       ai_label: classification.label,
       ai_score: classification.score,
     },
+  });
+
+  await logServerRequest({
+    userId: member.id,
+    path: '/create',
   });
 
   revalidatePath('/');

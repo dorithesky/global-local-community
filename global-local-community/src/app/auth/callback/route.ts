@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function GET(request: Request) {
@@ -9,6 +10,11 @@ export async function GET(request: Request) {
   const supabase = await getSupabaseServerClient();
   if (code && supabase) {
     await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.getUser();
+    await logServerRequest({
+      userId: data.user?.id ?? null,
+      path: '/auth/callback',
+    });
   }
 
   return NextResponse.redirect(new URL(next, requestUrl.origin));

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
+import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -59,6 +60,11 @@ export async function POST(request: Request) {
       reporter_id: member.id,
       reason: payload.reason.trim(),
     },
+  });
+
+  await logServerRequest({
+    userId: member.id,
+    path: '/api/reports',
   });
 
   return NextResponse.json({

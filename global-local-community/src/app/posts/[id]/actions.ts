@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { canCurrentMemberManageComment } from '@/lib/data';
+import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -46,10 +47,15 @@ export async function createCommentAction(postId: string, formData: FormData) {
   });
 
   await supabase.from('workflow_events').insert({
-    event_type: 'post.created',
+    event_type: 'comment.created',
     entity_type: 'comment',
-    entity_id: null,
+    entity_id: data.id,
     payload: { post_id: postId, author_id: member.id, action: 'comment.created' },
+  });
+
+  await logServerRequest({
+    userId: member.id,
+    path: `/posts/${postId}/comments`,
   });
 
   revalidatePath(`/posts/${postId}`);
@@ -183,6 +189,11 @@ export async function createReportAction(postId: string, formData: FormData) {
     entity_type: payload.commentId ? 'comment' : 'post',
     entity_id: payload.commentId ?? payload.postId ?? null,
     payload: { reason: payload.reason, reporter_id: member.id },
+  });
+
+  await logServerRequest({
+    userId: member.id,
+    path: payload.commentId ? `/posts/${postId}/report-comment` : `/posts/${postId}/report`,
   });
 
   revalidatePath('/admin');

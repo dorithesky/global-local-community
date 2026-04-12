@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { getFeedPosts } from '@/lib/data';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
+import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const createPostSchema = z.object({
@@ -88,6 +89,11 @@ export async function POST(request: Request) {
       category: payload.category,
       moderation_status: moderationStatus,
     },
+  });
+
+  await logServerRequest({
+    userId: member.id,
+    path: '/api/posts',
   });
 
   return NextResponse.json(
