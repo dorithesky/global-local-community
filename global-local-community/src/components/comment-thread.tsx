@@ -54,11 +54,16 @@ function CommentCard({
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <Link href={`/profile/${comment.author.username}`} className="block min-w-0 flex-1 rounded-xl transition hover:bg-white/70">
-              <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
-              <p className="mt-1 text-xs text-slate-500">
-                @{comment.author.username} • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                {comment.updatedAt && comment.updatedAt !== comment.createdAt ? ' • edited' : ''}
-              </p>
+              <div className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-1.5">
+                <p className="truncate text-sm font-medium text-slate-900">{comment.author.displayName}</p>
+                <p className="hidden text-xs text-slate-500 sm:inline">·</p>
+                <p className="hidden truncate text-xs text-slate-500 sm:inline">@{comment.author.username}</p>
+                <p className="hidden text-xs text-slate-500 sm:inline">·</p>
+                <p className="text-xs text-slate-500">
+                  {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                  {comment.updatedAt && comment.updatedAt !== comment.createdAt ? ' • edited' : ''}
+                </p>
+              </div>
             </Link>
             {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} signedIn={signedIn} /> : null}
           </div>
