@@ -18,10 +18,15 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
   const [busy, setBusy] = useState(false);
 
   const isCreatingPassword = view === 'signup' || signInMethod === 'password';
+  const isSignupPassword = view === 'signup';
   const passwordChecks = useMemo(() => ({
-    minLength: password.length >= 6,
-    strongerLength: password.length >= 10,
+    minLength: password.length >= 10,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    number: /\d/.test(password),
   }), [password]);
+
+  const signupPasswordValid = Object.values(passwordChecks).every(Boolean);
 
   async function signInWithGoogle() {
     const supabase = getSupabaseBrowserClient();
@@ -59,8 +64,13 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       return;
     }
 
-    if ((view === 'signup' || signInMethod === 'password') && password.length < 6) {
-      setMessage('Password must be at least 6 characters.');
+    if (view === 'signup' && !signupPasswordValid) {
+      setMessage('Use a stronger password that meets all rules.');
+      return;
+    }
+
+    if (view === 'signin' && signInMethod === 'password' && password.length < 1) {
+      setMessage('Enter your password first.');
       return;
     }
 
@@ -154,17 +164,27 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
               placeholder={view === 'signup' ? 'Create a password' : 'Enter your password'}
               className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
             />
-            {view === 'signup' ? (
-              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-                <p className="font-medium text-slate-900">Password rules</p>
-                <div className="mt-2 space-y-1.5 text-sm">
+            {isSignupPassword && password.length > 0 ? (
+              <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white text-sm text-slate-700 transition-all">
+                <div className="border-b border-slate-100 px-4 py-2.5">
+                  <p className="font-medium text-slate-900">Password strength</p>
+                </div>
+                <div className="space-y-2 px-4 py-3">
                   <div className={`flex items-center gap-2 ${passwordChecks.minLength ? 'text-emerald-700' : 'text-slate-500'}`}>
                     {passwordChecks.minLength ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-                    <span>At least 6 characters</span>
+                    <span>10 or more characters</span>
                   </div>
-                  <div className={`flex items-center gap-2 ${passwordChecks.strongerLength ? 'text-emerald-700' : 'text-slate-500'}`}>
-                    {passwordChecks.strongerLength ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-                    <span>10+ characters recommended</span>
+                  <div className={`flex items-center gap-2 ${passwordChecks.uppercase ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    {passwordChecks.uppercase ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                    <span>At least one uppercase letter</span>
+                  </div>
+                  <div className={`flex items-center gap-2 ${passwordChecks.lowercase ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    {passwordChecks.lowercase ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                    <span>At least one lowercase letter</span>
+                  </div>
+                  <div className={`flex items-center gap-2 ${passwordChecks.number ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    {passwordChecks.number ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                    <span>At least one number</span>
                   </div>
                 </div>
               </div>
