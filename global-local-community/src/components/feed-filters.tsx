@@ -26,7 +26,7 @@ export function FeedFilters() {
     if (searchParams.get('q')) count += 1;
     if (searchParams.get('city')) count += 1;
     if (searchParams.get('category')) count += 1;
-    if (searchParams.get('sort') && searchParams.get('sort') !== 'relevance') count += 1;
+    if (searchParams.get('sort') && searchParams.get('sort') !== 'recent') count += 1;
     return count;
   }, [searchParams]);
 
@@ -112,12 +112,12 @@ export function FeedFilters() {
               ))}
             </select>
             <select
-              defaultValue={searchParams.get('sort') ?? 'relevance'}
+              defaultValue={searchParams.get('sort') ?? 'recent'}
               onChange={(event) => updateParam('sort', event.target.value)}
               className="min-h-10.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none ring-sky-200 focus:ring"
             >
-              <option value="relevance">Most relevant</option>
               <option value="recent">Newest first</option>
+              <option value="relevance">Most relevant</option>
               <option value="oldest">Oldest first</option>
             </select>
           </div>

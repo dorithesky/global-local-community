@@ -58,7 +58,7 @@ function normalizePost(row: Record<string, unknown>, profile: Profile): PostReco
 }
 
 function applyFeedSort(posts: PostRecord[], filters?: { query?: string | null; sort?: string | null }) {
-  const sort = filters?.sort ?? 'relevance';
+  const sort = filters?.sort ?? 'recent';
   const query = (filters?.query ?? '').trim().toLowerCase();
 
   if (sort === 'oldest') {
@@ -170,7 +170,7 @@ async function getRoleBadgeMap(userIds: string[]) {
   return roleMap;
 }
 
-export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null }): Promise<PostRecord[]> {
+export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null; limit?: number }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
 
@@ -180,7 +180,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at, moderation_status')
     .eq('moderation_status', 'published')
     .order('created_at', { ascending: false })
-    .limit(50);
+    .limit(filters?.limit ?? 200);
 
   if (filters?.city && filters.city !== 'all') queryBuilder = queryBuilder.eq('city', filters.city);
   if (filters?.category && filters.category !== 'all') queryBuilder = queryBuilder.eq('category', filters.category);
@@ -239,6 +239,18 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
   }));
 
   return applyFeedSort(normalized, filters);
+}
+
+export async function getTrendingPosts(limit = 5): Promise<PostRecord[]> {
+  const posts = await getFeedPosts({ sort: 'recent', limit: 200 });
+
+  return [...posts]
+    .sort((a, b) => {
+      const scoreA = (a.likesCount * 2) + (a.commentsCount * 3) + (new Date(a.createdAt).getTime() / 1000 / 60 / 60 / 24) * 0.01;
+      const scoreB = (b.likesCount * 2) + (b.commentsCount * 3) + (new Date(b.createdAt).getTime() / 1000 / 60 / 60 / 24) * 0.01;
+      return scoreB - scoreA;
+    })
+    .slice(0, limit);
 }
 
 export async function getPost(id: string): Promise<PostRecord | undefined> {

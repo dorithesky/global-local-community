@@ -2,14 +2,14 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
-import { getFeedPosts } from '@/lib/data';
+import { getTrendingPosts } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
 import { getAccountSettings } from '@/lib/settings';
 
 export default async function HomePage() {
   const member = await getCurrentMember();
   const [posts, accountSettings] = await Promise.all([
-    getFeedPosts(),
+    getTrendingPosts(5),
     member ? getAccountSettings() : Promise.resolve(null),
   ]);
   const recommendedCategory = accountSettings?.profile.immediateNeed || null;
@@ -83,13 +83,13 @@ export default async function HomePage() {
       )}
 
       <PageHeader
-        eyebrow={member ? 'Latest posts' : 'Latest posts'}
-        title={member ? 'Recent posts' : 'Recent posts'}
-        description={member ? 'Jump into a conversation or ask your own question.' : 'See what people need help with right now.'}
+        eyebrow="Trending"
+        title="Top posts right now"
+        description={member ? 'A quick read on what is getting attention across the community.' : 'Start with the posts people are engaging with most right now.'}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {posts.slice(0, 6).map((post) => (
+        {posts.map((post) => (
           <PostCard key={post.id} post={post} />
         ))}
       </div>
