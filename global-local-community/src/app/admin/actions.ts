@@ -169,9 +169,9 @@ export async function updateUserRoleAction(formData: FormData) {
 
   const parsed = roleChangeSchema.safeParse({
     userId: String(formData.get('userId') ?? '').trim(),
-    role: String(formData.get('role') ?? '').trim(),
-    intent: String(formData.get('intent') ?? '').trim(),
-    confirm: String(formData.get('confirm') ?? '').trim() || undefined,
+    role: String(formData.get('role') ?? '').trim().toLowerCase(),
+    intent: String(formData.get('intent') ?? '').trim().toLowerCase(),
+    confirm: String(formData.get('confirm') ?? '').trim().toLowerCase() || undefined,
   });
 
   if (!parsed.success) throw new Error('Invalid role change request.');
