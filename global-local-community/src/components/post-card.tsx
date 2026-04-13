@@ -67,7 +67,7 @@ export function PostCard({ post }: { post: PostRecord }) {
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <FeedLikeButton action={toggleLikeAction.bind(null, post.id)} active={Boolean(post.liked)} count={post.likesCount} />
           <FeedBookmarkButton action={toggleBookmarkAction.bind(null, post.id)} active={Boolean(post.bookmarked)} />
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 text-[11px] text-slate-600"><MessageCircle className="h-3.5 w-3.5" /> {post.commentsCount} repl{post.commentsCount === 1 ? 'y' : 'ies'}</span>
+          <Link href={`/posts/${post.id}`} className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 text-[11px] text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"><MessageCircle className="h-3.5 w-3.5" /> {post.commentsCount} repl{post.commentsCount === 1 ? 'y' : 'ies'}</Link>
         </div>
       </div>
     </article>
