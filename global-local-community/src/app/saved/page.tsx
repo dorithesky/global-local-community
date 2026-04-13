@@ -8,7 +8,7 @@ import { getSavedPosts } from '@/lib/data';
 
 export const metadata: Metadata = {
   title: 'Saved posts',
-  description: 'Private saved posts inside Global Local Community.',
+  description: 'Private saved posts inside Living In Korea.',
   robots: {
     index: false,
     follow: false,

@@ -8,23 +8,30 @@ import { validateServerEnv } from '@/lib/env';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Global Local Community',
-    template: '%s | Global Local Community',
+    default: 'Living In Korea',
+    template: '%s | Living In Korea',
   },
-  description: 'A high-signal community platform for foreigners living in Korea.',
+  description: 'An English-first community for foreigners building everyday life in Korea.',
   robots: {
     index: true,
     follow: true,
   },
   openGraph: {
-    title: 'Global Local Community',
-    description: 'A high-signal community platform for foreigners living in Korea.',
+    title: 'Living In Korea',
+    description: 'An English-first community for foreigners building everyday life in Korea.',
     type: 'website',
+    images: ['/living-in-korea-logo.svg'],
   },
   twitter: {
     card: 'summary',
-    title: 'Global Local Community',
-    description: 'A high-signal community platform for foreigners living in Korea.',
+    title: 'Living In Korea',
+    description: 'An English-first community for foreigners building everyday life in Korea.',
+    images: ['/living-in-korea-logo.svg'],
+  },
+  icons: {
+    icon: '/living-in-korea-logo.svg',
+    shortcut: '/living-in-korea-logo.svg',
+    apple: '/living-in-korea-logo.svg',
   },
 };
 

@@ -1,4 +1,4 @@
-# Global Local Community Team
+# Living In Korea Team
 
 Lean multi-agent operating team for production-focused execution.
 

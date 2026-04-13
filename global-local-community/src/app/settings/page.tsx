@@ -10,7 +10,7 @@ import { getAccountSettings } from '@/lib/settings';
 
 export const metadata: Metadata = {
   title: 'Settings',
-  description: 'Private account settings inside Global Local Community.',
+  description: 'Private account settings inside Living In Korea.',
   robots: {
     index: false,
     follow: false,

@@ -1,4 +1,4 @@
-# Global Local Community Design System
+# Living In Korea Design System
 
 Canonical visual and UX system for a premium, high-trust, English-first community product.
 

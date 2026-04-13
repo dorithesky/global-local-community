@@ -1,5 +1,6 @@
+import Image from 'next/image';
 import Link from 'next/link';
-import { Home, Briefcase, MessageSquare, Shield, Building2, MapPinned, PlusSquare } from 'lucide-react';
+import { Home, Briefcase, MessageSquare, Shield, Building2, PlusSquare } from 'lucide-react';
 import { clsx } from 'clsx';
 import { HeaderAuthControls } from '@/components/header-auth-controls';
 import { SessionPill } from '@/components/session-pill';
@@ -34,7 +35,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         { href: '/', label: 'Home', icon: Home },
         { href: '/feed', label: 'Feed', icon: MessageSquare },
         { href: '/create', label: 'Post', icon: PlusSquare },
-        { href: '/settings', label: 'Account', icon: MapPinned },
+        { href: '/settings', label: 'Account', icon: MessageSquare },
         { href: '/admin', label: 'Admin', icon: Shield },
       ]
     : member
@@ -42,7 +43,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           { href: '/', label: 'Home', icon: Home },
           { href: '/feed', label: 'Feed', icon: MessageSquare },
           { href: '/create', label: 'Post', icon: PlusSquare },
-          { href: '/settings', label: 'Account', icon: MapPinned },
+          { href: '/settings', label: 'Account', icon: MessageSquare },
         ]
       : [
           { href: '/', label: 'Home', icon: Home },
@@ -56,12 +57,12 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-4">
           <div className="flex min-w-0 items-center gap-3 sm:gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-primary)] text-white shadow-sm sm:h-11 sm:w-11">
-              <MapPinned className="h-5 w-5" />
+            <div className="overflow-hidden rounded-2xl shadow-sm">
+              <Image src="/living-in-korea-logo.svg" alt="Living In Korea logo" width={44} height={44} className="h-10 w-10 shrink-0 sm:h-11 sm:w-11" priority />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-primary)] sm:text-[11px]">Global Local Community</p>
-              <h1 className="truncate text-sm font-semibold text-[var(--text-primary)] sm:text-base lg:text-lg">English-first support for life in Korea</h1>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-primary)] sm:text-[11px]">Living In Korea</p>
+              <h1 className="truncate text-sm font-semibold text-[var(--text-primary)] sm:text-base lg:text-lg">English-first support for building life in Korea</h1>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">

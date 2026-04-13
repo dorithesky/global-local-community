@@ -1,4 +1,4 @@
-# Global Local Community
+# Living In Korea
 
 Production-oriented foundation for an English-first community platform for foreigners living in Korea.
 

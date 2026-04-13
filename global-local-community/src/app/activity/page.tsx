@@ -8,7 +8,7 @@ import { getSavedPosts, getUserCommentedPosts, getUserComments, getUserLikedPost
 
 export const metadata: Metadata = {
   title: 'Your activity',
-  description: 'Private account activity inside Global Local Community.',
+  description: 'Private account activity inside Living In Korea.',
   robots: {
     index: false,
     follow: false,

@@ -16,7 +16,7 @@
 1. Push `global-local-community` to GitHub.
 2. Import the repo in Vercel.
 3. Set these environment variables:
-   - `NEXT_PUBLIC_APP_NAME=Global Local Community`
+   - `NEXT_PUBLIC_APP_NAME=Living In Korea`
    - `NEXT_PUBLIC_CITY=Daegu`
    - `NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-anon-key>`

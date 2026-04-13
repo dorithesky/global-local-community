@@ -8,7 +8,7 @@
 
 ## Core positioning
 
-Global Local Community is an English-first community for foreigners living in Korea.
+Living In Korea is an English-first community for foreigners living in Korea.
 
 It should feel better than scattered Facebook groups, Kakao chats, and old Reddit threads because it is:
 - easier to search
