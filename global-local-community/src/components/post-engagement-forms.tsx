@@ -52,7 +52,7 @@ export function CommentForm({
   );
 }
 
-export function ReportForm({ action, compact = false, targetLabel = 'Report this post', children, onSuccess }: { action: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>; compact?: boolean; targetLabel?: string; children?: ReactNode; onSuccess?: () => void }) {
+export function ReportForm({ action, compact = false, targetLabel = 'Report this post', children, onSuccess, onDone }: { action: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>; compact?: boolean; targetLabel?: string; children?: ReactNode; onSuccess?: () => void; onDone?: () => void }) {
   const [state, formAction] = useActionState(action, INITIAL_REPORT_ACTION_STATE);
 
   useEffect(() => {
@@ -89,10 +89,23 @@ export function ReportForm({ action, compact = false, targetLabel = 'Report this
       ) : null}
       {state.status === 'success' ? (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          {state.message ?? 'Report submitted.'}
+          <p className="font-medium text-emerald-900">Submitted</p>
+          <p className="mt-1">{state.message ?? 'Your report has been submitted to moderators.'}</p>
         </div>
       ) : null}
-      <PendingButton label="Submit report" pendingLabel="Submitting..." />
+      <div className="flex flex-wrap items-center gap-2">
+        {state.status === 'success' ? (
+          <button
+            type="button"
+            onClick={() => onDone?.()}
+            className="min-h-11 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          >
+            Done
+          </button>
+        ) : (
+          <PendingButton label="Submit report" pendingLabel="Submitting..." />
+        )}
+      </div>
     </form>
   );
 }

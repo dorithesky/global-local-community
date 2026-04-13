@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId } from 'react';
 import { Flag, X } from 'lucide-react';
 import type { ReportActionState } from '@/lib/report-state';
 import { ReportForm } from '@/components/post-engagement-forms';
@@ -22,7 +22,6 @@ export function ReportModal({
   targetLabel: string;
   children?: React.ReactNode;
 }) {
-  const hasClosedAfterSuccess = useRef(false);
   const titleId = useId();
   const descriptionId = useId();
 
@@ -41,12 +40,6 @@ export function ReportModal({
       document.body.style.overflow = '';
     };
   }, [open, onClose]);
-
-  useEffect(() => {
-    if (!open) {
-      hasClosedAfterSuccess.current = false;
-    }
-  }, [open]);
 
   if (!open) return null;
 
@@ -86,11 +79,8 @@ export function ReportModal({
               action={action}
               compact
               targetLabel={targetLabel}
-              onSuccess={() => {
-                if (hasClosedAfterSuccess.current) return;
-                hasClosedAfterSuccess.current = true;
-                window.setTimeout(() => onClose(), 700);
-              }}
+              onSuccess={() => undefined}
+              onDone={onClose}
             >
               {children}
             </ReportForm>
