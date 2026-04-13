@@ -24,18 +24,21 @@ export function CreatePostClientShell({
 }) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
   const helperText = useMemo(() => {
-    if (pending) return 'Uploading images and publishing your post...';
+    if (statusMessage) return statusMessage;
+    if (pending) return 'Working on your post...';
     return null;
-  }, [pending]);
+  }, [pending, statusMessage]);
 
   const draftMessage = useMemo(() => getExistingDraftMessage(), []);
 
   async function wrappedAction(formData: FormData) {
     setError(null);
+    setStatusMessage(null);
     const validationMessage = validateImageFiles(files);
     if (validationMessage) {
       setError(validationMessage);
@@ -55,6 +58,8 @@ export function CreatePostClientShell({
 
     startTransition(async () => {
       try {
+        setStatusMessage(files.length ? 'Uploading images and preparing your post...' : 'Publishing your post...');
+
         if (files.length) {
           const uploaded = await uploadImagesToSupabase(files);
           uploaded.forEach((file) => {
@@ -67,10 +72,12 @@ export function CreatePostClientShell({
           });
         }
 
+        setStatusMessage('Publishing your post now...');
         await action(formData);
         window.sessionStorage.removeItem(DRAFT_KEY);
         router.refresh();
       } catch (uploadError) {
+        setStatusMessage(null);
         setError(uploadError instanceof Error ? uploadError.message : 'Image upload failed.');
       }
     });
