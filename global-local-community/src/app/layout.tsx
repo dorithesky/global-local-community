@@ -6,7 +6,10 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SessionGuard } from '@/components/session-guard';
 import { validateServerEnv } from '@/lib/env';
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://living-korea.com';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'Living In Korea',
     template: '%s | Living In Korea',
