@@ -167,14 +167,23 @@ export async function updateUserRoleAction(formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
+  const rawUserId = String(formData.get('userId') ?? '').trim();
+  const rawRole = String(formData.get('role') ?? '').trim().toLowerCase();
+  const rawIntent = String(formData.get('intent') ?? '').trim().toLowerCase();
+  const rawConfirm = String(formData.get('confirm') ?? '').trim().toLowerCase() || undefined;
+
+  if (!rawUserId || (rawRole !== 'admin' && rawRole !== 'moderator') || (rawIntent !== 'grant' && rawIntent !== 'revoke')) {
+    throw new Error(`Invalid role change request. userId=${rawUserId || 'missing'} role=${rawRole || 'missing'} intent=${rawIntent || 'missing'}`);
+  }
+
   const parsed = roleChangeSchema.safeParse({
-    userId: String(formData.get('userId') ?? '').trim(),
-    role: String(formData.get('role') ?? '').trim().toLowerCase(),
-    intent: String(formData.get('intent') ?? '').trim().toLowerCase(),
-    confirm: String(formData.get('confirm') ?? '').trim().toLowerCase() || undefined,
+    userId: rawUserId,
+    role: rawRole,
+    intent: rawIntent,
+    confirm: rawConfirm,
   });
 
-  if (!parsed.success) throw new Error('Invalid role change request.');
+  if (!parsed.success) throw new Error(`Invalid role change request. userId=${rawUserId || 'missing'} role=${rawRole || 'missing'} intent=${rawIntent || 'missing'}`);
 
   const { userId, role, intent, confirm } = parsed.data;
   if (role === 'admin' && confirm !== 'yes') {
