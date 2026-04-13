@@ -11,7 +11,8 @@ export function NotificationPreferencesForm() {
     <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <form action={saveNotificationPreferencesAction} className="space-y-4">
         <div>
-          <p className="text-sm font-semibold text-slate-900">Notify if:</p>
+          <p className="text-sm font-semibold text-slate-900">Settings</p>
+          <p className="mt-1 text-sm text-slate-600">Choose which updates and emails you want to receive.</p>
         </div>
         <div className="space-y-3">
           {options.map((option) => (

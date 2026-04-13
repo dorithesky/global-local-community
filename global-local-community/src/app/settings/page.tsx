@@ -19,8 +19,8 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
     <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader
         eyebrow={onboarding ? 'Welcome' : 'Settings'}
-        title={onboarding ? 'Finish your onboarding' : 'Notifications, consent, and account controls'}
-        description={onboarding ? 'Complete your profile so the product can show the right city context, member identity, and relevant community needs from the start.' : 'Manage how the product contacts you and how your account is configured. Public identity now lives on your profile.'}
+        title={onboarding ? 'Finish your onboarding' : 'Settings'}
+        description={onboarding ? 'Complete your profile so the product can show the right city context, member identity, and relevant community needs from the start.' : 'Manage notifications, consent, appearance, and account controls here. Public identity now lives on your profile.'}
       />
       {!onboarding ? (
         <section className="rounded-3xl border border-slate-200 bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">

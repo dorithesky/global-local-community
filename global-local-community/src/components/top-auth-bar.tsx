@@ -10,10 +10,10 @@ export async function TopAuthBar() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-slate-900">
-            {member ? 'You are signed in and ready to post.' : 'Sign in to post, comment, bookmark, and report.'}
+            {member ? 'You are signed in and ready to participate.' : 'Create an account to post, comment, bookmark, and report.'}
           </p>
           <p className="mt-1 text-sm text-slate-600">
-            {member ? 'Your profile is live in the app now.' : 'Use Google or email. Keep it friction-light.'}
+            {member ? 'Your profile and settings are active in the app now.' : 'Use Google or email to create an account or sign in.'}
           </p>
         </div>
         <div className="flex max-w-full flex-wrap items-center gap-3">

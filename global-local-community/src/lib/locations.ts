@@ -1,4 +1,4 @@
-export const KOREA_CITIES = ['Seoul', 'Busan', 'Daegu', 'Other'] as const;
+export const KOREA_CITIES = ['Seoul', 'Busan', 'Daegu', 'Incheon', 'Daejeon', 'Gwangju', 'Ulsan', 'Jeju', 'Other'] as const;
 
 export type KoreaCity = (typeof KOREA_CITIES)[number];
 
