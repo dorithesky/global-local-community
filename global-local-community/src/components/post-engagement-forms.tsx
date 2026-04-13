@@ -17,18 +17,35 @@ function PendingButton({ label, pendingLabel }: { label: string; pendingLabel: s
   );
 }
 
-export function CommentForm({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function CommentForm({
+  action,
+  compact = false,
+  parentCommentId,
+  submitLabel = 'Post comment',
+  pendingLabel = 'Posting...',
+  label = 'Join the conversation',
+  placeholder = 'Add a useful reply, answer, lead, or caution.',
+}: {
+  action: (formData: FormData) => Promise<void>;
+  compact?: boolean;
+  parentCommentId?: string;
+  submitLabel?: string;
+  pendingLabel?: string;
+  label?: string;
+  placeholder?: string;
+}) {
   return (
-    <form action={action} className="space-y-3 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+    <form action={action} className={`space-y-3 rounded-3xl border border-slate-200 bg-white ${compact ? 'p-0 shadow-none' : 'p-4 shadow-sm sm:p-5'}`}>
+      {parentCommentId ? <input type="hidden" name="parentCommentId" value={parentCommentId} /> : null}
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-900">Join the conversation</label>
+        <label className="mb-2 block text-sm font-semibold text-slate-900">{label}</label>
         <textarea
           name="body"
           className="min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none ring-sky-200 focus:ring"
-          placeholder="Add a useful reply, answer, lead, or caution."
+          placeholder={placeholder}
         />
       </div>
-      <PendingButton label="Post comment" pendingLabel="Posting..." />
+      <PendingButton label={submitLabel} pendingLabel={pendingLabel} />
     </form>
   );
 }

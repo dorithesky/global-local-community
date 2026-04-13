@@ -34,16 +34,82 @@ export async function createCommentAction(postId: string, formData: FormData) {
   const body = sanitizePlainText(formData.get('body'), { maxLength: 2000, allowNewlines: true });
   if (!body) throw new Error('Comment body is required.');
 
-  const { data, error } = await supabase.from('comments').insert({
+  const parentCommentIdRaw = sanitizePlainText(formData.get('parentCommentId'), { maxLength: 64, allowNewlines: false }) || undefined;
+  let parentCommentId: string | null = null;
+  let rootCommentId: string | null = null;
+  let depth = 0;
+
+  if (parentCommentIdRaw) {
+    const { data: parentComment, error: parentError } = await supabase
+      .from('comments')
+      .select('id, post_id, root_comment_id, depth, reply_count')
+      .eq('id', parentCommentIdRaw)
+      .maybeSingle();
+
+    if (parentError || !parentComment || parentComment.post_id !== postId) {
+      throw new Error('Reply target is invalid.');
+    }
+
+    if (Number(parentComment.depth ?? 0) >= 1) {
+      throw new Error('Only one level of replies is supported right now.');
+    }
+
+    parentCommentId = parentComment.id;
+    rootCommentId = parentComment.root_comment_id ?? parentComment.id;
+    depth = 1;
+  }
+
+  let insertedId: string | null = null;
+
+  const threadedInsert = await supabase.from('comments').insert({
     post_id: postId,
     author_id: member.id,
     body,
+    parent_comment_id: parentCommentId,
+    root_comment_id: rootCommentId,
+    depth,
+    reply_count: 0,
   }).select('id').single();
 
-  if (error) throw new Error(error.message);
+  if (threadedInsert.error) {
+    if (threadedInsert.error.message.includes('parent_comment_id') || threadedInsert.error.message.includes('root_comment_id') || threadedInsert.error.message.includes('depth') || threadedInsert.error.message.includes('reply_count')) {
+      const fallbackInsert = await supabase.from('comments').insert({
+        post_id: postId,
+        author_id: member.id,
+        body,
+      }).select('id').single();
+
+      if (fallbackInsert.error) throw new Error(fallbackInsert.error.message);
+      insertedId = fallbackInsert.data.id;
+    } else {
+      throw new Error(threadedInsert.error.message);
+    }
+  } else {
+    insertedId = threadedInsert.data.id;
+  }
+
+  if (!insertedId) throw new Error('Comment could not be created.');
+
+  if (parentCommentId) {
+    const { data: currentParent } = await supabase
+      .from('comments')
+      .select('reply_count')
+      .eq('id', parentCommentId)
+      .maybeSingle();
+
+    const incrementedReplyCount = Number(currentParent?.reply_count ?? 0) + 1;
+    const replyCountUpdate = await supabase
+      .from('comments')
+      .update({ reply_count: incrementedReplyCount, updated_at: new Date().toISOString() })
+      .eq('id', parentCommentId);
+
+    if (replyCountUpdate.error && !replyCountUpdate.error.message.includes('reply_count')) {
+      throw new Error(replyCountUpdate.error.message);
+    }
+  }
 
   await supabase.from('comment_events').insert({
-    comment_id: data.id,
+    comment_id: insertedId,
     actor_id: member.id,
     event_type: 'created',
     new_body: body,
@@ -52,13 +118,13 @@ export async function createCommentAction(postId: string, formData: FormData) {
   await supabase.from('workflow_events').insert({
     event_type: 'comment.created',
     entity_type: 'comment',
-    entity_id: data.id,
-    payload: { post_id: postId, author_id: member.id, action: 'comment.created' },
+    entity_id: insertedId,
+    payload: { post_id: postId, author_id: member.id, action: 'comment.created', parent_comment_id: parentCommentId },
   });
 
   await logServerRequest({
     userId: member.id,
-    path: `/posts/${postId}/comments`,
+    path: parentCommentId ? `/posts/${postId}/comments/${parentCommentId}/replies` : `/posts/${postId}/comments`,
   });
 
   revalidatePath(`/posts/${postId}`);

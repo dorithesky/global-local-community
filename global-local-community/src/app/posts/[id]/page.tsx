@@ -85,6 +85,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
               updateAction={updateCommentAction.bind(null, id)}
               deleteAction={deleteCommentAction.bind(null, id)}
               reportAction={createReportAction.bind(null, id)}
+              replyAction={createCommentAction.bind(null, id)}
               signedIn={Boolean(currentMember)}
             />
           ) : (

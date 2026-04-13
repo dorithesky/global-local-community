@@ -107,6 +107,7 @@ function buildCommentSelect(flags: { hasDeletedAt: boolean; hasDeletedBy: boolea
   if (flags.hasUpdatedAt) fields.push('updated_at');
   if (flags.hasDeletedAt) fields.push('deleted_at');
   if (flags.hasDeletedBy) fields.push('deleted_by');
+  fields.push('parent_comment_id', 'root_comment_id', 'depth', 'reply_count');
   return fields.join(', ');
 }
 
@@ -121,6 +122,11 @@ function normalizeCommentRow(row: Record<string, unknown>, author: Profile, memb
     deletedAt,
     canEdit: Boolean(!deletedAt && memberId && memberId === String(row.author_id)),
     author,
+    parentCommentId: row.parent_comment_id ? String(row.parent_comment_id) : undefined,
+    rootCommentId: row.root_comment_id ? String(row.root_comment_id) : undefined,
+    depth: typeof row.depth === 'number' ? row.depth : Number(row.depth ?? 0),
+    replyCount: typeof row.reply_count === 'number' ? row.reply_count : Number(row.reply_count ?? 0),
+    replies: [],
   };
 }
 
@@ -251,17 +257,18 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
 
   if (post.id.startsWith('post-')) {
     const comments = getCommentsByPostId(id);
+    const topLevelComments = comments.filter((comment) => (comment.depth ?? 0) === 0);
     return {
       post: {
         ...post,
         commentsCount: comments.length,
       },
-      comments,
+      comments: topLevelComments,
       debug: {
         postId: id,
         source: 'mock',
         liveCommentCount: comments.length,
-        renderedCommentCount: comments.length,
+        renderedCommentCount: topLevelComments.length,
       },
     };
   }
@@ -344,18 +351,35 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   });
 
   const safeComments = comments.filter((comment) => Boolean(comment.id && comment.postId));
+  const topLevelComments = safeComments.filter((comment) => (comment.depth ?? 0) === 0);
+  const replyMap = new Map<string, CommentRecord[]>();
+
+  safeComments
+    .filter((comment) => (comment.depth ?? 0) === 1 && comment.parentCommentId)
+    .forEach((comment) => {
+      const key = comment.parentCommentId as string;
+      const existingReplies = replyMap.get(key) ?? [];
+      existingReplies.push(comment);
+      replyMap.set(key, existingReplies);
+    });
+
+  const threadedComments = topLevelComments.map((comment) => ({
+    ...comment,
+    replies: replyMap.get(comment.id) ?? [],
+    replyCount: comment.replyCount ?? (replyMap.get(comment.id)?.length ?? 0),
+  }));
 
   return {
     post: {
       ...post,
       commentsCount: count ?? safeComments.length,
     },
-    comments: safeComments,
+    comments: threadedComments,
     debug: {
       postId: id,
       source: 'live',
       liveCommentCount: count ?? safeComments.length,
-      renderedCommentCount: safeComments.length,
+      renderedCommentCount: threadedComments.length,
       rawRowCount: commentRows.length,
       relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
     },

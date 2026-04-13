@@ -74,6 +74,21 @@ export const comments: CommentRecord[] = [
     author: profiles[1],
     body: 'I toured a similar place last week. Happy to share the broker contact if you still need it, and I can tell you what the maintenance fee really covered.',
     createdAt: subHours(new Date(), 2).toISOString(),
+    depth: 0,
+    replyCount: 1,
+    rootCommentId: 'comment-1',
+    replies: [
+      {
+        id: 'comment-1-reply-1',
+        postId: 'post-1',
+        author: profiles[0],
+        body: 'Yes please, especially if they were clear about maintenance and key money timing.',
+        createdAt: subHours(new Date(), 1).toISOString(),
+        depth: 1,
+        parentCommentId: 'comment-1',
+        rootCommentId: 'comment-1',
+      },
+    ],
   },
   {
     id: 'comment-2',
@@ -81,6 +96,10 @@ export const comments: CommentRecord[] = [
     author: profiles[2],
     body: 'Ask whether maintenance includes heating and building internet. That part surprised me on my last contract in Busan.',
     createdAt: subHours(new Date(), 4).toISOString(),
+    depth: 0,
+    replyCount: 0,
+    rootCommentId: 'comment-2',
+    replies: [],
   },
 ];
 

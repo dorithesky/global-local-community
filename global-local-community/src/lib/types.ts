@@ -50,6 +50,11 @@ export interface CommentRecord {
   deletedAt?: string;
   deletedBy?: Profile;
   canEdit?: boolean;
+  parentCommentId?: string;
+  rootCommentId?: string;
+  depth?: number;
+  replyCount?: number;
+  replies?: CommentRecord[];
 }
 
 export interface CommentEventRecord {
