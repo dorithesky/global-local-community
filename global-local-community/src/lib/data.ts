@@ -79,6 +79,55 @@ function applyFeedSort(posts: PostRecord[], filters?: { query?: string | null; s
   return [...posts].sort((a, b) => score(b) - score(a) || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
+async function getCommentsSchemaFlags() {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) {
+    return {
+      hasDeletedAt: false,
+      hasDeletedBy: false,
+      hasUpdatedAt: true,
+    };
+  }
+
+  const { error } = await supabase.from('comments').select('deleted_at, deleted_by, updated_at').limit(1);
+  if (!error) {
+    return {
+      hasDeletedAt: true,
+      hasDeletedBy: true,
+      hasUpdatedAt: true,
+    };
+  }
+
+  const message = error.message ?? '';
+  return {
+    hasDeletedAt: !message.includes('deleted_at'),
+    hasDeletedBy: !message.includes('deleted_by'),
+    hasUpdatedAt: !message.includes('updated_at'),
+  };
+}
+
+function buildCommentSelect(flags: { hasDeletedAt: boolean; hasDeletedBy: boolean; hasUpdatedAt: boolean }) {
+  const fields = ['id', 'post_id', 'body', 'created_at', 'author_id'];
+  if (flags.hasUpdatedAt) fields.push('updated_at');
+  if (flags.hasDeletedAt) fields.push('deleted_at');
+  if (flags.hasDeletedBy) fields.push('deleted_by');
+  return fields.join(', ');
+}
+
+function normalizeCommentRow(row: Record<string, unknown>, author: Profile, memberId?: string | null): CommentRecord {
+  const deletedAt = row.deleted_at ? String(row.deleted_at) : undefined;
+  return {
+    id: String(row.id),
+    postId: String(row.post_id),
+    body: deletedAt ? `Comment deleted by @${author.username}` : String(row.body ?? ''),
+    createdAt: String(row.created_at),
+    updatedAt: row.updated_at ? String(row.updated_at) : String(row.created_at),
+    deletedAt,
+    canEdit: Boolean(!deletedAt && memberId && memberId === String(row.author_id)),
+    author,
+  };
+}
+
 export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
@@ -241,11 +290,14 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
+  const flags = await getCommentsSchemaFlags();
+  const commentSelect = buildCommentSelect(flags);
+
   const [{ count }, { data: rows, error }, { data: memberCommentRows }] = await Promise.all([
     supabase.from('comments').select('*', { count: 'exact', head: true }).eq('post_id', id),
     supabase
       .from('comments')
-      .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
+      .select(commentSelect)
       .eq('post_id', id)
       .order('created_at', { ascending: true }),
     member ? supabase.from('comments').select('post_id').eq('author_id', member.id).order('created_at', { ascending: false }).limit(10) : Promise.resolve({ data: [] }),
@@ -273,7 +325,8 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
     };
   }
 
-  const authorIds = [...new Set(rows.map((row) => row.author_id).filter(Boolean))];
+  const commentRows = rows as unknown as Array<Record<string, unknown>>;
+  const authorIds = [...new Set(commentRows.map((row) => row.author_id).filter(Boolean))];
   const { data: profilesData } = authorIds.length
     ? await supabase
         .from('profiles')
@@ -283,7 +336,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
 
   const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
 
-  const comments = rows.map((row) => {
+  const comments = commentRows.map((row) => {
     const author = profileMap.get(row.author_id) ?? {
       id: String(row.author_id),
       username: `member-${String(row.author_id).slice(0, 6)}`,
@@ -291,16 +344,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
       city: 'Daegu',
     };
 
-    return {
-      id: row.id,
-      postId: row.post_id,
-      body: row.deleted_at ? `Comment deleted by @${author.username}` : row.body,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      deletedAt: row.deleted_at ?? undefined,
-      canEdit: Boolean(!row.deleted_at && member && member.id === row.author_id),
-      author,
-    };
+    return normalizeCommentRow(row, author, member?.id ?? null);
   });
 
   const safeComments = comments.filter((comment) => Boolean(comment.id && comment.postId));
@@ -316,7 +360,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
       source: 'live',
       liveCommentCount: count ?? safeComments.length,
       renderedCommentCount: safeComments.length,
-      rawRowCount: rows.length,
+      rawRowCount: commentRows.length,
       relatedCommentPostIds: (memberCommentRows ?? []).map((row) => row.post_id),
     },
   };
@@ -356,9 +400,10 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     }));
   }
 
+  const flags = await getCommentsSchemaFlags();
   const { data, error } = await supabase
     .from('comments')
-    .select('id, post_id, body, created_at, updated_at, deleted_at, deleted_by, author_id')
+    .select(buildCommentSelect(flags))
     .eq('post_id', postId)
     .order('created_at', { ascending: true });
 
@@ -366,7 +411,8 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     return [];
   }
 
-  const authorIds = [...new Set(data.map((row) => row.author_id).filter(Boolean))];
+  const commentRows = data as unknown as Array<Record<string, unknown>>;
+  const authorIds = [...new Set(commentRows.map((row) => row.author_id).filter(Boolean))];
   const { data: profilesData } = authorIds.length
     ? await supabase
         .from('profiles')
@@ -376,7 +422,7 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
 
   const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
 
-  return data.map((row) => {
+  return commentRows.map((row) => {
     const author = profileMap.get(row.author_id) ?? {
       id: String(row.author_id),
       username: `member-${String(row.author_id).slice(0, 6)}`,
@@ -384,16 +430,7 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
       city: 'Daegu',
     };
 
-    return {
-      id: row.id,
-      postId: row.post_id,
-      body: row.deleted_at ? `Comment deleted by @${author.username}` : row.body,
-      createdAt: row.created_at,
-      updatedAt: row.updated_at,
-      deletedAt: row.deleted_at ?? undefined,
-      canEdit: Boolean(!row.deleted_at && member && member.id === row.author_id),
-      author,
-    };
+    return normalizeCommentRow(row, author, member?.id ?? null);
   });
 }
 
@@ -477,9 +514,10 @@ export async function getUserComments(): Promise<CommentRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
 
+  const flags = await getCommentsSchemaFlags();
   const { data, error } = await supabase
     .from('comments')
-    .select('id, post_id, body, created_at, updated_at, author_id')
+    .select(buildCommentSelect(flags))
     .eq('author_id', member.id)
     .order('created_at', { ascending: false });
 
@@ -501,15 +539,8 @@ export async function getUserComments(): Promise<CommentRecord[]> {
         avatarUrl: member.avatarUrl,
       };
 
-  return data.map((row) => ({
-    id: row.id,
-    postId: row.post_id,
-    body: row.body,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    canEdit: true,
-    author,
-  }));
+  const commentRows = data as unknown as Array<Record<string, unknown>>;
+  return commentRows.map((row) => normalizeCommentRow(row, author, member.id));
 }
 
 export async function canCurrentMemberManageComment(commentId: string) {
@@ -570,6 +601,7 @@ export async function getAdminModerationView() {
 
   const postIds = (reportsData ?? []).map((report) => report.post_id).filter(Boolean);
   const commentIds = (reportsData ?? []).map((report) => report.comment_id).filter(Boolean);
+  const flags = await getCommentsSchemaFlags();
   const [reportedPosts, reportedComments] = await Promise.all([
     postIds.length
       ? supabase
@@ -580,13 +612,15 @@ export async function getAdminModerationView() {
     commentIds.length
       ? supabase
           .from('comments')
-          .select('id, post_id, author_id, body, created_at, updated_at, deleted_at')
+          .select(buildCommentSelect(flags))
           .in('id', commentIds)
       : Promise.resolve({ data: [] }),
   ]);
 
-  const reportedPostMap = new Map((reportedPosts.data ?? []).map((post) => [post.id, post]));
-  const reportedCommentMap = new Map((reportedComments.data ?? []).map((comment) => [comment.id, comment]));
+  const reportedPostRows = (reportedPosts.data ?? []) as unknown as Array<Record<string, unknown>>;
+  const reportedCommentRows = (reportedComments.data ?? []) as unknown as Array<Record<string, unknown>>;
+  const reportedPostMap = new Map(reportedPostRows.map((post) => [String(post.id), post]));
+  const reportedCommentMap = new Map(reportedCommentRows.map((comment) => [String(comment.id), comment]));
 
   const commentHistory = await getCommentHistoryForAdmin();
 
