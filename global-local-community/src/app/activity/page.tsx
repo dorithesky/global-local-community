@@ -1,9 +1,17 @@
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getCurrentMember } from '@/lib/auth';
 import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getSavedPosts, getUserCommentedPosts, getUserComments, getUserLikedPosts } from '@/lib/data';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ActivityPage() {
   markSensitiveRoute();

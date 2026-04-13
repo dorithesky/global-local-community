@@ -96,7 +96,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </div>
         <details className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm leading-6 text-slate-600">
           <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-slate-900">
-            <span>Moderation notes</span>
+            <span>Content classification</span>
             <ChevronDown className="h-4 w-4" />
           </summary>
           <div className="mt-3 space-y-1">

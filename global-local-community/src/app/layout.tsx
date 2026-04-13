@@ -9,6 +9,10 @@ import { validateServerEnv } from '@/lib/env';
 export const metadata: Metadata = {
   title: 'Global Local Community',
   description: 'A high-signal community platform for foreigners living in Korea.',
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

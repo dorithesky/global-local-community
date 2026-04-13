@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
@@ -7,6 +8,13 @@ import { PostCard } from '@/components/post-card';
 import { RoleBadge } from '@/components/role-badge';
 import { getCurrentMember } from '@/lib/auth';
 import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   noStore();

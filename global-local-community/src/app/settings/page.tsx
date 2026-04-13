@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
@@ -6,6 +7,13 @@ import { ThemeToggle } from '@/components/theme-toggle';
 import { getCurrentMember } from '@/lib/auth';
 import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getAccountSettings } from '@/lib/settings';
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function SettingsPage({ searchParams }: { searchParams?: Promise<{ onboarding?: string }> }) {
   markSensitiveRoute();
