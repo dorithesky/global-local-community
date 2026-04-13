@@ -35,8 +35,8 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
     <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader
         eyebrow={onboarding ? 'Welcome' : 'Settings'}
-        title={onboarding ? 'Finish your onboarding' : 'Settings'}
-        description={onboarding ? 'Complete your profile so the product can show the right city context, member identity, and relevant community needs from the start.' : 'Manage notifications, consent, appearance, and account controls here. Public identity now lives on your profile.'}
+        title={onboarding ? 'Complete your profile' : 'Settings'}
+        description={onboarding ? 'Add the basics so the feed and identity make sense from day one.' : 'Manage notifications, consent, appearance, and account controls here. Public identity lives on your profile.'}
       />
       {!onboarding ? (
         <section className="rounded-3xl border border-slate-200 bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">
@@ -54,11 +54,11 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
       ) : null}
       {onboarding ? (
         <section className="rounded-3xl border border-sky-200 bg-[var(--surface-premium)] p-4 text-sm text-[var(--text-primary)] shadow-sm sm:p-5">
-          <p className="font-semibold">Start here</p>
+          <p className="font-semibold">Quick setup</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 leading-6">
-            <li>Set your city, occupation, and origin so your profile reads like a real member identity.</li>
-            <li>Choose your life stage and immediate need so the community can route you into the right conversations.</li>
-            <li>Save this page, then go to the <Link href="/feed" className="font-medium text-sky-700 underline underline-offset-4">feed</Link> or <Link href="/create" className="font-medium text-sky-700 underline underline-offset-4">ask your first question</Link>.</li>
+            <li>Add your city, occupation, and origin.</li>
+            <li>Choose your life stage and current need.</li>
+            <li>Save, then go to the <Link href="/feed" className="font-medium text-sky-700 underline underline-offset-4">feed</Link> or <Link href="/create" className="font-medium text-sky-700 underline underline-offset-4">ask a question</Link>.</li>
           </ol>
         </section>
       ) : null}

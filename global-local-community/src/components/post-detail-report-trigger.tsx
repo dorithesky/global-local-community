@@ -32,7 +32,7 @@ export function PostDetailReportTrigger({ action, signedIn }: { action: (state: 
         onClose={() => setOpen(false)}
         action={action}
         title="Report post"
-        description="Let moderators know what feels unsafe, misleading, abusive, or out of place."
+        description="Tell moderators what is wrong with this post."
         targetLabel="Why are you reporting this post?"
       />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />

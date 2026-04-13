@@ -32,7 +32,7 @@ export function CommentReportButton({ action, commentId, signedIn }: { action: (
         onClose={() => setOpen(false)}
         action={action}
         title="Report comment"
-        description="Send a private moderation report without disrupting the conversation layout."
+        description="Tell moderators what is wrong with this comment."
         targetLabel="Why are you reporting this comment?"
       >
         <input type="hidden" name="commentId" value={commentId} />
