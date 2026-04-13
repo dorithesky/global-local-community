@@ -39,7 +39,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
       },
     });
 
@@ -81,12 +81,12 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/settings?onboarding=1`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/settings?onboarding=1&fromSignup=1`,
         },
       });
 
       setBusy(false);
-      setMessage(error ? error.message : 'Account created. Check your email for the confirmation link, then finish your onboarding in settings. Authentication events will be logged after callback/login completes.');
+      setMessage(error ? error.message : 'Account created. Check your email for the confirmation link, then finish setup after your first sign-in.');
       if (!error) {
         router.refresh();
         onSuccess?.();
@@ -98,7 +98,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed`,
         },
       });
 

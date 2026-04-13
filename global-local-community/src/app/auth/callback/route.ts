@@ -3,9 +3,9 @@ import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 function getSafeNextPath(next: string | null) {
-  if (!next) return '/settings?onboarding=1';
-  if (!next.startsWith('/')) return '/settings?onboarding=1';
-  if (next.startsWith('//')) return '/settings?onboarding=1';
+  if (!next) return '/feed';
+  if (!next.startsWith('/')) return '/feed';
+  if (next.startsWith('//')) return '/feed';
   return next;
 }
 
