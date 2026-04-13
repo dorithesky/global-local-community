@@ -12,8 +12,6 @@ export default async function HomePage() {
     getFeedPosts(),
     member ? getAccountSettings() : Promise.resolve(null),
   ]);
-  const activeMembers = posts.filter((post) => post.author.onboardingCompleted).length;
-  const visibleCities = new Set(posts.map((post) => post.city).filter(Boolean)).size;
   const recommendedCategory = accountSettings?.profile.immediateNeed || null;
 
   return (
@@ -64,30 +62,20 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <section className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-3xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/60 p-4 shadow-sm sm:p-6">
-              <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Snapshot</p>
-              <div className="mt-3 space-y-3 text-sm text-slate-600">
-                <p><span className="font-semibold text-slate-900">{activeMembers}</span> active member profiles</p>
-                <p><span className="font-semibold text-slate-900">{posts.length}</span> live posts</p>
-                <p><span className="font-semibold text-slate-900">{visibleCities}</span> city buckets</p>
+          <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/60 p-4 shadow-sm sm:p-6">
+            <p className="text-xs uppercase tracking-[0.24em] text-sky-700">How it works</p>
+            <div className="mt-3 grid gap-3 md:grid-cols-3">
+              <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
+                <p className="text-sm font-semibold text-slate-900">Browse</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">See what people need help with now.</p>
               </div>
-            </div>
-            <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/60 p-4 shadow-sm sm:p-6 md:col-span-2">
-              <p className="text-xs uppercase tracking-[0.24em] text-sky-700">How to use it</p>
-              <div className="mt-3 grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
-                  <p className="text-sm font-semibold text-slate-900">Browse</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">See what people need help with now.</p>
-                </div>
-                <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
-                  <p className="text-sm font-semibold text-slate-900">Set context</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">Add city and current need.</p>
-                </div>
-                <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
-                  <p className="text-sm font-semibold text-slate-900">Ask clearly</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">Specific questions get better answers.</p>
-                </div>
+              <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
+                <p className="text-sm font-semibold text-slate-900">Set context</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Add your city and current need.</p>
+              </div>
+              <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
+                <p className="text-sm font-semibold text-slate-900">Ask clearly</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Specific questions get better answers.</p>
               </div>
             </div>
           </section>
