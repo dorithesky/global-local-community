@@ -89,20 +89,16 @@ async function getCommentsSchemaFlags() {
     };
   }
 
-  const { error } = await supabase.from('comments').select('deleted_at, deleted_by, updated_at').limit(1);
-  if (!error) {
-    return {
-      hasDeletedAt: true,
-      hasDeletedBy: true,
-      hasUpdatedAt: true,
-    };
-  }
+  const checks = await Promise.all([
+    supabase.from('comments').select('deleted_at').limit(1),
+    supabase.from('comments').select('deleted_by').limit(1),
+    supabase.from('comments').select('updated_at').limit(1),
+  ]);
 
-  const message = error.message ?? '';
   return {
-    hasDeletedAt: !message.includes('deleted_at'),
-    hasDeletedBy: !message.includes('deleted_by'),
-    hasUpdatedAt: !message.includes('updated_at'),
+    hasDeletedAt: !checks[0].error,
+    hasDeletedBy: !checks[1].error,
+    hasUpdatedAt: !checks[2].error,
   };
 }
 
