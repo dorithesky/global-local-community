@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 
 type ThemeMode = 'light' | 'dark' | 'system';
 type ResolvedTheme = 'light' | 'dark';
@@ -8,6 +8,7 @@ type ResolvedTheme = 'light' | 'dark';
 type ThemeContextValue = {
   theme: ThemeMode;
   resolvedTheme: ResolvedTheme;
+  mounted: boolean;
   setTheme: (theme: ThemeMode) => void;
 };
 
@@ -26,6 +27,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const saved = window.localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
     return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'system';
   });
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>('light');
 
   useEffect(() => {
@@ -52,11 +58,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<ThemeContextValue>(() => ({
     theme,
     resolvedTheme,
+    mounted,
     setTheme: (nextTheme: ThemeMode) => {
       setThemeState(nextTheme);
       window.localStorage.setItem(STORAGE_KEY, nextTheme);
     },
-  }), [theme, resolvedTheme]);
+  }), [mounted, theme, resolvedTheme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
