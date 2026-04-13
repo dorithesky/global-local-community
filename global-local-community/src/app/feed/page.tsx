@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
-import { PostCard } from '@/components/post-card';
 import { FeedFilters } from '@/components/feed-filters';
+import { PaginatedPostList } from '@/components/paginated-post-list';
 import { getFeedPosts } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
 import { getAccountSettings } from '@/lib/settings';
@@ -39,13 +39,11 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
         </section>
       ) : null}
       <FeedFilters />
-      {posts.length ? posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      )) : (
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 text-sm leading-6 text-slate-600 shadow-sm sm:p-8">
-          No posts matched those filters yet. Try a broader city, category, or search phrase.
-        </section>
-      )}
+      <PaginatedPostList
+        posts={posts}
+        pageSize={10}
+        emptyMessage="No posts matched those filters yet. Try a broader city, category, or search phrase."
+      />
     </div>
   );
 }

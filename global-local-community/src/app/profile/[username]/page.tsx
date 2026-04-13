@@ -4,7 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
-import { PostCard } from '@/components/post-card';
+import { PaginatedPostList } from '@/components/paginated-post-list';
 import { RoleBadge } from '@/components/role-badge';
 import { getCurrentMember } from '@/lib/auth';
 import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
@@ -121,9 +121,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       ) : null}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Posts</h2>
-        {authoredPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
+        <PaginatedPostList posts={authoredPosts} pageSize={10} emptyMessage="No posts yet." />
       </section>
 
       {viewerIsMember ? (

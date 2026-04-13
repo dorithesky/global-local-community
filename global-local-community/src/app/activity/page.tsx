@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
-import { PostCard } from '@/components/post-card';
+import { PaginatedPostList } from '@/components/paginated-post-list';
 import { getCurrentMember } from '@/lib/auth';
 import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getSavedPosts, getUserCommentedPosts, getUserComments, getUserLikedPosts } from '@/lib/data';
@@ -60,17 +60,17 @@ export default async function ActivityPage() {
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Saved posts</h2>
-        {savedPosts.length ? savedPosts.map((post) => <PostCard key={`saved-${post.id}`} post={post} />) : <EmptyState text="Nothing saved yet." />}
+        <PaginatedPostList posts={savedPosts} pageSize={10} emptyMessage="Nothing saved yet." />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Liked posts</h2>
-        {likedPosts.length ? likedPosts.map((post) => <PostCard key={`liked-${post.id}`} post={post} />) : <EmptyState text="No liked posts yet." />}
+        <PaginatedPostList posts={likedPosts} pageSize={10} emptyMessage="No liked posts yet." />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Commented posts</h2>
-        {commentedPosts.length ? commentedPosts.map((post) => <PostCard key={`commented-${post.id}`} post={post} />) : <EmptyState text="No commented posts yet." />}
+        <PaginatedPostList posts={commentedPosts} pageSize={10} emptyMessage="No commented posts yet." />
       </section>
 
       <section className="space-y-4">
