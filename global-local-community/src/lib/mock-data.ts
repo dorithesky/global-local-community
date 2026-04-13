@@ -87,6 +87,7 @@ export const comments: CommentRecord[] = [
         depth: 1,
         parentCommentId: 'comment-1',
         rootCommentId: 'comment-1',
+        replyTarget: profiles[1],
       },
     ],
   },

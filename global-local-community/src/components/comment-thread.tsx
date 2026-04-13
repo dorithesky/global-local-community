@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { MessageSquareReply } from 'lucide-react';
+import { ChevronDown, MessageSquareReply } from 'lucide-react';
 import { CommentReportButton } from '@/components/comment-report-button';
 import { AuthModal } from '@/components/auth-modal';
 import { CommentForm } from '@/components/post-engagement-forms';
@@ -32,11 +32,13 @@ function CommentCard({
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [replying, setReplying] = useState(false);
-  const [repliesExpanded, setRepliesExpanded] = useState(true);
+  const [repliesExpanded, setRepliesExpanded] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const isEditing = editingId === comment.id;
   const replies = comment.replies ?? [];
   const replyCount = comment.replyCount ?? replies.length;
+  const previewReplies = repliesExpanded ? replies : replies.slice(0, 2);
+  const hasHiddenReplies = replies.length > previewReplies.length;
 
   return (
     <div className={`rounded-2xl ${isReply ? 'border border-slate-200 bg-white' : 'bg-slate-50'} p-4 sm:p-5`}>
@@ -83,6 +85,9 @@ function CommentCard({
             </form>
           ) : (
             <>
+              {isReply && comment.replyTarget ? (
+                <p className="mt-2 text-xs font-medium uppercase tracking-[0.16em] text-sky-700">Replying to {comment.replyTarget.displayName}</p>
+              ) : null}
               <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
               <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-4">
                 {comment.canEdit ? (
@@ -94,7 +99,7 @@ function CommentCard({
                     </form>
                   </>
                 ) : (
-                  <p className="text-xs leading-5 text-slate-400">Only the author can edit or delete this reply.</p>
+                  <p className="text-xs leading-5 text-slate-400">Only the author can edit or delete this {isReply ? 'reply' : 'comment'}.</p>
                 )}
                 {!isReply ? (
                   <button
@@ -118,35 +123,49 @@ function CommentCard({
 
           {!isReply && replying ? (
             <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-3 sm:p-4">
-              <p className="mb-3 text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Replying to {comment.author.displayName}</p>
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Replying to {comment.author.displayName}</p>
+                  <p className="mt-1 text-xs text-slate-400">Replies stay one level deep to keep threads readable.</p>
+                </div>
+                <button type="button" onClick={() => setReplying(false)} className="text-xs font-medium text-slate-500 hover:text-slate-900">Cancel</button>
+              </div>
               <CommentForm action={replyAction} compact parentCommentId={comment.id} submitLabel="Post reply" pendingLabel="Posting reply..." label="Write a reply" placeholder={`Reply to ${comment.author.displayName} with something useful and specific.`} />
             </div>
           ) : null}
 
           {!isReply && replyCount > 0 ? (
-            <div className="mt-4 border-l border-slate-200 pl-4 sm:pl-5">
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-3 sm:p-4">
               <button
                 type="button"
                 onClick={() => setRepliesExpanded((value) => !value)}
-                className="mb-3 text-xs font-medium text-sky-700 hover:text-sky-800"
+                className="flex w-full items-center justify-between gap-3 rounded-2xl px-1 py-1 text-left text-xs font-medium text-sky-700 hover:text-sky-800"
               >
-                {repliesExpanded ? 'Hide replies' : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}
+                <span>{repliesExpanded ? `Hide replies` : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}</span>
+                <ChevronDown className={`h-4 w-4 transition ${repliesExpanded ? 'rotate-180' : ''}`} />
               </button>
-              {repliesExpanded ? (
-                <div className="space-y-3">
-                  {replies.map((reply) => (
-                    <CommentCard
-                      key={reply.id}
-                      comment={reply}
-                      updateAction={updateAction}
-                      deleteAction={deleteAction}
-                      reportAction={reportAction}
-                      replyAction={replyAction}
-                      signedIn={signedIn}
-                      isReply
-                    />
-                  ))}
-                </div>
+              <div className="mt-3 space-y-3">
+                {previewReplies.map((reply) => (
+                  <CommentCard
+                    key={reply.id}
+                    comment={reply}
+                    updateAction={updateAction}
+                    deleteAction={deleteAction}
+                    reportAction={reportAction}
+                    replyAction={replyAction}
+                    signedIn={signedIn}
+                    isReply
+                  />
+                ))}
+              </div>
+              {!repliesExpanded && hasHiddenReplies ? (
+                <button
+                  type="button"
+                  onClick={() => setRepliesExpanded(true)}
+                  className="mt-3 text-xs font-medium text-sky-700 hover:text-sky-800"
+                >
+                  Show {replies.length - previewReplies.length} more
+                </button>
               ) : null}
             </div>
           ) : null}

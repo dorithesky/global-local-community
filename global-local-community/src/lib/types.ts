@@ -55,6 +55,7 @@ export interface CommentRecord {
   depth?: number;
   replyCount?: number;
   replies?: CommentRecord[];
+  replyTarget?: Profile;
 }
 
 export interface CommentEventRecord {

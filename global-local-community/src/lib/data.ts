@@ -363,11 +363,17 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
       replyMap.set(key, existingReplies);
     });
 
-  const threadedComments = topLevelComments.map((comment) => ({
-    ...comment,
-    replies: replyMap.get(comment.id) ?? [],
-    replyCount: comment.replyCount ?? (replyMap.get(comment.id)?.length ?? 0),
-  }));
+  const threadedComments = topLevelComments.map((comment) => {
+    const replies = replyMap.get(comment.id) ?? [];
+    return {
+      ...comment,
+      replies: replies.map((reply) => ({
+        ...reply,
+        replyTarget: comment.author,
+      })),
+      replyCount: comment.replyCount ?? replies.length,
+    };
+  });
 
   return {
     post: {
