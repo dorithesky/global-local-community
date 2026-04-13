@@ -55,17 +55,30 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen overflow-x-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
       <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl flex-col gap-2.5 px-4 py-2.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="overflow-hidden rounded-2xl shadow-sm">
-              <Image src="/living-in-korea-logo.svg" alt="Living In Korea logo" width={44} height={44} className="h-10 w-10 shrink-0 sm:h-11 sm:w-11" priority />
+        <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-2.5 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-3">
+          <div className="flex items-start justify-between gap-3 sm:items-center">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="overflow-hidden rounded-2xl shadow-sm">
+                <Image src="/living-in-korea-logo.svg" alt="Living In Korea logo" width={44} height={44} className="h-10 w-10 shrink-0 sm:h-11 sm:w-11" priority />
+              </div>
+              <div className="min-w-0">
+                <h1 className="truncate text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)] sm:text-sm">Living In Korea</h1>
+                <p className="truncate text-sm font-medium leading-5 text-[var(--text-primary)]">English-first support for building life in Korea</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)]">Living In Korea</p>
-              <h1 className="truncate text-sm font-semibold leading-5 text-[var(--text-primary)]">Practical help for life in Korea</h1>
+            <div className="flex items-center gap-2 sm:hidden">
+              <ThemeToggle compact />
+              {member ? (
+                <>
+                  <SessionPill />
+                  <SignOutButton />
+                </>
+              ) : (
+                <HeaderAuthControls signedInContent={<></>} />
+              )}
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="hidden flex-wrap items-center gap-2 sm:flex">
             <ThemeToggle compact />
             {member ? (
               <>
