@@ -17,7 +17,7 @@ export default async function HomePage() {
   return (
     <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       {member ? (
-        <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/60 p-4 shadow-sm sm:p-6">
+        <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Home</p>
@@ -38,7 +38,7 @@ export default async function HomePage() {
             </div>
           </div>
           {!accountSettings?.profile.immediateNeed || !accountSettings?.profile.occupation ? (
-            <div className="mt-4 rounded-2xl border border-sky-200 bg-white/75 p-4 text-sm text-sky-950 shadow-sm">
+            <div className="mt-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-4 text-sm text-[var(--text-primary)] shadow-sm">
               <p>Finish your profile to sharpen the feed.</p>
               <Link href="/settings?onboarding=1" className="mt-2 inline-flex font-medium text-sky-700 underline underline-offset-4">Complete setup</Link>
             </div>
@@ -46,7 +46,7 @@ export default async function HomePage() {
         </section>
       ) : (
         <>
-          <section className="rounded-3xl bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/70 p-4 shadow-sm ring-1 ring-sky-100 sm:p-6">
+          <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
             <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Living In Korea</p>
             <h1 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl">Practical help for foreigners building life in Korea.</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
@@ -62,7 +62,7 @@ export default async function HomePage() {
             </div>
           </section>
 
-          <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/60 p-4 shadow-sm sm:p-6">
+          <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
             <p className="text-xs uppercase tracking-[0.24em] text-sky-700">How it works</p>
             <div className="mt-3 grid gap-3 md:grid-cols-3">
               <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
@@ -94,7 +94,7 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <section className="rounded-3xl border border-sky-100 bg-gradient-to-r from-white to-sky-50/50 p-4 shadow-sm sm:p-6">
+      <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Next step</p>

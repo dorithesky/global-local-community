@@ -10,8 +10,8 @@ import { PostImages } from '@/components/post-images';
 
 export function PostCard({ post }: { post: PostRecord }) {
   return (
-    <article className="overflow-hidden rounded-3xl border border-sky-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-5 lg:p-6">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <article className="overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4.5 lg:p-5">
+      <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0 flex-1">
           <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
             {post.author.avatarUrl ? (
@@ -33,7 +33,7 @@ export function PostCard({ post }: { post: PostRecord }) {
               </p>
             </div>
           </Link>
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-2.5 flex flex-wrap gap-2">
             <span className="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-800">{post.category}</span>
             {post.author.city ? <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">{post.author.city}</span> : null}
             {post.author.occupation ? <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">{post.author.occupation}</span> : null}
@@ -45,8 +45,8 @@ export function PostCard({ post }: { post: PostRecord }) {
       </div>
 
       <Link href={`/posts/${post.id}`} className="block">
-        <h2 className="text-lg font-semibold tracking-tight text-slate-950 sm:text-xl">{post.title}</h2>
-        <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600 sm:leading-7">{post.body}</p>
+        <h2 className="text-lg font-semibold tracking-tight text-slate-950 sm:text-[1.15rem]">{post.title}</h2>
+        <p className="mt-2.5 line-clamp-3 text-sm leading-6 text-slate-600">{post.body}</p>
         {post.imageUrls?.length ? (
           <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
             <span className="inline-flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> {post.imageUrls.length} image{post.imageUrls.length === 1 ? '' : 's'}</span>
@@ -56,14 +56,14 @@ export function PostCard({ post }: { post: PostRecord }) {
       </Link>
 
       {post.tags.length ? (
-        <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+        <div className="mt-3.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
           {post.tags.slice(0, 3).map((tag) => (
             <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1">#{tag}</span>
           ))}
         </div>
       ) : null}
 
-      <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-3.5 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <FeedLikeButton action={toggleLikeAction.bind(null, post.id)} active={Boolean(post.liked)} count={post.likesCount} />
           <FeedBookmarkButton action={toggleBookmarkAction.bind(null, post.id)} active={Boolean(post.bookmarked)} />

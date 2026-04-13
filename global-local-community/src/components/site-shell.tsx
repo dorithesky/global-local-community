@@ -62,7 +62,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-primary)] sm:text-[11px]">Living In Korea</p>
-              <h1 className="truncate text-sm font-semibold text-[var(--text-primary)] sm:text-base lg:text-lg">English-first support for building life in Korea</h1>
+              <h1 className="truncate text-sm font-semibold text-[var(--text-primary)] sm:text-base">Practical help for life in Korea</h1>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
@@ -81,10 +81,10 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-4 sm:px-6 sm:py-6">
-        <aside className="hidden w-72 shrink-0 xl:block">
-          <div className="space-y-4">
-            <nav className="rounded-3xl border border-[var(--border-strong)] bg-[var(--surface-primary)] p-3 shadow-sm">
+      <div className="mx-auto flex max-w-7xl gap-5 px-4 py-4 sm:px-6 sm:py-5">
+        <aside className="hidden w-64 shrink-0 xl:block">
+          <div className="space-y-3">
+            <nav className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-2.5 shadow-sm">
               {desktopNav.map((item) => {
                 const Icon = item.icon;
                 const tone = navTone(item.href);
@@ -93,7 +93,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
                     key={item.href}
                     href={item.href}
                     className={clsx(
-                      'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
+                      'flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-sm font-medium transition',
                       tone === 'graphite' && 'text-[var(--text-secondary)] hover:bg-slate-900 hover:text-white dark:hover:bg-slate-100',
                       tone === 'housing' && 'text-[var(--text-secondary)] hover:bg-sky-50 hover:text-sky-800 dark:hover:bg-sky-950/40 dark:hover:text-sky-200',
                       tone === 'jobs' && 'text-[var(--text-secondary)] hover:bg-indigo-50 hover:text-indigo-800 dark:hover:bg-indigo-950/40 dark:hover:text-indigo-200',
@@ -106,10 +106,10 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
                 );
               })}
             </nav>
-            <div className="rounded-3xl border border-[var(--border-strong)] bg-[var(--surface-premium)] p-5 shadow-sm">
-              <p className="text-sm font-semibold text-[var(--text-primary)]">Coverage</p>
-              <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
-                Korea-wide, with Seoul, Busan, Daegu, and flexible local areas supported in the posting flow.
+            <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm">
+              <p className="text-sm font-semibold text-[var(--text-primary)]">Korea-wide</p>
+              <p className="mt-1.5 text-sm leading-6 text-[var(--text-secondary)]">
+                Housing, jobs, daily life, and local questions.
               </p>
             </div>
           </div>
