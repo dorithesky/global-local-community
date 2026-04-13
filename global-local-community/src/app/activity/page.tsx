@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
-import { PaginatedPostList } from '@/components/paginated-post-list';
+import { ServerPaginatedPostList } from '@/components/server-paginated-post-list';
 import { getCurrentMember } from '@/lib/auth';
 import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getSavedPosts, getUserCommentedPosts, getUserComments, getUserLikedPosts } from '@/lib/data';
@@ -21,15 +21,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function ActivityPage() {
+export default async function ActivityPage({ searchParams }: { searchParams: Promise<{ savedPage?: string; likedPage?: string; commentedPage?: string }> }) {
   markSensitiveRoute();
   const member = await getCurrentMember();
   if (!member) redirect('/');
 
+  const params = await searchParams;
+  const savedPage = Math.max(Number.parseInt(params.savedPage ?? '1', 10) || 1, 1);
+  const likedPage = Math.max(Number.parseInt(params.likedPage ?? '1', 10) || 1, 1);
+  const commentedPage = Math.max(Number.parseInt(params.commentedPage ?? '1', 10) || 1, 1);
+
   const [savedPosts, likedPosts, commentedPosts, comments] = await Promise.all([
-    getSavedPosts(),
-    getUserLikedPosts(),
-    getUserCommentedPosts(),
+    getSavedPosts({ page: savedPage, limit: 10 }),
+    getUserLikedPosts({ page: likedPage, limit: 10 }),
+    getUserCommentedPosts({ page: commentedPage, limit: 10 }),
     getUserComments(),
   ]);
 
@@ -45,11 +50,11 @@ export default async function ActivityPage() {
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           <div>
             <p className="text-sm font-medium text-slate-900">Saved</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{savedPosts.length}</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-950">{savedPosts.total}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-slate-900">Liked</p>
-            <p className="mt-1 text-2xl font-semibold text-slate-950">{likedPosts.length}</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-950">{likedPosts.total}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-slate-900">Commented</p>
@@ -60,17 +65,17 @@ export default async function ActivityPage() {
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Saved posts</h2>
-        <PaginatedPostList posts={savedPosts} pageSize={10} emptyMessage="Nothing saved yet." />
+        <ServerPaginatedPostList posts={savedPosts.items} page={savedPosts.page} hasMore={savedPosts.hasMore} emptyMessage="Nothing saved yet." pageParam="savedPage" />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Liked posts</h2>
-        <PaginatedPostList posts={likedPosts} pageSize={10} emptyMessage="No liked posts yet." />
+        <ServerPaginatedPostList posts={likedPosts.items} page={likedPosts.page} hasMore={likedPosts.hasMore} emptyMessage="No liked posts yet." pageParam="likedPage" />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Commented posts</h2>
-        <PaginatedPostList posts={commentedPosts} pageSize={10} emptyMessage="No commented posts yet." />
+        <ServerPaginatedPostList posts={commentedPosts.items} page={commentedPosts.page} hasMore={commentedPosts.hasMore} emptyMessage="No commented posts yet." pageParam="commentedPage" />
       </section>
 
       <section className="space-y-4">

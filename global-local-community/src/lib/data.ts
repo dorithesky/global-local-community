@@ -57,6 +57,9 @@ function normalizePost(row: Record<string, unknown>, profile: Profile): PostReco
   };
 }
 
+const POST_SELECT = 'id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at, moderation_status';
+const PROFILE_SELECT = 'id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed';
+
 function applyFeedSort(posts: PostRecord[], filters?: { query?: string | null; sort?: string | null }) {
   const sort = filters?.sort ?? 'recent';
   const query = (filters?.query ?? '').trim().toLowerCase();
@@ -148,6 +151,55 @@ function normalizeCommentRow(
   };
 }
 
+async function enrichPosts(rows: Array<Record<string, unknown>>, options?: { memberId?: string | null; memberRoles?: string[]; viewerIsMember?: boolean }) {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase || !rows.length) return [];
+
+  const authorIds = [...new Set(rows.map((row) => String(row.author_id)).filter(Boolean))];
+  const postIds = rows.map((row) => String(row.id));
+  const [{ data: profilesData }, roleBadgeMap, { data: likesData }, { data: commentsData }, { data: bookmarksData }] = await Promise.all([
+    supabase.from('profiles').select(PROFILE_SELECT).in('id', authorIds),
+    getRoleBadgeMap(authorIds),
+    supabase.from('likes').select('post_id, user_id').in('post_id', postIds),
+    supabase.from('comments').select('post_id, id').in('post_id', postIds),
+    options?.memberId ? supabase.from('bookmarks').select('post_id').eq('user_id', options.memberId).in('post_id', postIds) : Promise.resolve({ data: [] }),
+  ]);
+
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row, roleBadgeMap.get(String(row.id)), { viewerIsMember: options?.viewerIsMember })]));
+  const likeCounts = new Map<string, number>();
+  const likedPostIds = new Set<string>();
+  const commentCounts = new Map<string, number>();
+  const bookmarkedPostIds = new Set((bookmarksData ?? []).map((row) => row.post_id));
+
+  (likesData ?? []).forEach((row) => {
+    likeCounts.set(row.post_id, (likeCounts.get(row.post_id) ?? 0) + 1);
+    if (options?.memberId && row.user_id === options.memberId) likedPostIds.add(row.post_id);
+  });
+
+  (commentsData ?? []).forEach((row) => {
+    commentCounts.set(row.post_id, (commentCounts.get(row.post_id) ?? 0) + 1);
+  });
+
+  return rows.map((row) => {
+    const author = profileMap.get(String(row.author_id)) ?? {
+      id: String(row.author_id),
+      username: 'unknown',
+      displayName: 'Unknown member',
+      city: String(row.city ?? 'Daegu'),
+    };
+
+    return {
+      ...normalizePost(row, author),
+      likesCount: likeCounts.get(String(row.id)) ?? 0,
+      commentsCount: commentCounts.get(String(row.id)) ?? 0,
+      bookmarked: bookmarkedPostIds.has(String(row.id)),
+      liked: likedPostIds.has(String(row.id)),
+      canEdit: options?.memberId === row.author_id,
+      canDelete: options?.memberId === row.author_id || canRoleDeleteAuthorContent(options?.memberRoles, author.badges),
+    };
+  });
+}
+
 async function getRoleBadgeMap(userIds: string[]) {
   const supabase = await getSupabaseServerClient();
   if (!supabase || !userIds.length) return new Map<string, Array<'admin' | 'moderator'>>();
@@ -177,7 +229,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
   const member = await getCurrentMember();
   let queryBuilder = supabase
     .from('posts')
-    .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at, moderation_status')
+    .select(POST_SELECT)
     .eq('moderation_status', 'published')
     .order('created_at', { ascending: false })
     .range(((filters?.page ?? 1) - 1) * (filters?.limit ?? 200), (((filters?.page ?? 1) - 1) * (filters?.limit ?? 200)) + (filters?.limit ?? 200) - 1);
@@ -191,52 +243,11 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
   if (error || !data?.length) return [];
 
-  const authorIds = [...new Set(data.map((row) => row.author_id))];
-  const postIds = data.map((row) => row.id);
-  const viewerIsMember = Boolean(member);
-  const [{ data: profilesData }, roleBadgeMap] = await Promise.all([
-    supabase
-      .from('profiles')
-      .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
-      .in('id', authorIds),
-    getRoleBadgeMap(authorIds.map(String)),
-  ]);
-
-  const [{ data: likesData }, { data: commentsData }, { data: bookmarksData }] = await Promise.all([
-    supabase.from('likes').select('post_id, user_id').in('post_id', postIds),
-    supabase.from('comments').select('post_id, id').in('post_id', postIds),
-    member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).in('post_id', postIds) : Promise.resolve({ data: [] }),
-  ]);
-
-  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row, roleBadgeMap.get(String(row.id)), { viewerIsMember })]));
-  const likeCounts = new Map<string, number>();
-  const likedPostIds = new Set<string>();
-  const commentCounts = new Map<string, number>();
-  const bookmarkedPostIds = new Set((bookmarksData ?? []).map((row) => row.post_id));
-
-  (likesData ?? []).forEach((row) => {
-    likeCounts.set(row.post_id, (likeCounts.get(row.post_id) ?? 0) + 1);
-    if (member && row.user_id === member.id) likedPostIds.add(row.post_id);
+  const normalized = await enrichPosts(data as Array<Record<string, unknown>>, {
+    memberId: member?.id ?? null,
+    memberRoles: member?.roles,
+    viewerIsMember: Boolean(member),
   });
-
-  (commentsData ?? []).forEach((row) => {
-    commentCounts.set(row.post_id, (commentCounts.get(row.post_id) ?? 0) + 1);
-  });
-
-  const normalized = data.map((row) => ({
-    ...normalizePost(row, profileMap.get(row.author_id) ?? {
-      id: String(row.author_id),
-      username: 'unknown',
-      displayName: 'Unknown member',
-      city: String(row.city ?? 'Daegu'),
-    }),
-    likesCount: likeCounts.get(row.id) ?? 0,
-    commentsCount: commentCounts.get(row.id) ?? 0,
-    bookmarked: bookmarkedPostIds.has(row.id),
-    liked: likedPostIds.has(row.id),
-    canEdit: member?.id === row.author_id,
-    canDelete: member?.id === row.author_id || canRoleDeleteAuthorContent(member?.roles, profileMap.get(row.author_id)?.badges),
-  }));
 
   return applyFeedSort(normalized, filters);
 }
@@ -470,9 +481,8 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   };
 }
 
-export async function getCategoryPosts(category: string): Promise<PostRecord[]> {
-  const feed = await getFeedPosts();
-  return feed.filter((post) => post.category === category);
+export async function getCategoryPosts(category: string, options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
+  return getPaginatedFeedPosts({ category, sort: 'recent', page: options?.page ?? 1, limit: options?.limit ?? 10 });
 }
 
 export async function getProfile(username: string): Promise<Profile | undefined> {
@@ -499,9 +509,39 @@ export async function getProfile(username: string): Promise<Profile | undefined>
   });
 }
 
-export async function getProfilePosts(username: string): Promise<PostRecord[]> {
-  const feed = await getFeedPosts();
-  return feed.filter((post) => post.author.username === username);
+export async function getProfilePosts(username: string, options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
+
+  const member = await getCurrentMember();
+  const { data: profileRow } = await supabase.from('profiles').select('id').eq('username', username).maybeSingle();
+  if (!profileRow) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
+
+  const page = Math.max(options?.page ?? 1, 1);
+  const pageSize = Math.max(options?.limit ?? 10, 1);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data, count } = await supabase
+    .from('posts')
+    .select(POST_SELECT, { count: 'exact' })
+    .eq('author_id', profileRow.id)
+    .eq('moderation_status', 'published')
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  const items = await enrichPosts((data ?? []) as Array<Record<string, unknown>>, {
+    memberId: member?.id ?? null,
+    memberRoles: member?.roles,
+    viewerIsMember: Boolean(member),
+  });
+
+  return {
+    items,
+    total: count ?? items.length,
+    page,
+    pageSize,
+    hasMore: to + 1 < (count ?? 0),
+  };
 }
 
 export async function getPostComments(postId: string): Promise<CommentRecord[]> {
@@ -550,20 +590,92 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
   });
 }
 
-export async function getSavedPosts() {
+export async function getSavedPosts(options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
   const member = await getCurrentMember();
-  if (!member) return [];
+  if (!member) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
 
-  const feed = await getFeedPosts();
-  return feed.filter((post) => post.bookmarked);
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
+
+  const page = Math.max(options?.page ?? 1, 1);
+  const pageSize = Math.max(options?.limit ?? 10, 1);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data: bookmarkRows, count } = await supabase
+    .from('bookmarks')
+    .select('post_id', { count: 'exact' })
+    .eq('user_id', member.id)
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  const postIds = (bookmarkRows ?? []).map((row) => row.post_id);
+  if (!postIds.length) return { items: [], total: count ?? 0, page, pageSize, hasMore: false };
+
+  const { data: postRows } = await supabase
+    .from('posts')
+    .select(POST_SELECT)
+    .in('id', postIds)
+    .eq('moderation_status', 'published');
+
+  const items = await enrichPosts((postRows ?? []) as Array<Record<string, unknown>>, {
+    memberId: member.id,
+    memberRoles: member.roles,
+    viewerIsMember: true,
+  });
+  const order = new Map(postIds.map((id, index) => [id, index]));
+  items.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+
+  return {
+    items,
+    total: count ?? items.length,
+    page,
+    pageSize,
+    hasMore: to + 1 < (count ?? 0),
+  };
 }
 
-export async function getUserLikedPosts() {
+export async function getUserLikedPosts(options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
   const member = await getCurrentMember();
-  if (!member) return [];
+  if (!member) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
 
-  const feed = await getFeedPosts();
-  return feed.filter((post) => post.liked);
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
+
+  const page = Math.max(options?.page ?? 1, 1);
+  const pageSize = Math.max(options?.limit ?? 10, 1);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data: likeRows, count } = await supabase
+    .from('likes')
+    .select('post_id', { count: 'exact' })
+    .eq('user_id', member.id)
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  const postIds = (likeRows ?? []).map((row) => row.post_id);
+  if (!postIds.length) return { items: [], total: count ?? 0, page, pageSize, hasMore: false };
+
+  const { data: postRows } = await supabase
+    .from('posts')
+    .select(POST_SELECT)
+    .in('id', postIds)
+    .eq('moderation_status', 'published');
+
+  const items = await enrichPosts((postRows ?? []) as Array<Record<string, unknown>>, {
+    memberId: member.id,
+    memberRoles: member.roles,
+    viewerIsMember: true,
+  });
+  const order = new Map(postIds.map((id, index) => [id, index]));
+  items.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+
+  return {
+    items,
+    total: count ?? items.length,
+    page,
+    pageSize,
+    hasMore: to + 1 < (count ?? 0),
+  };
 }
 
 export async function getProfileComments(username: string): Promise<CommentRecord[]> {
@@ -684,21 +796,46 @@ export async function canCurrentMemberManageComment(commentId: string) {
   return canRoleDeleteAuthorContent(member.roles, targetRoles);
 }
 
-export async function getUserCommentedPosts() {
+export async function getUserCommentedPosts(options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
   const member = await getCurrentMember();
-  if (!member) return [];
+  if (!member) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
 
   const supabase = await getSupabaseServerClient();
-  if (!supabase) return [];
+  if (!supabase) return { items: [], total: 0, page: options?.page ?? 1, pageSize: options?.limit ?? 10, hasMore: false };
 
-  const { data } = await supabase
+  const allComments = await supabase
     .from('comments')
-    .select('post_id')
-    .eq('author_id', member.id);
+    .select('post_id, created_at')
+    .eq('author_id', member.id)
+    .order('created_at', { ascending: false });
 
-  const commentedPostIds = new Set((data ?? []).map((row) => row.post_id));
-  const feed = await getFeedPosts();
-  return feed.filter((post) => commentedPostIds.has(post.id));
+  const uniquePostIds = [...new Set((allComments.data ?? []).map((row) => row.post_id))];
+  const page = Math.max(options?.page ?? 1, 1);
+  const pageSize = Math.max(options?.limit ?? 10, 1);
+  const slicedIds = uniquePostIds.slice((page - 1) * pageSize, page * pageSize);
+  if (!slicedIds.length) return { items: [], total: uniquePostIds.length, page, pageSize, hasMore: false };
+
+  const { data: postRows } = await supabase
+    .from('posts')
+    .select(POST_SELECT)
+    .in('id', slicedIds)
+    .eq('moderation_status', 'published');
+
+  const items = await enrichPosts((postRows ?? []) as Array<Record<string, unknown>>, {
+    memberId: member.id,
+    memberRoles: member.roles,
+    viewerIsMember: true,
+  });
+  const order = new Map(slicedIds.map((id, index) => [id, index]));
+  items.sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+
+  return {
+    items,
+    total: uniquePostIds.length,
+    page,
+    pageSize,
+    hasMore: page * pageSize < uniquePostIds.length,
+  };
 }
 
 export async function getCommentCountByPostId(postId: string): Promise<number> {

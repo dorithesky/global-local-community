@@ -4,7 +4,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
-import { PaginatedPostList } from '@/components/paginated-post-list';
+import { ServerPaginatedPostList } from '@/components/server-paginated-post-list';
 import { RoleBadge } from '@/components/role-badge';
 import { getCurrentMember } from '@/lib/auth';
 import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
@@ -33,17 +33,20 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function ProfilePage({ params, searchParams }: { params: Promise<{ username: string }>; searchParams: Promise<{ page?: string }> }) {
   noStore();
   const { username } = await params;
+  const page = Math.max(Number.parseInt((await searchParams).page ?? '1', 10) || 1, 1);
   const profile = await getProfile(username);
   if (!profile) notFound();
-  const authoredPosts = await getProfilePosts(username);
+  const authoredPosts = await getProfilePosts(username, { page, limit: 10 });
   const profileComments = await getProfileComments(username);
   const currentMember = await getCurrentMember();
   const isOwnProfile = currentMember?.username === username;
   const viewerIsMember = Boolean(currentMember);
-  const savedPosts = isOwnProfile ? await getSavedPosts() : [];
+  const savedPosts = isOwnProfile
+    ? await getSavedPosts({ page: 1, limit: 10 })
+    : { items: [], total: 0, page: 1, pageSize: 10, hasMore: false };
   const identitySignals = [profile.city, profile.occupation, profile.originCountry, profile.bio].filter(Boolean).length;
   const memberAgeLabel = profile.createdAt ? formatDistanceToNow(new Date(profile.createdAt), { addSuffix: true }) : null;
 
@@ -68,7 +71,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 {!profile.badges?.includes('admin') && profile.badges?.includes('moderator') ? <RoleBadge role="moderator" /> : null}
               </div>
               <p className="text-sm text-slate-500">@{profile.username}</p>
-              <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profile.publicCommentCount ?? profileComments.length} comments</p>
+              <p className="mt-1 text-xs text-slate-500">{authoredPosts.total} posts • {profile.publicCommentCount ?? profileComments.length} comments</p>
               <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-medium">
                 <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-sky-800">{identitySignals >= 3 ? 'Established member context' : 'Member profile'}</span>
                 {memberAgeLabel ? <span className="inline-flex rounded-full bg-cyan-50 px-2.5 py-1 text-cyan-800">Member since {memberAgeLabel}</span> : null}
@@ -106,11 +109,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div>
               <p className="font-medium text-slate-900">Your posts</p>
-              <p>{authoredPosts.length}</p>
+              <p>{authoredPosts.total}</p>
             </div>
             <div>
               <p className="font-medium text-slate-900">Saved posts</p>
-              <p>{savedPosts.length}</p>
+              <p>{savedPosts.total}</p>
             </div>
             <div>
               <p className="font-medium text-slate-900">Comments</p>
@@ -121,7 +124,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       ) : null}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Posts</h2>
-        <PaginatedPostList posts={authoredPosts} pageSize={10} emptyMessage="No posts yet." />
+        <ServerPaginatedPostList
+          posts={authoredPosts.items}
+          page={authoredPosts.page}
+          hasMore={authoredPosts.hasMore}
+          emptyMessage="No posts yet."
+        />
       </section>
 
       {viewerIsMember ? (

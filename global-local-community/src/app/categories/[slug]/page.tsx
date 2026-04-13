@@ -1,21 +1,23 @@
 import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
-import { PaginatedPostList } from '@/components/paginated-post-list';
+import { ServerPaginatedPostList } from '@/components/server-paginated-post-list';
 import { getCategoryPosts } from '@/lib/data';
 import { categories } from '@/lib/mock-data';
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CategoryPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ page?: string }> }) {
   const { slug } = await params;
+  const page = Math.max(Number.parseInt((await searchParams).page ?? '1', 10) || 1, 1);
   const category = categories.find((item) => item.slug === slug);
   if (!category) notFound();
-  const categoryPosts = await getCategoryPosts(slug);
+  const categoryPosts = await getCategoryPosts(slug, { page, limit: 10 });
 
   return (
     <div className="space-y-4 pb-24 lg:pb-8">
       <PageHeader eyebrow="Category" title={category.label} description={category.description} />
-      <PaginatedPostList
-        posts={categoryPosts}
-        pageSize={10}
+      <ServerPaginatedPostList
+        posts={categoryPosts.items}
+        page={categoryPosts.page}
+        hasMore={categoryPosts.hasMore}
         emptyMessage="No posts are visible in this category yet."
       />
     </div>
