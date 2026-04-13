@@ -39,8 +39,6 @@ function CommentCard({
   const isEditing = editingId === comment.id;
   const replies = comment.replies ?? [];
   const replyCount = comment.replyCount ?? replies.length;
-  const previewReplies = repliesExpanded ? replies : replies.slice(0, 2);
-  const hasHiddenReplies = replies.length > previewReplies.length;
 
   return (
     <div className={`${isReply ? 'rounded-xl bg-transparent' : 'rounded-2xl bg-slate-50'} ${isReply ? 'p-0' : 'p-4 sm:p-5'}`}>
@@ -155,7 +153,7 @@ function CommentCard({
               ) : null}
               {repliesExpanded ? (
                 <div className="mt-1.5 space-y-1.5">
-                  {previewReplies.map((reply) => (
+                  {replies.map((reply) => (
                     <CommentCard
                       key={reply.id}
                       comment={reply}
@@ -167,15 +165,6 @@ function CommentCard({
                       isReply
                     />
                   ))}
-                  {hasHiddenReplies ? (
-                    <button
-                      type="button"
-                      onClick={() => setRepliesExpanded(true)}
-                      className="mt-2 text-xs font-medium text-sky-700 hover:text-sky-800"
-                    >
-                      Show {replies.length - previewReplies.length} more
-                    </button>
-                  ) : null}
                 </div>
               ) : null}
             </div>
