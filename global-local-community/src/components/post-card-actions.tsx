@@ -33,10 +33,17 @@ export function FeedBookmarkButton({ action, active }: { action: (formData: Form
   );
 }
 
-export function FeedDeleteButton({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function FeedDeleteButton({ action, compact = false }: { action: (formData: FormData) => Promise<void>; compact?: boolean }) {
   return (
     <form action={action}>
-      <ActionButton label="Delete" icon={<Trash2 className="h-3.5 w-3.5" />} tone="danger" />
+      {compact ? (
+        <button type="submit" className="inline-flex h-8 items-center gap-1 rounded-full border border-rose-200 bg-white px-2.5 text-[11px] font-medium text-rose-700 shadow-sm transition hover:bg-rose-50">
+          <Trash2 className="h-3.5 w-3.5" />
+          Delete
+        </button>
+      ) : (
+        <ActionButton label="Delete" icon={<Trash2 className="h-3.5 w-3.5" />} tone="danger" />
+      )}
     </form>
   );
 }

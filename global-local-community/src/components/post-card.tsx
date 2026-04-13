@@ -10,9 +10,14 @@ import { PostImages } from '@/components/post-images';
 
 export function PostCard({ post }: { post: PostRecord }) {
   return (
-    <article className="overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4 lg:p-4.5">
-      <div className="mb-2.5 flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 flex-1">
+    <article className="relative overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4 lg:p-4.5">
+      {post.canDelete ? (
+        <div className="absolute right-3.5 top-3.5 z-10 sm:right-4 sm:top-4">
+          <FeedDeleteButton action={deletePostAction.bind(null, post.id)} compact />
+        </div>
+      ) : null}
+      <div className="mb-2.5 flex flex-col gap-2.5">
+        <div className="min-w-0 flex-1 pr-16 sm:pr-20">
           <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
             {post.author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -38,9 +43,6 @@ export function PostCard({ post }: { post: PostRecord }) {
             {post.author.city ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium leading-none text-slate-600">{post.author.city}</span> : null}
             {post.author.occupation ? <span className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium leading-none text-slate-600">{post.author.occupation}</span> : null}
           </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          {post.canEdit ? <FeedDeleteButton action={deletePostAction.bind(null, post.id)} /> : null}
         </div>
       </div>
 
