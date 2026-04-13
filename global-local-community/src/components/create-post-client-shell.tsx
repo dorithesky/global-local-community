@@ -73,6 +73,7 @@ export function CreatePostClientShell({
         }
 
         setStatusMessage('Publishing your post now...');
+        setStatusMessage('Post published. Opening it now...');
         await action(formData);
         window.sessionStorage.removeItem(DRAFT_KEY);
         router.refresh();

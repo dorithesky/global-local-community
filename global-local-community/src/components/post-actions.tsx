@@ -37,7 +37,14 @@ export function DeletePostButton({ action, compact = false }: { action: (formDat
   const { pending } = useFormStatus();
 
   return (
-    <form action={action}>
+    <form
+      action={action}
+      onSubmit={(event) => {
+        if (!window.confirm('Delete this post?')) {
+          event.preventDefault();
+        }
+      }}
+    >
       <button
         type="submit"
         disabled={pending}
