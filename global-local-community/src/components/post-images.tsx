@@ -25,17 +25,17 @@ export function PostImages({ imageUrls = [], title, compact = false }: PostImage
   if (!resolvedImageUrls.length) return null;
 
   return (
-    <div className={`mt-4 grid gap-3 ${resolvedImageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
+    <div className={`mt-3 grid gap-2 ${resolvedImageUrls.length === 1 ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'}`}>
       {resolvedImageUrls.slice(0, 4).map((imageUrl, index) => (
         <div
           key={`${imageUrl}-${index}`}
-          className={`overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 ${compact ? 'min-h-36 sm:min-h-44' : 'min-h-48 sm:min-h-64'}`}
+          className={`overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 ${compact ? 'min-h-32 sm:min-h-40' : 'min-h-48 sm:min-h-64'}`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
             alt={`${title} image ${index + 1}`}
-            className={`h-full w-full ${compact ? 'max-h-56 sm:max-h-64' : 'max-h-[24rem] sm:max-h-[32rem]'} object-contain bg-white`}
+            className={`h-full w-full ${compact ? 'max-h-52 sm:max-h-60' : 'max-h-[24rem] sm:max-h-[32rem]'} object-contain bg-white`}
           />
         </div>
       ))}

@@ -10,7 +10,7 @@ function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick 
     : 'border-sky-200 bg-white text-sky-700 hover:bg-sky-50';
 
   return (
-    <button type={type} onClick={onClick} disabled={pending} className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium disabled:opacity-60 ${toneClass}`}>
+    <button type={type} onClick={onClick} disabled={pending} className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-medium disabled:opacity-60 ${toneClass}`}>
       {icon}
       {pending ? 'Saving...' : label}
     </button>
@@ -20,7 +20,7 @@ function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick 
 export function FeedLikeButton({ action, active, count }: { action: (formData: FormData) => Promise<void>; active: boolean; count: number }) {
   return (
     <form action={action}>
-      <ActionButton label={`${active ? 'Liked' : 'Like'} • ${count}`} icon={<Heart className="h-3.5 w-3.5" />} />
+      <ActionButton label={`${active ? 'Liked' : 'Like'} · ${count}`} icon={<Heart className="h-3.5 w-3.5" />} />
     </form>
   );
 }

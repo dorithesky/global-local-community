@@ -45,29 +45,29 @@ export function PostCard({ post }: { post: PostRecord }) {
       </div>
 
       <Link href={`/posts/${post.id}`} className="block">
-        <h2 className="text-lg font-semibold tracking-tight text-slate-950 sm:text-[1.1rem]">{post.title}</h2>
-        <p className="mt-2 line-clamp-3 text-sm leading-5.5 text-slate-600">{post.body}</p>
+        <h2 className="text-[1.05rem] font-semibold tracking-tight text-slate-950 sm:text-[1.1rem]">{post.title}</h2>
+        <p className="mt-1.5 line-clamp-3 text-sm leading-5 text-slate-600">{post.body}</p>
         {post.imageUrls?.length ? (
-          <div className="mt-2.5 flex items-center gap-2 text-xs text-slate-500">
-            <span className="inline-flex items-center gap-1"><ImageIcon className="h-3.5 w-3.5" /> {post.imageUrls.length} image{post.imageUrls.length === 1 ? '' : 's'}</span>
+          <div className="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
+            <span className="inline-flex items-center gap-1"><ImageIcon className="h-3 w-3" /> {post.imageUrls.length} image{post.imageUrls.length === 1 ? '' : 's'}</span>
           </div>
         ) : null}
         <PostImages imageUrls={post.imageUrls} title={post.title} compact />
       </Link>
 
       {post.tags.length ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-          {post.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="rounded-full bg-slate-100 px-2.5 py-1">#{tag}</span>
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
+          {post.tags.slice(0, 2).map((tag) => (
+            <span key={tag} className="rounded-full bg-slate-100 px-2 py-0.5 leading-none">#{tag}</span>
           ))}
         </div>
       ) : null}
 
-      <div className="mt-3.5 flex flex-col gap-2.5 border-t border-slate-100 pt-3 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+      <div className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-2.5 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           <FeedLikeButton action={toggleLikeAction.bind(null, post.id)} active={Boolean(post.liked)} count={post.likesCount} />
           <FeedBookmarkButton action={toggleBookmarkAction.bind(null, post.id)} active={Boolean(post.bookmarked)} />
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-2 text-xs text-slate-600"><MessageCircle className="h-4 w-4" /> {post.commentsCount} repl{post.commentsCount === 1 ? 'y' : 'ies'}</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 text-[11px] text-slate-600"><MessageCircle className="h-3.5 w-3.5" /> {post.commentsCount} repl{post.commentsCount === 1 ? 'y' : 'ies'}</span>
         </div>
       </div>
     </article>
