@@ -95,3 +95,36 @@ export function UserSanctionForm({ action, userId }: { action: (formData: FormDa
     </form>
   );
 }
+
+export function UserRoleForm({
+  action,
+  userId,
+  role,
+  intent,
+  requireConfirm = false,
+}: {
+  action: (formData: FormData) => Promise<void>;
+  userId: string;
+  role: 'admin' | 'moderator';
+  intent: 'grant' | 'revoke';
+  requireConfirm?: boolean;
+}) {
+  const label = intent === 'grant'
+    ? `Make ${role}`
+    : `Remove ${role}`;
+
+  return (
+    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+      <input type="hidden" name="userId" value={userId} />
+      <input type="hidden" name="role" value={role} />
+      <input type="hidden" name="intent" value={intent} />
+      {requireConfirm ? <input type="hidden" name="confirm" value="yes" /> : null}
+      <p className="basis-full text-[11px] leading-5 text-slate-500">
+        {role === 'admin'
+          ? 'Admin changes are high impact and protected against last-admin removal.'
+          : 'Moderator changes control operational trust and review powers.'}
+      </p>
+      <AdminButton label={label} tone={intent === 'grant' ? 'success' : 'danger'} />
+    </form>
+  );
+}

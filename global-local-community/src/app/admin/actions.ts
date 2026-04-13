@@ -1,9 +1,17 @@
 "use server";
 
 import { revalidatePath } from 'next/cache';
+import { z } from 'zod';
 import { requireAdmin, requireModerator } from '@/lib/auth';
 import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
+
+const roleChangeSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(['admin', 'moderator']),
+  intent: z.enum(['grant', 'revoke']),
+  confirm: z.string().trim().toLowerCase().optional(),
+});
 
 export async function updateReportStatusAction(formData: FormData) {
   const moderator = await requireModerator();
@@ -150,4 +158,82 @@ export async function applyUserSanctionAction(formData: FormData) {
   await logServerRequest({ userId: admin.id, path: '/admin/actions/user-sanction' });
 
   revalidatePath('/admin');
+}
+
+export async function updateUserRoleAction(formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) throw new Error('Unauthorized');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const parsed = roleChangeSchema.safeParse({
+    userId: String(formData.get('userId') ?? '').trim(),
+    role: String(formData.get('role') ?? '').trim(),
+    intent: String(formData.get('intent') ?? '').trim(),
+    confirm: String(formData.get('confirm') ?? '').trim() || undefined,
+  });
+
+  if (!parsed.success) throw new Error('Invalid role change request.');
+
+  const { userId, role, intent, confirm } = parsed.data;
+  if (role === 'admin' && confirm !== 'yes') {
+    throw new Error('Admin role changes require explicit confirmation.');
+  }
+
+  const { data: targetProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!targetProfile) throw new Error('Target user not found.');
+
+  if (intent === 'grant') {
+    const { error } = await supabase
+      .from('user_roles')
+      .upsert({ user_id: userId, role, created_by: admin.id }, { onConflict: 'user_id,role' });
+
+    if (error) throw new Error(error.message);
+  } else {
+    if (role === 'admin') {
+      const { count } = await supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'admin');
+
+      if ((count ?? 0) <= 1) {
+        throw new Error('Cannot remove the last admin.');
+      }
+    }
+
+    if (admin.id === userId && role === 'admin') {
+      throw new Error('Use another admin account before removing your own admin role.');
+    }
+
+    const { error } = await supabase
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+      .eq('role', role);
+
+    if (error) throw new Error(error.message);
+  }
+
+  await supabase.from('workflow_events').insert({
+    event_type: intent === 'grant' ? 'moderation.role_granted' : 'moderation.role_revoked',
+    entity_type: 'profile',
+    entity_id: userId,
+    payload: {
+      role,
+      actor_id: admin.id,
+      intent,
+    },
+  });
+
+  await logServerRequest({ userId: admin.id, path: '/admin/actions/user-role' });
+
+  revalidatePath('/admin');
+  revalidatePath('/admin/members');
+  revalidatePath('/feed');
 }

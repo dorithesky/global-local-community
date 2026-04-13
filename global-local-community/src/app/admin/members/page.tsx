@@ -3,10 +3,10 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { AdminShell } from '@/components/admin-shell';
-import { UserSanctionForm } from '@/components/admin-actions';
+import { UserRoleForm, UserSanctionForm } from '@/components/admin-actions';
 import { requireAdmin } from '@/lib/auth';
 import { getAdminUserSettingsView } from '@/lib/settings';
-import { applyUserSanctionAction } from '../actions';
+import { applyUserSanctionAction, updateUserRoleAction } from '../actions';
 
 export default async function AdminMembersPage({ searchParams }: { searchParams?: Promise<{ q?: string; city?: string; status?: string }> }) {
   noStore();
@@ -106,8 +106,12 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
                 <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>
                 <p>Third-party email consent: {setting.third_party_email_consent ? 'Yes' : 'No'}</p>
               </div>
-              <div className="mt-3">
+              <div className="mt-3 grid gap-3 lg:grid-cols-2">
                 <UserSanctionForm action={applyUserSanctionAction} userId={setting.user_id} />
+                <div className="space-y-2">
+                  <UserRoleForm action={updateUserRoleAction} userId={setting.user_id} role="moderator" intent={setting.roles.includes('moderator') ? 'revoke' : 'grant'} />
+                  <UserRoleForm action={updateUserRoleAction} userId={setting.user_id} role="admin" intent={setting.roles.includes('admin') ? 'revoke' : 'grant'} requireConfirm />
+                </div>
               </div>
             </div>
           )) : <p className="text-sm text-slate-500">No members matched the current filters.</p>}
