@@ -41,13 +41,13 @@ function CommentCard({
   const hasHiddenReplies = replies.length > previewReplies.length;
 
   return (
-    <div className={`rounded-2xl ${isReply ? 'border border-slate-200 bg-white/90' : 'bg-slate-50'} ${isReply ? 'p-3 sm:p-4' : 'p-4 sm:p-5'}`}>
-      <div className="flex items-start gap-3">
+    <div className={`${isReply ? 'rounded-xl bg-transparent' : 'rounded-2xl bg-slate-50'} ${isReply ? 'p-0' : 'p-4 sm:p-5'}`}>
+      <div className={`flex items-start ${isReply ? 'gap-2.5' : 'gap-3'}`}>
         {comment.author.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={comment.author.avatarUrl} alt={comment.author.displayName} className="h-9 w-9 rounded-full object-cover ring-2 ring-white" />
+          <img src={comment.author.avatarUrl} alt={comment.author.displayName} className={`${isReply ? 'h-8 w-8' : 'h-9 w-9'} rounded-full object-cover ring-2 ring-white`} />
         ) : (
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700 ring-2 ring-white">
+          <div className={`flex ${isReply ? 'h-8 w-8' : 'h-9 w-9'} items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700 ring-2 ring-white`}>
             {comment.author.displayName.slice(0, 1).toUpperCase()}
           </div>
         )}
@@ -86,10 +86,10 @@ function CommentCard({
           ) : (
             <>
               {isReply && comment.replyTarget ? (
-                <p className="mt-2 text-xs font-medium uppercase tracking-[0.16em] text-sky-700">Replying to {comment.replyTarget.displayName}</p>
+                <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-sky-700">Replying to {comment.replyTarget.displayName}</p>
               ) : null}
-              <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
-              <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:gap-4">
+              <p className={`${isReply ? 'mt-1.5' : 'mt-2'} text-sm leading-6 text-slate-600`}>{comment.body}</p>
+              <div className={`${isReply ? 'mt-1.5' : 'mt-2.5'} flex flex-wrap items-center gap-2 sm:gap-4`}>
                 {comment.canEdit ? (
                   <>
                     <button type="button" onClick={() => setEditingId(comment.id)} className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">Edit</button>
@@ -135,7 +135,7 @@ function CommentCard({
           ) : null}
 
           {!isReply && replyCount > 0 ? (
-            <div className="mt-3 border-l border-slate-200 pl-3 sm:pl-4">
+            <div className="mt-2 border-l-2 border-slate-200 pl-2.5 sm:pl-3">
               <button
                 type="button"
                 onClick={() => setRepliesExpanded((value) => !value)}
@@ -144,7 +144,7 @@ function CommentCard({
                 <span>{repliesExpanded ? `Hide replies` : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}</span>
                 <ChevronDown className={`h-4 w-4 transition ${repliesExpanded ? 'rotate-180' : ''}`} />
               </button>
-              <div className="mt-2.5 space-y-2">
+              <div className="mt-1.5 space-y-1.5">
                 {previewReplies.map((reply) => (
                   <CommentCard
                     key={reply.id}
