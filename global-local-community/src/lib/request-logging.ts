@@ -13,6 +13,21 @@ const MAX_PATH_LENGTH = 160;
 const MAX_USER_AGENT_LENGTH = 240;
 const MAX_IP_LENGTH = 64;
 
+function redactIp(ip: string | null) {
+  if (!ip) return null;
+  if (ip.includes(':')) {
+    const segments = ip.split(':').filter(Boolean);
+    return segments.length ? `${segments.slice(0, 4).join(':')}:*` : '*';
+  }
+
+  const parts = ip.split('.');
+  if (parts.length === 4) {
+    return `${parts[0]}.${parts[1]}.${parts[2]}.*`;
+  }
+
+  return '*';
+}
+
 export async function getClientIpFromHeaders() {
   const headerStore = await headers();
   const forwardedFor = headerStore.get('x-forwarded-for');
@@ -37,7 +52,7 @@ export async function logServerRequest(payload: Omit<RequestLogPayload, 'ip' | '
 
   await supabase.from('request_logs').insert({
     user_id: payload.userId ?? null,
-    ip: sanitizePlainText(ip, { maxLength: MAX_IP_LENGTH, allowNewlines: false }) || null,
+    ip: redactIp(sanitizePlainText(ip, { maxLength: MAX_IP_LENGTH, allowNewlines: false }) || null),
     path: sanitizePlainText(payload.path, { maxLength: MAX_PATH_LENGTH, allowNewlines: false }),
     user_agent: sanitizePlainText(userAgent, { maxLength: MAX_USER_AGENT_LENGTH, allowNewlines: false }) || null,
   });

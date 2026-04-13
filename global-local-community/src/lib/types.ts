@@ -14,6 +14,8 @@ export interface Profile {
   createdAt?: string;
   onboardingCompleted?: boolean;
   badges?: Array<'admin' | 'moderator'>;
+  publicCommentCount?: number;
+  profileVisibility?: 'public' | 'member';
 }
 
 export interface AiAnalysis {

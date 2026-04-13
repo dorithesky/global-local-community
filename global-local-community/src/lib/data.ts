@@ -1,4 +1,5 @@
 import { getCurrentMember } from './auth';
+import { sanitizePlainText } from './security';
 import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId } from './mock-data';
 import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
@@ -10,19 +11,26 @@ function cleanLegacyProfileText(value?: unknown) {
   return text;
 }
 
-function normalizeProfile(row: Record<string, unknown>, badges?: Array<'admin' | 'moderator'>): Profile {
+function normalizeProfile(
+  row: Record<string, unknown>,
+  badges?: Array<'admin' | 'moderator'>,
+  options?: { viewerIsMember?: boolean; publicCommentCount?: number },
+): Profile {
+  const viewerIsMember = options?.viewerIsMember ?? false;
   return {
     id: String(row.id),
     username: String(row.username ?? ''),
     displayName: String(row.display_name ?? ''),
-    bio: cleanLegacyProfileText(row.bio),
+    bio: viewerIsMember ? cleanLegacyProfileText(row.bio) : undefined,
     city: String(row.city ?? 'Daegu'),
-    originCountry: row.origin_country ? String(row.origin_country) : undefined,
-    occupation: cleanLegacyProfileText(row.occupation),
+    originCountry: viewerIsMember && row.origin_country ? String(row.origin_country) : undefined,
+    occupation: viewerIsMember ? cleanLegacyProfileText(row.occupation) : undefined,
     avatarUrl: row.avatar_url ? String(row.avatar_url) : undefined,
     createdAt: row.created_at ? String(row.created_at) : undefined,
     onboardingCompleted: typeof row.onboarding_completed === 'boolean' ? row.onboarding_completed : undefined,
     badges: badges ?? [],
+    publicCommentCount: options?.publicCommentCount,
+    profileVisibility: viewerIsMember ? 'member' : 'public',
   };
 }
 
@@ -167,7 +175,8 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
   if (filters?.city && filters.city !== 'all') queryBuilder = queryBuilder.eq('city', filters.city);
   if (filters?.category && filters.category !== 'all') queryBuilder = queryBuilder.eq('category', filters.category);
-  if (filters?.query) queryBuilder = queryBuilder.or(`title.ilike.%${filters.query}%,body.ilike.%${filters.query}%`);
+  const safeQuery = sanitizePlainText(filters?.query, { maxLength: 80, allowNewlines: false }).replace(/[%,]/g, ' ').trim();
+  if (safeQuery) queryBuilder = queryBuilder.or(`title.ilike.%${safeQuery}%,body.ilike.%${safeQuery}%`);
 
   const { data, error } = await queryBuilder;
 
@@ -175,6 +184,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
   const authorIds = [...new Set(data.map((row) => row.author_id))];
   const postIds = data.map((row) => row.id);
+  const viewerIsMember = Boolean(member);
   const [{ data: profilesData }, roleBadgeMap] = await Promise.all([
     supabase
       .from('profiles')
@@ -189,7 +199,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).in('post_id', postIds) : Promise.resolve({ data: [] }),
   ]);
 
-  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row, roleBadgeMap.get(String(row.id)))]));
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row, roleBadgeMap.get(String(row.id)), { viewerIsMember })]));
   const likeCounts = new Map<string, number>();
   const likedPostIds = new Set<string>();
   const commentCounts = new Map<string, number>();
@@ -438,8 +448,17 @@ export async function getProfile(username: string): Promise<Profile | undefined>
     .maybeSingle();
 
   if (!data) return undefined;
+  const member = await getCurrentMember();
   const roleBadgeMap = await getRoleBadgeMap([String(data.id)]);
-  return normalizeProfile(data, roleBadgeMap.get(String(data.id)));
+  const { count: publicCommentCount } = await supabase
+    .from('comments')
+    .select('*', { count: 'exact', head: true })
+    .eq('author_id', data.id);
+
+  return normalizeProfile(data, roleBadgeMap.get(String(data.id)), {
+    viewerIsMember: Boolean(member),
+    publicCommentCount: publicCommentCount ?? 0,
+  });
 }
 
 export async function getProfilePosts(username: string): Promise<PostRecord[]> {
