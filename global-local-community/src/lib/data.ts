@@ -371,7 +371,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
         ...reply,
         replyTarget: comment.author,
       })),
-      replyCount: comment.replyCount ?? replies.length,
+      replyCount: replies.length,
     };
   });
 

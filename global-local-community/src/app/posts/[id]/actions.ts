@@ -91,16 +91,19 @@ export async function createCommentAction(postId: string, formData: FormData) {
   if (!insertedId) throw new Error('Comment could not be created.');
 
   if (parentCommentId) {
-    const { data: currentParent } = await supabase
+    const { count: liveReplyCount, error: liveReplyCountError } = await supabase
       .from('comments')
-      .select('reply_count')
-      .eq('id', parentCommentId)
-      .maybeSingle();
+      .select('*', { count: 'exact', head: true })
+      .eq('parent_comment_id', parentCommentId);
 
-    const incrementedReplyCount = Number(currentParent?.reply_count ?? 0) + 1;
+    if (liveReplyCountError && !liveReplyCountError.message.includes('parent_comment_id')) {
+      throw new Error(liveReplyCountError.message);
+    }
+
+    const nextReplyCount = liveReplyCount ?? 0;
     const replyCountUpdate = await supabase
       .from('comments')
-      .update({ reply_count: incrementedReplyCount, updated_at: new Date().toISOString() })
+      .update({ reply_count: nextReplyCount, updated_at: new Date().toISOString() })
       .eq('id', parentCommentId);
 
     if (replyCountUpdate.error && !replyCountUpdate.error.message.includes('reply_count')) {
