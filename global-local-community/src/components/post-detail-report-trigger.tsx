@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Flag } from 'lucide-react';
-import { ReportForm } from '@/components/post-engagement-forms';
 import { AuthModal } from '@/components/auth-modal';
+import { ReportModal } from '@/components/report-modal';
 
 export function PostDetailReportTrigger({ action, signedIn }: { action: (formData: FormData) => Promise<void>; signedIn: boolean }) {
   const [open, setOpen] = useState(false);
@@ -18,15 +18,22 @@ export function PostDetailReportTrigger({ action, signedIn }: { action: (formDat
             setAuthOpen(true);
             return;
           }
-          setOpen((value) => !value);
+          setOpen(true);
         }}
-        aria-label={signedIn ? (open ? 'Close report form' : 'Report post') : 'Sign in to report post'}
-        title={signedIn ? (open ? 'Close report form' : 'Report post') : 'Sign in to report post'}
+        aria-label="Report post"
+        title="Report post"
         className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-700"
       >
         <Flag className="h-4 w-4" />
       </button>
-      {signedIn && open ? <ReportForm action={action} compact /> : null}
+      <ReportModal
+        open={open}
+        onClose={() => setOpen(false)}
+        action={action}
+        title="Report post"
+        description="Let moderators know what feels unsafe, misleading, abusive, or out of place."
+        targetLabel="Why are you reporting this post?"
+      />
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );

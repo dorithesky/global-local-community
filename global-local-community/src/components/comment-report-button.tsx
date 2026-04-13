@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { Flag } from 'lucide-react';
-import { ReportForm } from '@/components/post-engagement-forms';
 import { AuthModal } from '@/components/auth-modal';
+import { ReportModal } from '@/components/report-modal';
 
 export function CommentReportButton({ action, commentId, signedIn }: { action: (formData: FormData) => Promise<void>; commentId: string; signedIn: boolean }) {
   const [open, setOpen] = useState(false);
@@ -18,21 +18,24 @@ export function CommentReportButton({ action, commentId, signedIn }: { action: (
             setAuthOpen(true);
             return;
           }
-          setOpen((value) => !value);
+          setOpen(true);
         }}
-        aria-label={signedIn ? (open ? 'Close report form' : 'Report comment') : 'Sign in to report comment'}
-        title={signedIn ? (open ? 'Close report form' : 'Report comment') : 'Sign in to report comment'}
+        aria-label="Report comment"
+        title="Report comment"
         className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent text-rose-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
       >
         <Flag className="h-4 w-4" />
       </button>
-      {signedIn && open ? (
-        <div className="mt-3 max-w-xl min-w-0">
-          <ReportForm action={action} compact targetLabel="Report this comment">
-            <input type="hidden" name="commentId" value={commentId} />
-          </ReportForm>
-        </div>
-      ) : null}
+      <ReportModal
+        open={open}
+        onClose={() => setOpen(false)}
+        action={action}
+        title="Report comment"
+        description="Send a private moderation report without disrupting the conversation layout."
+        targetLabel="Why are you reporting this comment?"
+      >
+        <input type="hidden" name="commentId" value={commentId} />
+      </ReportModal>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );

@@ -35,11 +35,11 @@ export function CommentForm({ action }: { action: (formData: FormData) => Promis
 
 export function ReportForm({ action, compact = false, targetLabel = 'Report this post', children }: { action: (formData: FormData) => Promise<void>; compact?: boolean; targetLabel?: string; children?: ReactNode }) {
   return (
-    <form action={action} className={`space-y-3 rounded-2xl border border-rose-200 bg-rose-50 ${compact ? 'p-4' : 'p-4'}`}>
+    <form action={action} className={`space-y-4 ${compact ? '' : 'rounded-2xl border border-rose-200 bg-rose-50 p-4'}`}>
       {children}
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-900">{targetLabel}</label>
-        <select name="reason" defaultValue="" className="min-h-11 w-full rounded-2xl border border-rose-200 px-4 py-3 text-sm outline-none ring-rose-200 focus:ring">
+        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">{targetLabel}</label>
+        <select name="reason" defaultValue="" className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-rose-200 focus:ring">
           <option value="" disabled>Select a reason</option>
           <option value="spam">Spam</option>
           <option value="unsafe">Unsafe or misleading</option>
@@ -48,10 +48,10 @@ export function ReportForm({ action, compact = false, targetLabel = 'Report this
         </select>
       </div>
       <div>
-        <label className="mb-2 block text-sm font-medium text-slate-900">Details</label>
+        <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Details</label>
         <textarea
           name="details"
-          className="min-h-24 w-full rounded-2xl border border-rose-200 px-4 py-3 text-sm leading-6 outline-none ring-rose-200 focus:ring"
+          className="min-h-28 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-4 py-3 text-sm leading-6 text-[var(--text-primary)] outline-none ring-rose-200 focus:ring"
           placeholder="Optional context for moderators."
         />
       </div>
