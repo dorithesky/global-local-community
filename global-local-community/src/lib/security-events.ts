@@ -32,12 +32,14 @@ function normalizeIp(ip: string | null) {
 
 export async function recordSecurityEvent(input: SecurityEventInput) {
   const supabase = getSupabaseAdminClient();
-  if (!supabase) return;
+  if (!supabase) {
+    throw new Error('Security event logging is unavailable because the admin client is not configured.');
+  }
 
   const ip = normalizeIp(input.ip ?? await getClientIpFromHeaders());
   const payload = input.payload ?? {};
 
-  await supabase.from('security_events').insert({
+  const { error } = await supabase.from('security_events').insert({
     event_type: sanitizePlainText(input.eventType, { maxLength: 120, allowNewlines: false }),
     severity: input.severity,
     user_id: input.userId ?? null,
@@ -47,11 +49,17 @@ export async function recordSecurityEvent(input: SecurityEventInput) {
     entity_id: sanitizePlainText(input.entityId, { maxLength: 120, allowNewlines: false }) || null,
     payload,
   });
+
+  if (error) {
+    throw new Error(`Security event insert failed: ${error.message}`);
+  }
 }
 
 export async function detectSecurityAlerts() {
   const supabase = getSupabaseAdminClient();
-  if (!supabase) return;
+  if (!supabase) {
+    throw new Error('Security alert detection is unavailable because the admin client is not configured.');
+  }
 
   const now = Date.now();
   const windows = {
