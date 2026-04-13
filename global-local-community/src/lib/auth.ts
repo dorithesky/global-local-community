@@ -157,6 +157,21 @@ export async function requireRole(role: 'admin' | 'moderator') {
   return requireModerator();
 }
 
+export function getRoleRank(roles?: string[]) {
+  if (roles?.includes('admin')) return 3;
+  if (roles?.includes('moderator')) return 2;
+  return 1;
+}
+
+export function canRoleDeleteAuthorContent(actorRoles?: string[], targetRoles?: string[]) {
+  const actorRank = getRoleRank(actorRoles);
+  const targetRank = getRoleRank(targetRoles);
+
+  if (actorRank < 2) return false;
+  if (actorRank === 3) return true;
+  return targetRank <= 2;
+}
+
 export const getActiveSanctions = cache(async (): Promise<ActiveSanction[]> => {
   const member = await getCurrentMember();
   if (!member) return [];

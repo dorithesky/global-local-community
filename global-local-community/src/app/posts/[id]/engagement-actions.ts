@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { assertMemberCan, getCurrentMember } from '@/lib/auth';
+import { assertMemberCan, canRoleDeleteAuthorContent, getCurrentMember } from '@/lib/auth';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 function isUuid(value: string) {
@@ -96,7 +96,19 @@ export async function deletePostAction(postId: string) {
     .eq('id', postId)
     .maybeSingle();
 
-  if (!existing || existing.author_id !== member.id) throw new Error('Unauthorized');
+  if (!existing) throw new Error('Unauthorized');
+
+  if (existing.author_id !== member.id) {
+    const { data: targetRoleRows } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', existing.author_id);
+
+    const targetRoles = (targetRoleRows ?? []).map((row) => row.role);
+    if (!canRoleDeleteAuthorContent(member.roles, targetRoles)) {
+      throw new Error('Unauthorized');
+    }
+  }
 
   const { error } = await supabase.from('posts').delete().eq('id', postId);
   if (error) throw new Error(error.message);

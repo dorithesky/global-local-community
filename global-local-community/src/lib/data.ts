@@ -1,4 +1,4 @@
-import { getCurrentMember } from './auth';
+import { canRoleDeleteAuthorContent, getCurrentMember } from './auth';
 import { sanitizePlainText } from './security';
 import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId } from './mock-data';
@@ -624,8 +624,25 @@ export async function canCurrentMemberManageComment(commentId: string) {
   const member = await getCurrentMember();
   if (!member) return false;
 
-  const comments = await getUserComments();
-  return comments.some((comment) => comment.id === commentId);
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return false;
+
+  const { data: commentRow } = await supabase
+    .from('comments')
+    .select('id, author_id')
+    .eq('id', commentId)
+    .maybeSingle();
+
+  if (!commentRow) return false;
+  if (commentRow.author_id === member.id) return true;
+
+  const { data: targetRoleRows } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', commentRow.author_id);
+
+  const targetRoles = (targetRoleRows ?? []).map((row) => row.role);
+  return canRoleDeleteAuthorContent(member.roles, targetRoles);
 }
 
 export async function getUserCommentedPosts() {
