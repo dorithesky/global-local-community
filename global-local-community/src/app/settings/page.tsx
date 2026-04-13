@@ -4,9 +4,11 @@ import { PageHeader } from '@/components/page-header';
 import { AccountSettingsForm } from '@/components/account-settings-form';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { getCurrentMember } from '@/lib/auth';
+import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getAccountSettings } from '@/lib/settings';
 
 export default async function SettingsPage({ searchParams }: { searchParams?: Promise<{ onboarding?: string }> }) {
+  markSensitiveRoute();
   const member = await getCurrentMember();
   if (!member) redirect('/');
   const settings = await getAccountSettings();
@@ -14,14 +16,14 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
   const onboarding = resolvedSearchParams?.onboarding === '1';
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-8">
+    <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader
         eyebrow={onboarding ? 'Welcome' : 'Settings'}
         title={onboarding ? 'Finish your onboarding' : 'Notifications, consent, and account controls'}
         description={onboarding ? 'Complete your profile so the product can show the right city context, member identity, and relevant community needs from the start.' : 'Manage how the product contacts you and how your account is configured. Public identity now lives on your profile.'}
       />
       {!onboarding ? (
-        <section className="rounded-3xl border border-slate-200 bg-[var(--surface-primary)] p-5 text-sm text-[var(--text-secondary)] shadow-sm">
+        <section className="rounded-3xl border border-slate-200 bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold text-[var(--text-primary)]">Public identity moved out of Settings</p>
@@ -29,13 +31,13 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
-              <Link href={`/profile/${member.username}`} className="inline-flex rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-sky-600 dark:hover:bg-sky-500">Open profile</Link>
+              <Link href={`/profile/${member.username}`} className="inline-flex min-h-11 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-sky-600 dark:hover:bg-sky-500">Open profile</Link>
             </div>
           </div>
         </section>
       ) : null}
       {onboarding ? (
-        <section className="rounded-3xl border border-sky-200 bg-[var(--surface-premium)] p-5 text-sm text-[var(--text-primary)] shadow-sm">
+        <section className="rounded-3xl border border-sky-200 bg-[var(--surface-premium)] p-4 text-sm text-[var(--text-primary)] shadow-sm sm:p-5">
           <p className="font-semibold">Start here</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 leading-6">
             <li>Set your city, occupation, and origin so your profile reads like a real member identity.</li>

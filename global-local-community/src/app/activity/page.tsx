@@ -2,9 +2,11 @@ import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getCurrentMember } from '@/lib/auth';
+import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getSavedPosts, getUserCommentedPosts, getUserComments, getUserLikedPosts } from '@/lib/data';
 
 export default async function ActivityPage() {
+  markSensitiveRoute();
   const member = await getCurrentMember();
   if (!member) redirect('/');
 
@@ -16,15 +18,15 @@ export default async function ActivityPage() {
   ]);
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-8">
+    <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader
         eyebrow="Activity"
         title="Your saved, liked, and commented posts"
         description="A personal control center for the threads and posts you actually touched."
       />
 
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="grid gap-4 md:grid-cols-3">
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           <div>
             <p className="text-sm font-medium text-slate-900">Saved</p>
             <p className="mt-1 text-2xl font-semibold text-slate-950">{savedPosts.length}</p>
@@ -58,9 +60,9 @@ export default async function ActivityPage() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Your comments</h2>
         {comments.length ? comments.map((comment) => (
-          <div key={comment.id} className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-600 shadow-sm">
-            <p className="leading-7">{comment.body}</p>
-            <div className="mt-3 flex items-center justify-between gap-3 text-xs text-slate-500">
+          <div key={comment.id} className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:p-6">
+            <p className="leading-6 sm:leading-7">{comment.body}</p>
+            <div className="mt-3 flex flex-col gap-2 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
               <span>{new Date(comment.createdAt).toLocaleString()}</span>
               <a href={`/posts/${comment.postId}`} className="font-medium text-sky-700 hover:text-sky-800">Open post</a>
             </div>
@@ -72,5 +74,5 @@ export default async function ActivityPage() {
 }
 
 function EmptyState({ text }: { text: string }) {
-  return <div className="rounded-[28px] border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">{text}</div>;
+  return <div className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm sm:p-6">{text}</div>;
 }

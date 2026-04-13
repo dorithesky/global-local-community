@@ -6,7 +6,7 @@ export async function TopAuthBar() {
   const member = await getCurrentMember();
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold text-slate-900">
@@ -16,7 +16,7 @@ export async function TopAuthBar() {
             {member ? 'Your profile is live in the app now.' : 'Use Google or email. Keep it friction-light.'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex max-w-full flex-wrap items-center gap-3">
           <SessionPill />
           {member ? <SignOutButton /> : null}
         </div>

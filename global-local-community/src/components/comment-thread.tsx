@@ -8,7 +8,7 @@ import { AuthModal } from '@/components/auth-modal';
 import type { CommentRecord } from '@/lib/types';
 
 function CommentActionButton({ label }: { label: string }) {
-  return <button type="submit" className="text-xs font-medium text-slate-500 transition hover:text-slate-900">{label}</button>;
+  return <button type="submit" className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">{label}</button>;
 }
 
 export function CommentThread({
@@ -34,7 +34,7 @@ export function CommentThread({
       {comments.map((comment) => {
         const isEditing = editingId === comment.id;
         return (
-          <div key={comment.id} className="rounded-2xl bg-slate-50 p-4">
+          <div key={comment.id} className="rounded-2xl bg-slate-50 p-4 sm:p-5">
             <div className="flex items-start gap-3">
               {comment.author.avatarUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -77,15 +77,15 @@ export function CommentThread({
                   <>
                     <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
                     {comment.canEdit ? (
-                      <div className="mt-3 flex items-center gap-4">
-                        <button type="button" onClick={() => setEditingId(comment.id)} className="text-xs font-medium text-slate-500 transition hover:text-slate-900">Edit</button>
+                      <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-4">
+                        <button type="button" onClick={() => setEditingId(comment.id)} className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">Edit</button>
                         <form action={deleteAction}>
                           <input type="hidden" name="commentId" value={comment.id} />
                           <CommentActionButton label="Delete" />
                         </form>
                       </div>
                     ) : (
-                      <p className="mt-3 text-xs text-slate-400">Only the author can edit or delete this reply.</p>
+                      <p className="mt-3 text-xs leading-5 text-slate-400">Only the author can edit or delete this reply.</p>
                     )}
                     {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} /> : null}
                   </>
@@ -95,10 +95,10 @@ export function CommentThread({
           </div>
         );
       })}
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-600">
+      <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-600 sm:p-5">
         <p className="font-medium text-slate-900">Want to reply or report?</p>
         <p className="mt-1">Sign in first so community actions stay tied to a real profile.</p>
-        <button type="button" onClick={() => setAuthOpen(true)} className="mt-3 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Sign in</button>
+        <button type="button" onClick={() => setAuthOpen(true)} className="mt-3 min-h-11 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Sign in</button>
       </div>
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </div>

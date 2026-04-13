@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { AdminShell } from '@/components/admin-shell';
@@ -8,6 +9,7 @@ import { getAdminUserSettingsView } from '@/lib/settings';
 import { applyUserSanctionAction } from '../actions';
 
 export default async function AdminMembersPage({ searchParams }: { searchParams?: Promise<{ q?: string; city?: string; status?: string }> }) {
+  noStore();
   const admin = await requireAdmin();
   if (!admin) notFound();
 
@@ -48,7 +50,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
       title="Member operations"
       description="Search members, inspect identity and role context, and apply operational restrictions from one focused workspace."
     >
-      <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-6 shadow-sm">
+      <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm sm:p-6">
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
@@ -61,8 +63,8 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
         </div>
 
         <form className="mt-5 grid gap-3 rounded-2xl border-2 border-sky-100 bg-sky-50 p-4 lg:grid-cols-[minmax(0,2fr)_1fr_1fr_auto]">
-          <input type="text" name="q" defaultValue={resolvedSearchParams?.q ?? ''} placeholder="Search by name, username, city, role, sanction, need, or user id" className="rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" />
-          <select name="city" defaultValue={cityFilter} className="rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+          <input type="text" name="q" defaultValue={resolvedSearchParams?.q ?? ''} placeholder="Search by name, username, city, role, sanction, need, or user id" className="min-h-11 rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" />
+          <select name="city" defaultValue={cityFilter} className="min-h-11 rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
             <option value="">All cities</option>
             <option value="Seoul">Seoul</option>
             <option value="Busan">Busan</option>
@@ -70,13 +72,13 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
             <option value="Other">Other</option>
             <option value="Unknown">Unknown</option>
           </select>
-          <select name="status" defaultValue={statusFilter} className="rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+          <select name="status" defaultValue={statusFilter} className="min-h-11 rounded-2xl border border-sky-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
             <option value="">All member states</option>
             <option value="clear">No active sanction</option>
             <option value="sanctioned">Active sanction</option>
             <option value="onboarding-incomplete">Onboarding incomplete</option>
           </select>
-          <button type="submit" className="rounded-full bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700">Filter</button>
+          <button type="submit" className="min-h-11 rounded-full bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700">Filter</button>
         </form>
 
         <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
@@ -86,8 +88,8 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
 
         <div className="mt-4 space-y-3">
           {filteredUserSettings.length ? filteredUserSettings.map((setting) => (
-            <div key={setting.user_id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+            <div key={setting.user_id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
                 <div>
                   <p className="font-medium text-slate-900">{setting.profile?.displayName ?? 'Unknown member'} {setting.profile?.username ? `(@${setting.profile.username})` : ''}</p>
                   <p className="mt-1 text-xs text-slate-500">User id: {setting.user_id}</p>
@@ -98,7 +100,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
                 </div>
                 {setting.profile?.username ? <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">Open profile</Link> : null}
               </div>
-              <div className="mt-3 grid gap-2 md:grid-cols-2">
+              <div className="mt-3 grid gap-2 sm:grid-cols-2 md:grid-cols-2">
                 <p>Likes notifications: {setting.notify_likes ? 'On' : 'Off'}</p>
                 <p>Comments notifications: {setting.notify_comments ? 'On' : 'Off'}</p>
                 <p>Marketing consent: {setting.marketing_consent ? 'Yes' : 'No'}</p>

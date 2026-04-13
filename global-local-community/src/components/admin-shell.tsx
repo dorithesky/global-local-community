@@ -16,10 +16,10 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 
 export function AdminShell({ currentPath, title, description, children }: { currentPath: string; title: string; description: string; children: ReactNode }) {
   return (
-    <div className="space-y-6 pb-24 lg:pb-8">
-      <section className="grid gap-6 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start">
+    <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
+      <section className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start xl:gap-6">
         <aside className="space-y-4 xl:sticky xl:top-6">
-          <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-800 p-4 text-white shadow-sm">
+          <div className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-800 p-4 text-white shadow-sm sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Admin workspace</p>
             <h2 className="mt-2 text-lg font-semibold text-white">Operations console</h2>
             <nav className="mt-4 space-y-2">
@@ -38,16 +38,16 @@ export function AdminShell({ currentPath, title, description, children }: { curr
               })}
             </nav>
           </div>
-          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 shadow-sm">
+          <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 shadow-sm sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Access</p>
             <p className="mt-3 text-sm leading-6 text-amber-950">These admin routes are intended to stay server-gated and unavailable to non-admin users.</p>
           </div>
         </aside>
 
         <div className="space-y-6">
-          <header className="rounded-3xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-amber-50/50 p-6 shadow-sm">
+          <header className="rounded-3xl border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-amber-50/50 p-4 shadow-sm sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Admin</p>
-            <h1 className="mt-2 text-2xl font-semibold text-slate-900">{title}</h1>
+            <h1 className="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">{title}</h1>
             <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
           </header>
           {children}

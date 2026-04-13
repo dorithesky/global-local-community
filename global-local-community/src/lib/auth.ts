@@ -136,9 +136,9 @@ export async function assertRateLimit(action: 'post' | 'comment' | 'report') {
   if (!supabase) return;
 
   const windows = {
-    post: { table: 'posts', field: 'author_id', minutes: 10, limit: 5 },
-    comment: { table: 'comments', field: 'author_id', minutes: 5, limit: 12 },
-    report: { table: 'reports', field: 'reporter_id', minutes: 10, limit: 8 },
+    post: { table: 'posts', field: 'author_id', minutes: 15, limit: 4 },
+    comment: { table: 'comments', field: 'author_id', minutes: 5, limit: 10 },
+    report: { table: 'reports', field: 'reporter_id', minutes: 15, limit: 5 },
   } as const;
 
   const config = windows[action];

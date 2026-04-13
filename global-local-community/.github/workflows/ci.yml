@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: global-local-community
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: global-local-community/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Security checks
+        run: npm run check:security
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

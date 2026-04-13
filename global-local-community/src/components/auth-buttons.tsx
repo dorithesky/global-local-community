@@ -107,24 +107,24 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
     <div id="signin" className={`space-y-4 rounded-3xl border border-slate-200 bg-white ${compact ? 'p-4 shadow-none' : 'p-5 shadow-sm'}`}>
       <div>
         <p className="text-sm font-semibold text-slate-900">Welcome</p>
-        <p className="mt-1 text-sm text-slate-600">Make the first choice obvious: create an account, or sign in to an existing one.</p>
+        <p className="mt-1 text-sm leading-6 text-slate-600">Make the first choice obvious: create an account, or sign in to an existing one.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
-        <button type="button" onClick={() => setView('signup')} className={`rounded-2xl px-3 py-2.5 text-sm font-medium ${view === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
+        <button type="button" onClick={() => setView('signup')} className={`min-h-11 rounded-2xl px-3 py-2.5 text-sm font-medium ${view === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
           Create account
         </button>
-        <button type="button" onClick={() => setView('signin')} className={`rounded-2xl px-3 py-2.5 text-sm font-medium ${view === 'signin' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
+        <button type="button" onClick={() => setView('signin')} className={`min-h-11 rounded-2xl px-3 py-2.5 text-sm font-medium ${view === 'signin' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
           Sign in
         </button>
       </div>
 
       {view === 'signin' ? (
         <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
-          <button type="button" onClick={() => setSignInMethod('password')} className={`rounded-2xl px-3 py-2 text-sm font-medium ${signInMethod === 'password' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
+          <button type="button" onClick={() => setSignInMethod('password')} className={`min-h-10 rounded-2xl px-3 py-2 text-sm font-medium ${signInMethod === 'password' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
             Password
           </button>
-          <button type="button" onClick={() => setSignInMethod('magic-link')} className={`rounded-2xl px-3 py-2 text-sm font-medium ${signInMethod === 'magic-link' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
+          <button type="button" onClick={() => setSignInMethod('magic-link')} className={`min-h-10 rounded-2xl px-3 py-2 text-sm font-medium ${signInMethod === 'magic-link' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}>
             Magic link
           </button>
         </div>
@@ -146,7 +146,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
           value={email}
           onChange={(event) => setEmail(event.target.value)}
           placeholder="you@example.com"
-          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-sky-200 focus:ring"
+          className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
         />
         {(view === 'signup' || signInMethod === 'password') ? (
           <div className="space-y-2">
@@ -155,9 +155,9 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               placeholder={view === 'signup' ? 'Create a password' : 'Enter your password'}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none ring-sky-200 focus:ring"
+              className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
             />
-            <p className="text-xs leading-6 text-slate-500">
+            <p className="text-xs leading-5 text-slate-500 sm:leading-6">
               Password rules: minimum 6 characters. For a real public launch, use a stronger password than something short or reused.
             </p>
           </div>
@@ -166,7 +166,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
           type="button"
           onClick={handleEmailAuth}
           disabled={busy}
-          className="w-full rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+          className="min-h-11 w-full rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
         >
           {view === 'signup' ? 'Create account' : signInMethod === 'password' ? 'Sign in' : 'Send magic link'}
         </button>
@@ -180,7 +180,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         type="button"
         onClick={signInWithGoogle}
         disabled={busy}
-        className="flex w-full items-center justify-center gap-3 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-900 shadow-sm hover:bg-slate-50 disabled:opacity-60"
+        className="min-h-11 flex w-full items-center justify-center gap-3 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-900 shadow-sm hover:bg-slate-50 disabled:opacity-60"
       >
         <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
           <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.3-1.7 3.9-5.4 3.9-3.3 0-5.9-2.7-5.9-6s2.6-6 5.9-6c1.9 0 3.2.8 3.9 1.5l2.7-2.6C16.9 3.3 14.7 2.4 12 2.4 6.9 2.4 2.8 6.5 2.8 11.6s4.1 9.2 9.2 9.2c5.3 0 8.8-3.7 8.8-8.9 0-.6-.1-1.1-.2-1.7H12Z" />
@@ -191,13 +191,13 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         <span>Continue with Google</span>
       </button>
       {view === 'signin' && signInMethod === 'password' ? (
-        <p className="text-sm text-slate-500">
+        <p className="text-sm leading-6 text-slate-500">
           Forgot your password? <a href="/auth/reset" className="font-medium text-sky-700">Reset it here</a>
         </p>
       ) : null}
-      {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+      {message ? <p className="text-sm leading-6 text-slate-600">{message}</p> : null}
       {view === 'signup' && !message ? (
-        <p className="text-sm text-slate-500">After creating your account, check your inbox for a confirmation email if Supabase email confirmation is enabled, then finish your profile settings so your city and immediate needs are reflected correctly.</p>
+        <p className="text-sm leading-6 text-slate-500">After creating your account, check your inbox for a confirmation email if Supabase email confirmation is enabled, then finish your profile settings so your city and immediate needs are reflected correctly.</p>
       ) : null}
     </div>
   );

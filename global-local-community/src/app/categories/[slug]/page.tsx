@@ -13,9 +13,13 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   return (
     <div className="space-y-4 pb-24 lg:pb-8">
       <PageHeader eyebrow="Category" title={category.label} description={category.description} />
-      {categoryPosts.map((post) => (
+      {categoryPosts.length ? categoryPosts.map((post) => (
         <PostCard key={post.id} post={post} />
-      ))}
+      )) : (
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 text-sm leading-6 text-slate-600 shadow-sm sm:p-6">
+          No posts are visible in this category yet.
+        </section>
+      )}
     </div>
   );
 }

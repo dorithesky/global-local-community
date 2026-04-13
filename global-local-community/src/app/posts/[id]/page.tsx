@@ -25,11 +25,11 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   if (!post) notFound();
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-8">
+    <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader eyebrow={post.category} title={post.title} description={`Posted by ${post.author.displayName} in ${cityScopeLabel(post.city, post.district)}.`} />
-      <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500">
-          <Link href={`/profile/${post.author.username}`} className="flex items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
+      <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 sm:gap-3">
+          <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
             {post.author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-11 w-11 rounded-full object-cover ring-2 ring-slate-100" />
@@ -38,17 +38,17 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
                 {post.author.displayName.slice(0, 1).toUpperCase()}
               </div>
             )}
-            <span className="font-medium text-slate-900">{post.author.displayName}</span>
-            <span className="text-slate-400">@{post.author.username}</span>
+            <span className="truncate font-medium text-slate-900">{post.author.displayName}</span>
+            <span className="truncate text-slate-400">@{post.author.username}</span>
           </Link>
           <span>•</span>
           <span>{formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}</span>
           <span>•</span>
           <span>{cityScopeLabel(post.city, post.district)}</span>
         </div>
-        <div className="mt-4 whitespace-pre-line text-sm leading-7 text-slate-700">{post.body}</div>
+        <div className="mt-4 whitespace-pre-line text-sm leading-6 text-slate-700 sm:leading-7">{post.body}</div>
         <PostImages imageUrls={post.imageUrls} title={post.title} />
-        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+        <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-slate-500 sm:gap-3">
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {visibleCommentCount} comments</span>
@@ -56,7 +56,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         </div>
       </article>
 
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-xl font-semibold text-slate-900">Discussion</h2>
           <span className="text-sm text-slate-500">{visibleCommentCount} {visibleCommentCount === 1 ? 'reply' : 'replies'}</span>
@@ -69,7 +69,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
               title="Sign in to join the conversation"
               description="Reading stays open, but posting replies requires an account so profiles, moderation, and trust signals stay meaningful."
               ctaLabel="Sign in to comment"
-              className="rounded-[28px] border border-sky-200 bg-sky-50 p-5"
+              className="rounded-3xl border border-sky-200 bg-sky-50 p-4 sm:p-5"
             />
           )}
         </div>
@@ -87,15 +87,15 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
             </div>
           )}
         </div>
-        <details className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm text-slate-600">
+        <details className="mt-6 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 text-sm leading-6 text-slate-600">
           <summary className="flex cursor-pointer list-none items-center justify-between font-medium text-slate-900">
-            <span>Post quality signals</span>
+            <span>Moderation notes</span>
             <ChevronDown className="h-4 w-4" />
           </summary>
           <div className="mt-3 space-y-1">
-            <p>Label: {post.analysis.label}</p>
-            <p>Score: {post.analysis.score.toFixed(2)}</p>
-            <p>Why: {post.analysis.explanation}</p>
+            <p>Status: {post.analysis.label}</p>
+            <p>Confidence: {post.analysis.score.toFixed(2)}</p>
+            <p>Reason: {post.analysis.explanation}</p>
           </div>
         </details>
       </section>

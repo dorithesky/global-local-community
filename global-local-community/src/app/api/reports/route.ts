@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { logServerRequest } from '@/lib/request-logging';
+import { sanitizePlainText } from '@/lib/security';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
   }
 
   const payload = parsed.data;
+  const sanitizedReason = sanitizePlainText(payload.reason, { maxLength: 80, allowNewlines: false });
+  const sanitizedDetails = sanitizePlainText(payload.details, { maxLength: 500, allowNewlines: true }) || null;
   const target = payload.postId ? { post_id: payload.postId, comment_id: null } : { post_id: null, comment_id: payload.commentId ?? null };
 
   const { data, error } = await supabase
@@ -41,8 +44,8 @@ export async function POST(request: Request) {
     .insert({
       reporter_id: member.id,
       ...target,
-      reason: payload.reason.trim(),
-      details: payload.details?.trim() || null,
+      reason: sanitizedReason,
+      details: sanitizedDetails,
     })
     .select('id, status')
     .single();
@@ -58,7 +61,7 @@ export async function POST(request: Request) {
     entity_id: payload.postId ?? payload.commentId ?? null,
     payload: {
       reporter_id: member.id,
-      reason: payload.reason.trim(),
+      reason: sanitizedReason,
     },
   });
 

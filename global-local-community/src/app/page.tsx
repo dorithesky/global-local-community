@@ -17,13 +17,13 @@ export default async function HomePage() {
   const recommendedCategory = accountSettings?.profile.immediateNeed || null;
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-8">
+    <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       {member ? (
-        <section className="rounded-[30px] border border-sky-100 bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/60 p-6 shadow-sm">
+        <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/60 p-4 shadow-sm sm:p-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Home</p>
-              <h2 className="mt-2 text-2xl font-semibold text-slate-900">Latest posts</h2>
+              <h2 className="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">Latest posts</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
                 {recommendedCategory ? `Your current need is ${recommendedCategory}. Start there, then widen out when you want broader context.` : 'Start with recent posts, then ask one useful question when you need help.'}
               </p>
@@ -41,16 +41,16 @@ export default async function HomePage() {
           </div>
           {!accountSettings?.profile.immediateNeed || !accountSettings?.profile.occupation ? (
             <div className="mt-4 rounded-2xl border border-sky-200 bg-white/75 p-4 text-sm text-sky-950 shadow-sm">
-              Add your city, occupation, and current need to make the feed more relevant.
-              <Link href="/settings?onboarding=1" className="ml-2 font-medium text-sky-700 underline underline-offset-4">Finish onboarding</Link>
+              <p>Add your city, occupation, and current need to make the feed more relevant.</p>
+              <Link href="/settings?onboarding=1" className="mt-2 inline-flex font-medium text-sky-700 underline underline-offset-4">Finish onboarding</Link>
             </div>
           ) : null}
         </section>
       ) : (
         <>
-          <section className="rounded-[2rem] bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/70 p-6 shadow-sm ring-1 ring-sky-100">
+          <section className="rounded-3xl bg-gradient-to-br from-white via-sky-50/70 to-cyan-50/70 p-4 shadow-sm ring-1 ring-sky-100 sm:p-6">
             <p className="text-xs uppercase tracking-[0.24em] text-sky-700">English-first community for life in Korea</p>
-            <h1 className="mt-3 max-w-3xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">High-signal local help for foreigners living across Korea.</h1>
+            <h1 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl">High-signal local help for foreigners living across Korea.</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
               Find housing leads, job context, and daily-life answers in one place, with visible profiles and moderated discussion instead of scattered chat noise.
             </p>
@@ -79,7 +79,7 @@ export default async function HomePage() {
           </section>
 
           <section className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-[30px] border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/60 p-6 shadow-sm">
+            <div className="rounded-3xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/60 p-4 shadow-sm sm:p-6">
               <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Community snapshot</p>
               <div className="mt-3 space-y-3 text-sm text-slate-600">
                 <p><span className="font-semibold text-slate-900">{activeMembers}</span> members with onboarding completed</p>
@@ -87,7 +87,7 @@ export default async function HomePage() {
                 <p><span className="font-semibold text-slate-900">{visibleCities}</span> city buckets represented</p>
               </div>
             </div>
-            <div className="rounded-[30px] border border-sky-100 bg-gradient-to-br from-white to-sky-50/60 p-6 shadow-sm md:col-span-2">
+            <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/60 p-4 shadow-sm sm:p-6 md:col-span-2">
               <p className="text-xs uppercase tracking-[0.24em] text-sky-700">How to get value fast</p>
               <div className="mt-3 grid gap-3 md:grid-cols-3">
                 <div className="rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-100">
@@ -120,11 +120,11 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <section className="rounded-[30px] border border-sky-100 bg-gradient-to-r from-white to-sky-50/50 p-6 shadow-sm">
+      <section className="rounded-3xl border border-sky-100 bg-gradient-to-r from-white to-sky-50/50 p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.24em] text-sky-700">Initial growth engine</p>
-            <h2 className="mt-2 text-2xl font-semibold text-slate-900">Start with the first 10 real users, then compound trust.</h2>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900 sm:text-2xl">Start with the first 10 real users, then compound trust.</h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">Keep the experience clean, city-aware, and useful enough that people come back because it saves time, not because it shouts.</p>
           </div>
           <Link href="/feed" className="inline-flex items-center gap-2 text-sm font-medium text-sky-700 hover:text-sky-800">

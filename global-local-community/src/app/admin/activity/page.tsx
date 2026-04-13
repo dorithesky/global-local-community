@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { AdminShell } from '@/components/admin-shell';
@@ -7,6 +8,7 @@ import { getAdminModerationView } from '@/lib/data';
 import { cityScopeLabel } from '@/lib/locations';
 
 export default async function AdminActivityPage() {
+  noStore();
   const admin = await requireAdmin();
   if (!admin) notFound();
 
@@ -18,14 +20,14 @@ export default async function AdminActivityPage() {
       title="Activity and audit trail"
       description="Review recent community activity and inspect comment history without competing with moderation or member management controls."
     >
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/30 p-6 shadow-sm">
+      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-6">
+        <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/30 p-4 shadow-sm sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Community activity</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900">Recent posts</h2>
           <div className="mt-4 space-y-3">
             {recentPosts.map((post) => (
-              <div key={post.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
-                <div className="flex items-start justify-between gap-4">
+              <div key={post.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div>
                     <p className="font-medium text-slate-900">{post.title}</p>
                     <p className="mt-1">{post.category} • {cityScopeLabel(post.city, post.district)}</p>
@@ -38,12 +40,12 @@ export default async function AdminActivityPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/30 p-6 shadow-sm">
+        <section className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/30 p-4 shadow-sm sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Audit trail</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900">Comment history</h2>
           <div className="mt-4 space-y-3">
             {commentHistory.length ? commentHistory.map((event) => (
-              <div key={event.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm">
+              <div key={event.id} className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm sm:p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="font-medium capitalize text-slate-900">{event.eventType}</p>
                   <span>•</span>

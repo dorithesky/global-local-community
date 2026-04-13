@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
@@ -7,6 +8,7 @@ import { getCurrentMember } from '@/lib/auth';
 import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  noStore();
   const { username } = await params;
   const profile = await getProfile(username);
   if (!profile) notFound();
@@ -19,9 +21,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const memberAgeLabel = profile.createdAt ? formatDistanceToNow(new Date(profile.createdAt), { addSuffix: true }) : null;
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-8">
+    <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader eyebrow="Profile" title={profile.displayName} description={profile.bio ? `${profile.bio} · @${profile.username}` : `@${profile.username}`} />
-      <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/40 p-6 shadow-sm text-sm text-slate-600">
+      <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/40 p-4 text-sm text-slate-600 shadow-sm sm:p-6">
         <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             {profile.avatarUrl ? (
@@ -32,8 +34,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
                 {profile.displayName.slice(0, 1).toUpperCase()}
               </div>
             )}
-            <div>
-              <p className="text-lg font-semibold text-slate-950">{profile.displayName}</p>
+            <div className="min-w-0">
+              <p className="truncate text-lg font-semibold text-slate-950">{profile.displayName}</p>
               <p className="text-sm text-slate-500">@{profile.username}</p>
               <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profileComments.length} comments</p>
               <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-medium">
@@ -44,7 +46,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
             </div>
           </div>
         </div>
-        <div className="mt-5 grid gap-3 md:grid-cols-3">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
           <div>
             <p className="font-medium text-slate-900">City</p>
             <p>{profile.city}</p>
@@ -65,8 +67,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         </div>
       </section>
       {isOwnProfile ? (
-        <section className="rounded-3xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/40 p-6 shadow-sm text-sm text-slate-600">
-          <div className="grid gap-4 md:grid-cols-3">
+        <section className="rounded-3xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/40 p-4 text-sm text-slate-600 shadow-sm sm:p-6">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div>
               <p className="font-medium text-slate-900">Your posts</p>
               <p>{authoredPosts.length}</p>
@@ -92,15 +94,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Comments</h2>
         {profileComments.length ? profileComments.map((comment) => (
-          <div key={comment.id} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+          <div key={comment.id} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
             <p className="text-sm font-medium text-slate-900">{profile.displayName}</p>
             <p className="mt-1 text-xs text-slate-500">@{profile.username} • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}</p>
-            <p className="mt-3 text-sm leading-7 text-slate-600">{comment.body}</p>
+            <p className="mt-3 text-sm leading-6 text-slate-600 sm:leading-7">{comment.body}</p>
             <div className="mt-4">
               <Link href={`/posts/${comment.postId}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">Open original post</Link>
             </div>
           </div>
-        )) : <div className="rounded-3xl border border-slate-200 bg-white p-5 text-sm text-slate-500 shadow-sm">No comments yet.</div>}
+        )) : <div className="rounded-3xl border border-slate-200 bg-white p-4 text-sm text-slate-500 shadow-sm sm:p-5">No comments yet.</div>}
       </section>
     </div>
   );

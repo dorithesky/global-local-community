@@ -12,7 +12,7 @@ export function PostDetailReportTrigger({ action }: { action: (formData: FormDat
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
+        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
       >
         <Flag className="h-4 w-4" />
         {open ? 'Close report' : 'Report'}

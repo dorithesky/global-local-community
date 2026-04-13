@@ -8,20 +8,20 @@ const options = [
 
 export function NotificationPreferencesForm() {
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
       <form action={saveNotificationPreferencesAction} className="space-y-4">
         <div>
           <p className="text-sm font-semibold text-slate-900">Notify if:</p>
         </div>
         <div className="space-y-3">
           {options.map((option) => (
-            <label key={option.name} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800">
+            <label key={option.name} className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-medium text-slate-800">
               <span>{option.label}</span>
               <input type="checkbox" name={option.name} defaultChecked className="h-4 w-4" />
             </label>
           ))}
         </div>
-        <button type="submit" className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+        <button type="submit" className="min-h-11 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
           Save preferences
         </button>
       </form>

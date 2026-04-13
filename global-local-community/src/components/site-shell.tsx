@@ -30,19 +30,19 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bg-base)] text-[var(--text-primary)]">
+    <div className="min-h-screen overflow-x-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
       <header className="sticky top-0 z-50 border-b border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <div className="flex min-w-0 items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-primary)] text-white shadow-sm">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-4 lg:py-4">
+          <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-primary)] text-white shadow-sm sm:h-11 sm:w-11">
               <MapPinned className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--accent-primary)]">Global Local Community</p>
-              <h1 className="truncate text-base font-semibold text-[var(--text-primary)] sm:text-lg">English-first support for life in Korea</h1>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--accent-primary)] sm:text-[11px]">Global Local Community</p>
+              <h1 className="truncate text-sm font-semibold text-[var(--text-primary)] sm:text-base lg:text-lg">English-first support for life in Korea</h1>
             </div>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <ThemeToggle compact />
             {member ? (
               <>
@@ -52,13 +52,13 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             ) : (
               <HeaderAuthControls signedInContent={<></>} />
             )}
-            <Link href="/create" className="rounded-full bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[var(--accent-primary-strong)]">
+            <Link href="/create" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[var(--accent-primary-strong)]">
               Create post
             </Link>
           </div>
         </div>
       </header>
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
+      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-4 sm:px-6 sm:py-6">
         <aside className="hidden w-72 shrink-0 xl:block">
           <div className="space-y-4">
             <nav className="rounded-3xl border border-[var(--border-strong)] bg-[var(--surface-primary)] p-3 shadow-sm">
@@ -93,14 +93,14 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         </aside>
         <main className="min-w-0 flex-1">{children}</main>
       </div>
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 p-2 backdrop-blur xl:hidden">
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 backdrop-blur xl:hidden">
         <div className={clsx('grid gap-2', member?.isAdmin ? 'grid-cols-5' : 'grid-cols-4')}>
           {nav.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.href} href={item.href} className="flex flex-col items-center rounded-2xl px-2 py-2 text-[11px] font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
+              <Link key={item.href} href={item.href} className="flex min-h-14 flex-col items-center justify-center rounded-2xl px-2 py-2 text-[11px] font-medium leading-tight text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
                 <Icon className="mb-1 h-4 w-4" />
-                {item.label}
+                <span className="truncate">{item.label}</span>
               </Link>
             );
           })}

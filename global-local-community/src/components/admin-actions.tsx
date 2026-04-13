@@ -14,7 +14,7 @@ function AdminButton({ label, tone = 'neutral' }: { label: string; tone?: 'neutr
     <button
       type="submit"
       disabled={pending}
-      className={`rounded-full border px-3 py-2 text-xs font-medium disabled:opacity-60 ${toneClass}`}
+      className={`min-h-10 rounded-full border px-3 py-2 text-xs font-medium disabled:opacity-60 ${toneClass}`}
     >
       {pending ? 'Saving...' : label}
     </button>
@@ -40,7 +40,7 @@ export function PostVisibilityForm({ postId, moderationStatus, action }: { postI
         type="text"
         name="note"
         placeholder="Optional moderator note"
-        className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
       />
       <AdminButton label={moderationStatus === 'hidden' ? 'Hide post' : 'Keep post'} tone={moderationStatus === 'hidden' ? 'danger' : 'success'} />
     </form>
@@ -59,7 +59,7 @@ export function ModeratorNoteForm({ action, reportId, postId, commentId, targetU
         name="note"
         required
         placeholder="Internal note"
-        className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
       />
       <AdminButton label="Add note" />
     </form>
@@ -70,7 +70,7 @@ export function UserSanctionForm({ action, userId }: { action: (formData: FormDa
   return (
     <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3">
       <input type="hidden" name="userId" value={userId} />
-      <select name="sanctionType" required className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700">
+      <select name="sanctionType" required className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700">
         <option value="warn">Warn</option>
         <option value="mute">Mute</option>
         <option value="suspend">Suspend</option>
@@ -81,14 +81,14 @@ export function UserSanctionForm({ action, userId }: { action: (formData: FormDa
         name="reason"
         required
         placeholder="Reason"
-        className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
       />
       <input type="hidden" name="confirm" value="yes" />
       <input
         type="text"
         name="note"
         placeholder="Optional note"
-        className="rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
       />
       <p className="basis-full text-[11px] leading-5 text-rose-700">Sanctions are admin-only. Use a clear reason and apply carefully.</p>
       <AdminButton label="Apply sanction" tone="danger" />

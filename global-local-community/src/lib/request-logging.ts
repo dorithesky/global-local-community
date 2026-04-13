@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
+import { sanitizePlainText } from '@/lib/security';
 
 type RequestLogPayload = {
   userId?: string | null;
@@ -7,6 +8,10 @@ type RequestLogPayload = {
   userAgent?: string | null;
   ip?: string | null;
 };
+
+const MAX_PATH_LENGTH = 160;
+const MAX_USER_AGENT_LENGTH = 240;
+const MAX_IP_LENGTH = 64;
 
 export async function getClientIpFromHeaders() {
   const headerStore = await headers();
@@ -16,10 +21,10 @@ export async function getClientIpFromHeaders() {
 
   if (forwardedFor) {
     const firstIp = forwardedFor.split(',')[0]?.trim();
-    if (firstIp) return firstIp;
+    if (firstIp) return sanitizePlainText(firstIp, { maxLength: MAX_IP_LENGTH, allowNewlines: false });
   }
 
-  return cfIp?.trim() || realIp?.trim() || null;
+  return sanitizePlainText(cfIp?.trim() || realIp?.trim() || '', { maxLength: MAX_IP_LENGTH, allowNewlines: false }) || null;
 }
 
 export async function logServerRequest(payload: Omit<RequestLogPayload, 'ip' | 'userAgent'> & Partial<Pick<RequestLogPayload, 'ip' | 'userAgent'>>) {
@@ -32,8 +37,8 @@ export async function logServerRequest(payload: Omit<RequestLogPayload, 'ip' | '
 
   await supabase.from('request_logs').insert({
     user_id: payload.userId ?? null,
-    ip,
-    path: payload.path,
-    user_agent: userAgent,
+    ip: sanitizePlainText(ip, { maxLength: MAX_IP_LENGTH, allowNewlines: false }) || null,
+    path: sanitizePlainText(payload.path, { maxLength: MAX_PATH_LENGTH, allowNewlines: false }),
+    user_agent: sanitizePlainText(userAgent, { maxLength: MAX_USER_AGENT_LENGTH, allowNewlines: false }) || null,
   });
 }
