@@ -42,24 +42,24 @@ function CommentCard({
 
   return (
     <div className={`${isReply ? 'rounded-xl bg-transparent' : 'rounded-2xl bg-slate-50'} ${isReply ? 'p-0' : 'p-4 sm:p-5'}`}>
-      <div className={`flex items-start ${isReply ? 'gap-2.5' : 'gap-3'}`}>
+      <div className={`flex items-start ${isReply ? 'gap-2' : 'gap-2.5'}`}>
         {comment.author.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={comment.author.avatarUrl} alt={comment.author.displayName} className={`${isReply ? 'h-8 w-8' : 'h-9 w-9'} rounded-full object-cover ring-2 ring-white`} />
+          <img src={comment.author.avatarUrl} alt={comment.author.displayName} className={`${isReply ? 'h-7.5 w-7.5' : 'h-8 w-8'} rounded-full object-cover ring-2 ring-white`} />
         ) : (
-          <div className={`flex ${isReply ? 'h-8 w-8' : 'h-9 w-9'} items-center justify-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700 ring-2 ring-white`}>
+          <div className={`flex ${isReply ? 'h-7.5 w-7.5' : 'h-8 w-8'} items-center justify-center rounded-full bg-sky-100 text-[11px] font-semibold text-sky-700 ring-2 ring-white`}>
             {comment.author.displayName.slice(0, 1).toUpperCase()}
           </div>
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-3">
             <Link href={`/profile/${comment.author.username}`} className="block min-w-0 flex-1 rounded-xl transition hover:bg-white/70">
-              <div className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:flex-wrap sm:items-center sm:gap-1.5">
-                <p className="truncate text-sm font-medium text-slate-900">{comment.author.displayName}</p>
+              <div className="flex min-w-0 flex-col gap-0 sm:flex-row sm:flex-wrap sm:items-center sm:gap-1">
+                <p className="truncate text-sm font-medium leading-5 text-slate-900">{comment.author.displayName}</p>
                 <p className="hidden text-xs text-slate-500 sm:inline">·</p>
                 <p className="hidden truncate text-xs text-slate-500 sm:inline">@{comment.author.username}</p>
                 <p className="hidden text-xs text-slate-500 sm:inline">·</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs leading-5 text-slate-500">
                   {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                   {comment.updatedAt && comment.updatedAt !== comment.createdAt ? ' • edited' : ''}
                 </p>
@@ -93,8 +93,8 @@ function CommentCard({
               {isReply && comment.replyTarget ? (
                 <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.14em] text-sky-700">Replying to {comment.replyTarget.displayName}</p>
               ) : null}
-              <p className={`${isReply ? 'mt-1.5' : 'mt-2'} text-sm leading-6 text-slate-600`}>{comment.body}</p>
-              <div className={`${isReply ? 'mt-1.5' : 'mt-2.5'} flex flex-wrap items-center gap-2 sm:gap-4`}>
+              <p className={`${isReply ? 'mt-1' : 'mt-1.5'} text-sm leading-6 text-slate-600`}>{comment.body}</p>
+              <div className={`${isReply ? 'mt-1' : 'mt-1.5'} flex flex-wrap items-center gap-2 sm:gap-3`}>
                 {comment.canEdit ? (
                   <>
                     <button type="button" onClick={() => setEditingId(comment.id)} className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">Edit</button>
@@ -103,9 +103,7 @@ function CommentCard({
                       <CommentActionButton label="Delete" />
                     </form>
                   </>
-                ) : (
-                  <p className="text-xs leading-5 text-slate-400">Only the author can edit or delete this {isReply ? 'reply' : 'comment'}.</p>
-                )}
+                ) : null}
                 {!isReply ? (
                   <button
                     type="button"
