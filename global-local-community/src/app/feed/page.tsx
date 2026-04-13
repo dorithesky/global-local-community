@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
 import { FeedFilters } from '@/components/feed-filters';
-import { PaginatedPostList } from '@/components/paginated-post-list';
-import { getFeedPosts } from '@/lib/data';
+import { FeedPostList } from '@/components/feed-post-list';
+import { getPaginatedFeedPosts } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
 import { getAccountSettings } from '@/lib/settings';
 
@@ -10,7 +10,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
   const params = await searchParams;
   const member = await getCurrentMember();
   const settings = member ? await getAccountSettings() : null;
-  const posts = await getFeedPosts({ city: params.city, category: params.category, query: params.q, sort: params.sort });
+  const feed = await getPaginatedFeedPosts({ city: params.city, category: params.category, query: params.q, sort: params.sort, page: 1, limit: 10 });
   const onboardingReady = Boolean(
     settings?.profile.city || settings?.profile.occupation || settings?.profile.originCountry || settings?.profile.lifeStage || settings?.profile.immediateNeed,
   );
@@ -39,11 +39,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
         </section>
       ) : null}
       <FeedFilters />
-      <PaginatedPostList
-        posts={posts}
-        pageSize={10}
-        emptyMessage="No posts matched those filters yet. Try a broader city, category, or search phrase."
-      />
+      <FeedPostList initialPosts={feed.items} initialPage={feed.page} hasMore={feed.hasMore} />
     </div>
   );
 }

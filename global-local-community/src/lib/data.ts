@@ -2,7 +2,7 @@ import { canRoleDeleteAuthorContent, getCurrentMember } from './auth';
 import { sanitizePlainText } from './security';
 import { getSupabaseServerClient } from './supabase-server';
 import { getCommentsByPostId } from './mock-data';
-import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
+import type { CommentEventRecord, CommentRecord, PaginatedPostList, PostDetailDebug, PostRecord, Profile } from './types';
 
 function cleanLegacyProfileText(value?: unknown) {
   if (!value) return undefined;
@@ -170,7 +170,7 @@ async function getRoleBadgeMap(userIds: string[]) {
   return roleMap;
 }
 
-export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null; limit?: number }): Promise<PostRecord[]> {
+export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null; limit?: number; page?: number }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
 
@@ -180,7 +180,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     .select('id, author_id, category, title, body, city, district, tags, image_urls, ai_label, ai_score, ai_explanation, created_at, moderation_status')
     .eq('moderation_status', 'published')
     .order('created_at', { ascending: false })
-    .limit(filters?.limit ?? 200);
+    .range(((filters?.page ?? 1) - 1) * (filters?.limit ?? 200), (((filters?.page ?? 1) - 1) * (filters?.limit ?? 200)) + (filters?.limit ?? 200) - 1);
 
   if (filters?.city && filters.city !== 'all') queryBuilder = queryBuilder.eq('city', filters.city);
   if (filters?.category && filters.category !== 'all') queryBuilder = queryBuilder.eq('category', filters.category);
@@ -242,7 +242,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 }
 
 export async function getTrendingPosts(limit = 5): Promise<PostRecord[]> {
-  const posts = await getFeedPosts({ sort: 'recent', limit: 200 });
+  const posts = await getFeedPosts({ sort: 'recent', limit: 200, page: 1 });
 
   return [...posts]
     .sort((a, b) => {
@@ -251,6 +251,21 @@ export async function getTrendingPosts(limit = 5): Promise<PostRecord[]> {
       return scoreB - scoreA;
     })
     .slice(0, limit);
+}
+
+export async function getPaginatedFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null; limit?: number; page?: number }): Promise<PaginatedPostList> {
+  const page = Math.max(filters?.page ?? 1, 1);
+  const pageSize = Math.max(filters?.limit ?? 10, 1);
+  const items = await getFeedPosts({ ...filters, limit: pageSize, page });
+  const hasMore = items.length === pageSize;
+
+  return {
+    items,
+    total: hasMore ? page * pageSize + 1 : ((page - 1) * pageSize) + items.length,
+    page,
+    pageSize,
+    hasMore,
+  };
 }
 
 export async function getPost(id: string): Promise<PostRecord | undefined> {

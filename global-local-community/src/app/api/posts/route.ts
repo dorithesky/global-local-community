@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
-import { getFeedPosts } from '@/lib/data';
+import { getPaginatedFeedPosts } from '@/lib/data';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { logServerRequest } from '@/lib/request-logging';
 import { sanitizePlainText } from '@/lib/security';
@@ -21,19 +21,24 @@ const createPostSchema = z.object({
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const data = await getFeedPosts({
+  const page = Number.parseInt(searchParams.get('page') ?? '1', 10);
+  const limit = Number.parseInt(searchParams.get('limit') ?? '10', 10);
+  const result = await getPaginatedFeedPosts({
     city: searchParams.get('city'),
     category: searchParams.get('category'),
-    query: searchParams.get('query'),
+    query: searchParams.get('query') ?? searchParams.get('q'),
     sort: searchParams.get('sort'),
+    page: Number.isNaN(page) ? 1 : page,
+    limit: Number.isNaN(limit) ? 10 : limit,
   });
 
   return NextResponse.json(
     {
-      data,
+      data: result.items,
       pagination: {
-        cursor: null,
-        hasMore: false,
+        page: result.page,
+        limit: result.pageSize,
+        hasMore: result.hasMore,
       },
     },
     {
