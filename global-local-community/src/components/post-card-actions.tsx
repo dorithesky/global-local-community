@@ -1,9 +1,7 @@
 "use client";
 
-import { Flag, Bookmark, Heart, Trash2 } from 'lucide-react';
+import { Bookmark, Heart, Trash2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
-import { useState } from 'react';
-import { AuthModal } from '@/components/auth-modal';
 
 function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick }: { label: string; icon: React.ReactNode; tone?: 'neutral' | 'danger'; type?: 'button' | 'submit'; onClick?: () => void }) {
   const { pending } = useFormStatus();
@@ -31,27 +29,6 @@ export function FeedBookmarkButton({ action, active }: { action: (formData: Form
   return (
     <form action={action}>
       <ActionButton label={active ? 'Saved' : 'Save'} icon={<Bookmark className="h-3.5 w-3.5" />} />
-    </form>
-  );
-}
-
-export function FeedReportButton({ action, signedIn }: { action: (formData: FormData) => Promise<void>; signedIn: boolean }) {
-  const [authOpen, setAuthOpen] = useState(false);
-
-  if (!signedIn) {
-    return (
-      <>
-        <ActionButton label="Sign in to report" icon={<Flag className="h-3.5 w-3.5" />} tone="danger" type="button" onClick={() => setAuthOpen(true)} />
-        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-      </>
-    );
-  }
-
-  return (
-    <form action={action}>
-      <input type="hidden" name="reason" value="other" />
-      <input type="hidden" name="details" value="Quick report from feed card." />
-      <ActionButton label="Report" icon={<Flag className="h-3.5 w-3.5" />} tone="danger" />
     </form>
   );
 }

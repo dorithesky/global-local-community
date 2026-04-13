@@ -7,6 +7,7 @@ import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMemb
 import { canCurrentMemberManageComment } from '@/lib/data';
 import { logServerRequest } from '@/lib/request-logging';
 import { sanitizePlainText } from '@/lib/security';
+import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -229,12 +230,14 @@ export async function createReportAction(postId: string, formData: FormData) {
   if (!supabase) throw new Error('Supabase is not configured.');
 
   const commentId = formData.get('commentId') ? String(formData.get('commentId')) : undefined;
+  const reason = sanitizePlainText(formData.get('reason'), { maxLength: 80, allowNewlines: false });
+  const details = sanitizePlainText(formData.get('details'), { maxLength: 500, allowNewlines: true }) || undefined;
 
   const parsed = reportSchema.safeParse({
     postId: commentId ? undefined : postId,
     commentId,
-    reason: sanitizePlainText(formData.get('reason'), { maxLength: 80, allowNewlines: false }),
-    details: sanitizePlainText(formData.get('details'), { maxLength: 500, allowNewlines: true }) || undefined,
+    reason,
+    details,
   });
 
   if (!parsed.success) {
@@ -243,13 +246,13 @@ export async function createReportAction(postId: string, formData: FormData) {
 
   const payload = parsed.data;
 
-  const { error } = await supabase.from('reports').insert({
+  const { data: reportRow, error } = await supabase.from('reports').insert({
     reporter_id: member.id,
     post_id: payload.postId ?? null,
     comment_id: payload.commentId ?? null,
     reason: payload.reason,
     details: payload.details ?? null,
-  });
+  }).select('id, status').single();
 
   if (error) {
     if (error.code === '23505') {
@@ -258,17 +261,44 @@ export async function createReportAction(postId: string, formData: FormData) {
     throw new Error(error.message);
   }
 
-  await supabase.from('workflow_events').insert({
-    event_type: 'report.created',
-    entity_type: payload.commentId ? 'comment' : 'post',
-    entity_id: payload.commentId ?? payload.postId ?? null,
-    payload: { reason: payload.reason, reporter_id: member.id },
-  });
+  const reportPath = payload.commentId ? `/posts/${postId}/report-comment` : `/posts/${postId}/report`;
+  const reportEntityType = payload.commentId ? 'comment' : 'post';
+  const reportEntityId = payload.commentId ?? payload.postId ?? null;
+
+  try {
+    await supabase.from('workflow_events').insert({
+      event_type: 'report.created',
+      entity_type: reportEntityType,
+      entity_id: reportEntityId,
+      payload: { reason: payload.reason, reporter_id: member.id, report_id: reportRow.id },
+    });
+  } catch (workflowError) {
+    console.error('workflow event logging failed for report.created', workflowError);
+  }
 
   await logServerRequest({
     userId: member.id,
-    path: payload.commentId ? `/posts/${postId}/report-comment` : `/posts/${postId}/report`,
+    path: reportPath,
   });
+
+  try {
+    await recordSecurityEvent({
+      eventType: 'report.created',
+      severity: 'medium',
+      userId: member.id,
+      path: reportPath,
+      entityType: reportEntityType,
+      entityId: reportEntityId,
+      payload: {
+        reason: payload.reason,
+        reportId: reportRow.id,
+      },
+    });
+
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for report.created', securityError);
+  }
 
   revalidatePath('/admin');
   revalidatePath(`/posts/${postId}`);
