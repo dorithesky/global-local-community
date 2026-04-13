@@ -73,19 +73,23 @@ export async function POST(request: Request) {
     path: '/api/reports',
   });
 
-  await recordSecurityEvent({
-    eventType: 'report.created',
-    severity: 'medium',
-    userId: member.id,
-    path: '/api/reports',
-    entityType: payload.postId ? 'post' : 'comment',
-    entityId: payload.postId ?? payload.commentId ?? null,
-    payload: {
-      reason: sanitizedReason,
-    },
-  });
+  try {
+    await recordSecurityEvent({
+      eventType: 'report.created',
+      severity: 'medium',
+      userId: member.id,
+      path: '/api/reports',
+      entityType: payload.postId ? 'post' : 'comment',
+      entityId: payload.postId ?? payload.commentId ?? null,
+      payload: {
+        reason: sanitizedReason,
+      },
+    });
 
-  await detectSecurityAlerts();
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for report.created', securityError);
+  }
 
   return NextResponse.json({
     data: {

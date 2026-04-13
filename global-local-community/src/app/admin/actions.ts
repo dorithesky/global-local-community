@@ -64,17 +64,21 @@ export async function updateReportStatusAction(formData: FormData) {
 
   await logServerRequest({ userId: moderator.id, path: '/admin/actions/report-status' });
 
-  await recordSecurityEvent({
-    eventType: 'moderation.report_status_updated',
-    severity: 'medium',
-    userId: moderator.id,
-    path: '/admin/actions/report-status',
-    entityType: 'report',
-    entityId: reportId,
-    payload: { status },
-  });
+  try {
+    await recordSecurityEvent({
+      eventType: 'moderation.report_status_updated',
+      severity: 'medium',
+      userId: moderator.id,
+      path: '/admin/actions/report-status',
+      entityType: 'report',
+      entityId: reportId,
+      payload: { status },
+    });
 
-  await detectSecurityAlerts();
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for moderation.report_status_updated', securityError);
+  }
 
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
@@ -123,17 +127,21 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
 
   await logServerRequest({ userId: moderator.id, path: '/admin/actions/post-visibility' });
 
-  await recordSecurityEvent({
-    eventType: 'moderation.post_visibility_updated',
-    severity: 'medium',
-    userId: moderator.id,
-    path: '/admin/actions/post-visibility',
-    entityType: 'post',
-    entityId: postId,
-    payload: { moderationStatus },
-  });
+  try {
+    await recordSecurityEvent({
+      eventType: 'moderation.post_visibility_updated',
+      severity: 'medium',
+      userId: moderator.id,
+      path: '/admin/actions/post-visibility',
+      entityType: 'post',
+      entityId: postId,
+      payload: { moderationStatus },
+    });
 
-  await detectSecurityAlerts();
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for moderation.post_visibility_updated', securityError);
+  }
 
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
@@ -216,17 +224,21 @@ export async function applyUserSanctionAction(formData: FormData) {
 
   await logServerRequest({ userId: admin.id, path: '/admin/actions/user-sanction' });
 
-  await recordSecurityEvent({
-    eventType: 'moderation.user_sanctioned',
-    severity: 'high',
-    userId: admin.id,
-    path: '/admin/actions/user-sanction',
-    entityType: 'profile',
-    entityId: userId,
-    payload: { sanctionType, reason },
-  });
+  try {
+    await recordSecurityEvent({
+      eventType: 'moderation.user_sanctioned',
+      severity: 'high',
+      userId: admin.id,
+      path: '/admin/actions/user-sanction',
+      entityType: 'profile',
+      entityId: userId,
+      payload: { sanctionType, reason },
+    });
 
-  await detectSecurityAlerts();
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for moderation.user_sanctioned', securityError);
+  }
 
   revalidatePath('/admin');
 }
@@ -313,17 +325,21 @@ export async function updateUserRoleAction(formData: FormData) {
 
   await logServerRequest({ userId: admin.id, path: '/admin/actions/user-role' });
 
-  await recordSecurityEvent({
-    eventType: intent === 'grant' ? 'moderation.role_granted' : 'moderation.role_revoked',
-    severity: 'critical',
-    userId: admin.id,
-    path: '/admin/actions/user-role',
-    entityType: 'profile',
-    entityId: userId,
-    payload: { role, intent },
-  });
+  try {
+    await recordSecurityEvent({
+      eventType: intent === 'grant' ? 'moderation.role_granted' : 'moderation.role_revoked',
+      severity: 'critical',
+      userId: admin.id,
+      path: '/admin/actions/user-role',
+      entityType: 'profile',
+      entityId: userId,
+      payload: { role, intent },
+    });
 
-  await detectSecurityAlerts();
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error(`security event logging failed for ${intent === 'grant' ? 'moderation.role_granted' : 'moderation.role_revoked'}`, securityError);
+  }
 
   revalidatePath('/admin');
   revalidatePath('/admin/members');
