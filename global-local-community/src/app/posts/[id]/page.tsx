@@ -27,8 +27,13 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
       <PageHeader eyebrow={post.category} title={post.title} description={`Posted by ${post.author.displayName} in ${cityScopeLabel(post.city, post.district)}.`} />
-      <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-        <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 sm:gap-3">
+      <article className="relative rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+        {!post.canEdit ? (
+          <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+            <PostDetailReportTrigger action={createReportAction.bind(null, id)} signedIn={Boolean(currentMember)} />
+          </div>
+        ) : null}
+        <div className="flex flex-wrap items-center gap-2 pr-12 text-sm text-slate-500 sm:gap-3 sm:pr-14">
           <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-slate-50/80">
             {post.author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -52,7 +57,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           <LikeButton action={toggleLikeAction.bind(null, id)} active={Boolean(post.liked)} count={post.likesCount} />
           <BookmarkButton action={toggleBookmarkAction.bind(null, id)} active={Boolean(post.bookmarked)} />
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2"><MessageCircle className="h-4 w-4" /> {visibleCommentCount} comments</span>
-          {post.canEdit ? <DeletePostButton action={deletePostAction.bind(null, id)} /> : <PostDetailReportTrigger action={createReportAction.bind(null, id)} signedIn={Boolean(currentMember)} />}
+          {post.canEdit ? <DeletePostButton action={deletePostAction.bind(null, id)} /> : null}
         </div>
       </article>
 

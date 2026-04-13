@@ -10,7 +10,7 @@ export function PostDetailReportTrigger({ action, signedIn }: { action: (formDat
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <div className="space-y-3">
+    <>
       <button
         type="button"
         onClick={() => {
@@ -20,13 +20,14 @@ export function PostDetailReportTrigger({ action, signedIn }: { action: (formDat
           }
           setOpen((value) => !value);
         }}
-        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100"
+        aria-label={signedIn ? (open ? 'Close report form' : 'Report post') : 'Sign in to report post'}
+        title={signedIn ? (open ? 'Close report form' : 'Report post') : 'Sign in to report post'}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-rose-200 bg-white text-rose-600 shadow-sm transition hover:bg-rose-50 hover:text-rose-700"
       >
         <Flag className="h-4 w-4" />
-        {signedIn ? (open ? 'Close report' : 'Report') : 'Sign in to report'}
       </button>
       {signedIn && open ? <ReportForm action={action} compact /> : null}
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-    </div>
+    </>
   );
 }

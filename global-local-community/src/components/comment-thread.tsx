@@ -47,13 +47,16 @@ export function CommentThread({
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <Link href={`/profile/${comment.author.username}`} className="block rounded-xl transition hover:bg-white/70">
+                <div className="flex items-start justify-between gap-3">
+                  <Link href={`/profile/${comment.author.username}`} className="block min-w-0 flex-1 rounded-xl transition hover:bg-white/70">
                   <p className="text-sm font-medium text-slate-900">{comment.author.displayName}</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    @{comment.author.username} • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
-                    {comment.updatedAt && comment.updatedAt !== comment.createdAt ? ' • edited' : ''}
-                  </p>
-                </Link>
+                    <p className="mt-1 text-xs text-slate-500">
+                      @{comment.author.username} • {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                      {comment.updatedAt && comment.updatedAt !== comment.createdAt ? ' • edited' : ''}
+                    </p>
+                  </Link>
+                  {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} signedIn={signedIn} /> : null}
+                </div>
 
                 {comment.deletedAt ? (
                   <div className="mt-2 rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-sm italic text-slate-500">
@@ -89,7 +92,6 @@ export function CommentThread({
                     ) : (
                       <p className="mt-3 text-xs leading-5 text-slate-400">Only the author can edit or delete this reply.</p>
                     )}
-                    {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} signedIn={signedIn} /> : null}
                   </>
                 )}
               </div>

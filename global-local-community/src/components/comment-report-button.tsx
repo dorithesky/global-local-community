@@ -10,7 +10,7 @@ export function CommentReportButton({ action, commentId, signedIn }: { action: (
   const [authOpen, setAuthOpen] = useState(false);
 
   return (
-    <div className="mt-3 space-y-2">
+    <>
       <button
         type="button"
         onClick={() => {
@@ -20,19 +20,20 @@ export function CommentReportButton({ action, commentId, signedIn }: { action: (
           }
           setOpen((value) => !value);
         }}
-        className="inline-flex min-h-10 items-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-rose-600 transition hover:bg-rose-50 hover:text-rose-700"
+        aria-label={signedIn ? (open ? 'Close report form' : 'Report comment') : 'Sign in to report comment'}
+        title={signedIn ? (open ? 'Close report form' : 'Report comment') : 'Sign in to report comment'}
+        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent text-rose-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
       >
-        <Flag className="h-3.5 w-3.5" />
-        {signedIn ? (open ? 'Cancel report' : 'Report comment') : 'Sign in to report'}
+        <Flag className="h-4 w-4" />
       </button>
       {signedIn && open ? (
-        <div className="max-w-xl min-w-0">
+        <div className="mt-3 max-w-xl min-w-0">
           <ReportForm action={action} compact targetLabel="Report this comment">
             <input type="hidden" name="commentId" value={commentId} />
           </ReportForm>
         </div>
       ) : null}
       <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
-    </div>
+    </>
   );
 }
