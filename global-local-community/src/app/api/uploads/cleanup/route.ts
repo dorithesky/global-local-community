@@ -35,21 +35,68 @@ export async function POST() {
     return NextResponse.json({ data: { removed: 0 } });
   }
 
-  const buckets = new Map<string, string[]>();
+  const buckets = new Map<string, Array<{ id: string; path: string }>>();
   for (const row of rows) {
     const existing = buckets.get(row.bucket) ?? [];
-    existing.push(row.storage_path);
+    existing.push({ id: row.id, path: row.storage_path });
     buckets.set(row.bucket, existing);
   }
 
-  for (const [bucket, paths] of buckets.entries()) {
-    await adminClient.storage.from(bucket).remove(paths);
+  const removedIds: string[] = [];
+  const failures: Array<{ bucket: string; paths: string[]; error: string }> = [];
+
+  for (const [bucket, entries] of buckets.entries()) {
+    const paths = entries.map((entry) => entry.path);
+    const { error: removeError } = await adminClient.storage.from(bucket).remove(paths);
+
+    if (removeError) {
+      failures.push({ bucket, paths, error: removeError.message });
+      continue;
+    }
+
+    removedIds.push(...entries.map((entry) => entry.id));
   }
 
-  await supabase
-    .from('pending_uploads')
-    .update({ status: 'expired', updated_at: now })
-    .in('id', rows.map((row) => row.id));
+  if (removedIds.length) {
+    const { error: updateError } = await supabase
+      .from('pending_uploads')
+      .update({ status: 'expired', updated_at: now })
+      .in('id', removedIds);
 
-  return NextResponse.json({ data: { removed: rows.length } });
+    if (updateError) {
+      await supabase.from('workflow_events').insert({
+        event_type: 'uploads.cleanup_db_update_failed',
+        entity_type: 'pending_upload',
+        entity_id: null,
+        payload: {
+          actor_id: member.id,
+          removed_ids: removedIds,
+          error: updateError.message,
+        },
+      });
+
+      return NextResponse.json({ error: 'Storage cleanup succeeded, but upload state reconciliation failed.' }, { status: 500 });
+    }
+  }
+
+  if (failures.length) {
+    await supabase.from('workflow_events').insert({
+      event_type: 'uploads.cleanup_partial_failure',
+      entity_type: 'pending_upload',
+      entity_id: null,
+      payload: {
+        actor_id: member.id,
+        failures,
+        removed_count: removedIds.length,
+      },
+    });
+  }
+
+  return NextResponse.json({
+    data: {
+      removed: removedIds.length,
+      failed: failures.length,
+      partialFailure: failures.length > 0,
+    },
+  });
 }

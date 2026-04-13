@@ -2,9 +2,11 @@ import { redirect } from 'next/navigation';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
 import { getCurrentMember } from '@/lib/auth';
+import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getSavedPosts } from '@/lib/data';
 
 export default async function SavedPostsPage() {
+  markSensitiveRoute();
   const member = await getCurrentMember();
   if (!member) redirect('/');
 

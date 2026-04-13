@@ -13,6 +13,25 @@ const roleChangeSchema = z.object({
   confirm: z.string().trim().toLowerCase().optional(),
 });
 
+const reportStatusSchema = z.object({
+  reportId: z.string().uuid(),
+  status: z.enum(['open', 'reviewing', 'resolved']),
+});
+
+const postVisibilitySchema = z.object({
+  postId: z.string().uuid(),
+  moderationStatus: z.enum(['published', 'hidden', 'review']),
+  note: z.string().trim().max(500).optional(),
+});
+
+const userSanctionSchema = z.object({
+  userId: z.string().min(1),
+  sanctionType: z.enum(['warn', 'mute', 'suspend', 'ban']),
+  reason: z.string().trim().min(3).max(200),
+  note: z.string().trim().max(500).optional(),
+  confirm: z.string().trim().toLowerCase(),
+});
+
 export async function updateReportStatusAction(formData: FormData) {
   const moderator = await requireModerator();
   if (!moderator) throw new Error('Unauthorized');
@@ -20,8 +39,14 @@ export async function updateReportStatusAction(formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const reportId = String(formData.get('reportId') ?? '');
-  const status = String(formData.get('status') ?? 'open');
+  const parsed = reportStatusSchema.safeParse({
+    reportId: String(formData.get('reportId') ?? '').trim(),
+    status: String(formData.get('status') ?? 'open').trim().toLowerCase(),
+  });
+
+  if (!parsed.success) throw new Error('Invalid report status update.');
+
+  const { reportId, status } = parsed.data;
 
   const { error } = await supabase.from('reports').update({ status }).eq('id', reportId);
   if (error) throw new Error(error.message);
@@ -49,10 +74,15 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const postId = String(formData.get('postId') ?? '');
-  const moderationStatus = String(formData.get('moderationStatus') ?? 'published');
-  const note = String(formData.get('note') ?? '').trim();
-  if (!postId) throw new Error('Missing post id');
+  const parsed = postVisibilitySchema.safeParse({
+    postId: String(formData.get('postId') ?? '').trim(),
+    moderationStatus: String(formData.get('moderationStatus') ?? 'published').trim().toLowerCase(),
+    note: String(formData.get('note') ?? '').trim() || undefined,
+  });
+
+  if (!parsed.success) throw new Error('Invalid post visibility request.');
+
+  const { postId, moderationStatus, note } = parsed.data;
 
   const { data: post } = await supabase.from('posts').select('author_id').eq('id', postId).maybeSingle();
   const { error } = await supabase.from('posts').update({ moderation_status: moderationStatus }).eq('id', postId);
@@ -125,13 +155,17 @@ export async function applyUserSanctionAction(formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const userId = String(formData.get('userId') ?? '').trim();
-  const sanctionType = String(formData.get('sanctionType') ?? '').trim();
-  const reason = String(formData.get('reason') ?? '').trim();
-  const note = String(formData.get('note') ?? '').trim();
-  const confirm = String(formData.get('confirm') ?? '').trim();
+  const parsed = userSanctionSchema.safeParse({
+    userId: String(formData.get('userId') ?? '').trim(),
+    sanctionType: String(formData.get('sanctionType') ?? '').trim().toLowerCase(),
+    reason: String(formData.get('reason') ?? '').trim(),
+    note: String(formData.get('note') ?? '').trim() || undefined,
+    confirm: String(formData.get('confirm') ?? '').trim().toLowerCase(),
+  });
 
-  if (!userId || !sanctionType || !reason) throw new Error('Incomplete sanction request.');
+  if (!parsed.success) throw new Error('Incomplete or invalid sanction request.');
+
+  const { userId, sanctionType, reason, note, confirm } = parsed.data;
   if (confirm !== 'yes') throw new Error('Sanction confirmation missing.');
 
   const { error } = await supabase.from('user_sanctions').insert({

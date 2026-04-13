@@ -9,13 +9,6 @@ export type ActiveSanction = {
   endsAt?: string;
 };
 
-const ADMIN_EMAILS = new Set(
-  (process.env.ADMIN_EMAILS ?? '')
-    .split(',')
-    .map((value) => value.trim().toLowerCase())
-    .filter(Boolean),
-);
-
 function slugifyUsername(value: string) {
   return value
     .toLowerCase()
@@ -45,8 +38,6 @@ export const getCurrentMember = cache(async () => {
     .eq('id', user.id)
     .maybeSingle();
 
-  const envAdmin = ADMIN_EMAILS.has(email.toLowerCase());
-
   if (!existing) {
     const { error } = await supabase.from('profiles').insert({
       id: user.id,
@@ -57,10 +48,6 @@ export const getCurrentMember = cache(async () => {
       onboarding_completed: false,
     });
 
-    if (!error && envAdmin) {
-      await supabase.from('user_roles').upsert({ user_id: user.id, role: 'admin' }, { onConflict: 'user_id,role' });
-    }
-
     if (error) {
       return {
         id: user.id,
@@ -68,7 +55,8 @@ export const getCurrentMember = cache(async () => {
         displayName,
         username: preferredUsername,
         avatarUrl,
-        isAdmin: envAdmin,
+        isAdmin: false,
+        roles: [],
       };
     }
 
@@ -81,13 +69,9 @@ export const getCurrentMember = cache(async () => {
       displayName,
       username: `${preferredUsername}-${user.id.slice(0, 6)}`,
       avatarUrl,
-      isAdmin: envAdmin || roles.includes('admin'),
+      isAdmin: roles.includes('admin'),
       roles,
     };
-  }
-
-  if (envAdmin) {
-    await supabase.from('user_roles').upsert({ user_id: user.id, role: 'admin' }, { onConflict: 'user_id,role' });
   }
 
   const { data: roleRows } = await supabase.from('user_roles').select('role').eq('user_id', user.id);
@@ -99,7 +83,7 @@ export const getCurrentMember = cache(async () => {
     displayName: existing.display_name,
     username: existing.username,
     avatarUrl: existing.avatar_url ?? avatarUrl,
-    isAdmin: envAdmin || roles.includes('admin'),
+    isAdmin: roles.includes('admin'),
     roles,
   };
 });
