@@ -1,7 +1,9 @@
 "use client";
 
 import type { ReactNode } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
+import { INITIAL_REPORT_ACTION_STATE, type ReportActionState } from '@/lib/report-state';
 
 function PendingButton({ label, pendingLabel }: { label: string; pendingLabel: string }) {
   const { pending } = useFormStatus();
@@ -50,9 +52,17 @@ export function CommentForm({
   );
 }
 
-export function ReportForm({ action, compact = false, targetLabel = 'Report this post', children }: { action: (formData: FormData) => Promise<void>; compact?: boolean; targetLabel?: string; children?: ReactNode }) {
+export function ReportForm({ action, compact = false, targetLabel = 'Report this post', children, onSuccess }: { action: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>; compact?: boolean; targetLabel?: string; children?: ReactNode; onSuccess?: () => void }) {
+  const [state, formAction] = useActionState(action, INITIAL_REPORT_ACTION_STATE);
+
+  useEffect(() => {
+    if (state.status === 'success') {
+      onSuccess?.();
+    }
+  }, [state.status, onSuccess]);
+
   return (
-    <form action={action} className={`space-y-4 ${compact ? '' : 'rounded-2xl border border-rose-200 bg-rose-50 p-4'}`}>
+    <form action={formAction} className={`space-y-4 ${compact ? '' : 'rounded-2xl border border-rose-200 bg-rose-50 p-4'}`}>
       {children}
       <div>
         <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">{targetLabel}</label>
@@ -72,6 +82,16 @@ export function ReportForm({ action, compact = false, targetLabel = 'Report this
           placeholder="Optional context for moderators."
         />
       </div>
+      {state.status === 'error' ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+          {state.message ?? 'Your report could not be submitted.'}
+        </div>
+      ) : null}
+      {state.status === 'success' ? (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {state.message ?? 'Report submitted.'}
+        </div>
+      ) : null}
       <PendingButton label="Submit report" pendingLabel="Submitting..." />
     </form>
   );

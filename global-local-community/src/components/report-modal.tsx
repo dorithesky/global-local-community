@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { Flag, X } from 'lucide-react';
+import type { ReportActionState } from '@/lib/report-state';
 import { ReportForm } from '@/components/post-engagement-forms';
 
 export function ReportModal({
@@ -15,12 +16,13 @@ export function ReportModal({
 }: {
   open: boolean;
   onClose: () => void;
-  action: (formData: FormData) => Promise<void>;
+  action: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>;
   title: string;
   description: string;
   targetLabel: string;
   children?: React.ReactNode;
 }) {
+  const hasClosedAfterSuccess = useRef(false);
   const titleId = useId();
   const descriptionId = useId();
 
@@ -39,6 +41,12 @@ export function ReportModal({
       document.body.style.overflow = '';
     };
   }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) {
+      hasClosedAfterSuccess.current = false;
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -74,7 +82,16 @@ export function ReportModal({
             </button>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-5 sm:px-6 sm:pb-6">
-            <ReportForm action={action} compact targetLabel={targetLabel}>
+            <ReportForm
+              action={action}
+              compact
+              targetLabel={targetLabel}
+              onSuccess={() => {
+                if (hasClosedAfterSuccess.current) return;
+                hasClosedAfterSuccess.current = true;
+                window.setTimeout(() => onClose(), 700);
+              }}
+            >
               {children}
             </ReportForm>
           </div>

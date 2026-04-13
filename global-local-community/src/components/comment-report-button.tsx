@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { Flag } from 'lucide-react';
+import type { ReportActionState } from '@/lib/report-state';
 import { AuthModal } from '@/components/auth-modal';
 import { ReportModal } from '@/components/report-modal';
 
-export function CommentReportButton({ action, commentId, signedIn }: { action: (formData: FormData) => Promise<void>; commentId: string; signedIn: boolean }) {
+export function CommentReportButton({ action, commentId, signedIn }: { action: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>; commentId: string; signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 

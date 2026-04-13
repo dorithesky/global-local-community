@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { ChevronDown, MessageSquareReply } from 'lucide-react';
+import type { ReportActionState } from '@/lib/report-state';
 import { CommentReportButton } from '@/components/comment-report-button';
 import { AuthModal } from '@/components/auth-modal';
 import { CommentForm } from '@/components/post-engagement-forms';
@@ -26,7 +27,7 @@ function CommentCard({
   comment: CommentRecord;
   updateAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
-  reportAction: (formData: FormData) => Promise<void>;
+  reportAction: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>;
   replyAction: (formData: FormData) => Promise<void>;
   signedIn: boolean;
   isReply?: boolean;
@@ -197,7 +198,7 @@ export function CommentThread({
   comments: CommentRecord[];
   updateAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
-  reportAction: (formData: FormData) => Promise<void>;
+  reportAction: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>;
   replyAction: (formData: FormData) => Promise<void>;
   signedIn: boolean;
 }) {

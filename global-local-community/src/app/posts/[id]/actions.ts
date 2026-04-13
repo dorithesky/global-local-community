@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { canCurrentMemberManageComment } from '@/lib/data';
 import { logServerRequest } from '@/lib/request-logging';
+import type { ReportActionState } from '@/lib/report-state';
 import { sanitizePlainText } from '@/lib/security';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
@@ -218,16 +219,24 @@ export async function deleteCommentAction(postId: string, formData: FormData) {
   revalidatePath('/feed');
 }
 
-export async function createReportAction(postId: string, formData: FormData) {
+export async function createReportAction(postId: string, _previousState: ReportActionState, formData: FormData): Promise<ReportActionState> {
   const member = await getCurrentMember();
-  if (!member) redirect('/#signin');
+  if (!member) {
+    return { status: 'error', message: 'Please sign in to submit a report.' };
+  }
 
-  await assertMemberCan('report');
-  await assertAccountMaturity('report');
-  await assertRateLimit('report');
+  try {
+    await assertMemberCan('report');
+    await assertAccountMaturity('report');
+    await assertRateLimit('report');
+  } catch (error) {
+    return { status: 'error', message: error instanceof Error ? error.message : 'Reporting is unavailable right now.' };
+  }
 
   const supabase = await getSupabaseServerClient();
-  if (!supabase) throw new Error('Supabase is not configured.');
+  if (!supabase) {
+    return { status: 'error', message: 'Reporting is unavailable right now.' };
+  }
 
   const commentId = formData.get('commentId') ? String(formData.get('commentId')) : undefined;
   const reason = sanitizePlainText(formData.get('reason'), { maxLength: 80, allowNewlines: false });
@@ -241,7 +250,7 @@ export async function createReportAction(postId: string, formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error('Reason is required.');
+    return { status: 'error', message: 'Choose a reason before submitting your report.' };
   }
 
   const payload = parsed.data;
@@ -256,9 +265,9 @@ export async function createReportAction(postId: string, formData: FormData) {
 
   if (error) {
     if (error.code === '23505') {
-      throw new Error('You already reported this item.');
+      return { status: 'error', message: 'You already reported this item.' };
     }
-    throw new Error(error.message);
+    return { status: 'error', message: 'Your report could not be submitted right now.' };
   }
 
   const reportPath = payload.commentId ? `/posts/${postId}/report-comment` : `/posts/${postId}/report`;
@@ -302,4 +311,6 @@ export async function createReportAction(postId: string, formData: FormData) {
 
   revalidatePath('/admin');
   revalidatePath(`/posts/${postId}`);
+
+  return { status: 'success', message: 'Report submitted. Thanks for flagging it.' };
 }

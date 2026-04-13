@@ -2,10 +2,11 @@
 
 import { useState } from 'react';
 import { Flag } from 'lucide-react';
+import type { ReportActionState } from '@/lib/report-state';
 import { AuthModal } from '@/components/auth-modal';
 import { ReportModal } from '@/components/report-modal';
 
-export function PostDetailReportTrigger({ action, signedIn }: { action: (formData: FormData) => Promise<void>; signedIn: boolean }) {
+export function PostDetailReportTrigger({ action, signedIn }: { action: (state: ReportActionState, formData: FormData) => Promise<ReportActionState>; signedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 
