@@ -10,9 +10,12 @@ export default async function AdminOverviewPage() {
   if (!admin) notFound();
 
   const userSettings = await getAdminUserSettingsView();
+  const totalMembers = userSettings.length;
   const sanctionedMembers = userSettings.filter((setting) => Boolean(setting.activeSanction));
   const onboardingIncompleteMembers = userSettings.filter((setting) => !setting.profile?.onboardingCompleted);
   const membersNeedingProfileCompletion = userSettings.filter((setting) => !setting.profile?.city || !setting.profile?.occupation || !setting.immediate_need);
+  const membersNeedingAttention = userSettings.filter((setting) => Boolean(setting.activeSanction) || !setting.profile?.onboardingCompleted || !setting.profile?.city || !setting.profile?.occupation || !setting.immediate_need);
+  const healthyMembers = userSettings.filter((setting) => !setting.activeSanction && Boolean(setting.profile?.onboardingCompleted) && Boolean(setting.profile?.city) && Boolean(setting.profile?.occupation) && Boolean(setting.immediate_need));
   const attentionItems = [
     {
       label: 'Members missing onboarding completion',
@@ -46,18 +49,18 @@ export default async function AdminOverviewPage() {
       <section className="grid gap-4 sm:gap-5 xl:grid-cols-[repeat(3,minmax(0,1fr))] xl:gap-6">
         <div className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/40 p-4 shadow-sm sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Members</p>
-          <p className="mt-3 text-4xl font-semibold text-slate-900">{userSettings.length}</p>
+          <p className="mt-3 text-4xl font-semibold text-slate-900">{totalMembers}</p>
           <p className="mt-2 text-sm text-slate-500">Total known member records across the current community.</p>
         </div>
         <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-4 shadow-sm sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700">Needs review</p>
-          <p className="mt-3 text-4xl font-semibold text-amber-950">{sanctionedMembers.length + onboardingIncompleteMembers.length}</p>
-          <p className="mt-2 text-sm text-amber-800">Combined sanction and onboarding follow-up pressure.</p>
+          <p className="mt-3 text-4xl font-semibold text-amber-950">{membersNeedingAttention.length}</p>
+          <p className="mt-2 text-sm text-amber-800">Unique members who need review, onboarding follow-up, or profile completion.</p>
         </div>
         <div className="rounded-3xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-white p-4 shadow-sm sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-700">Member health</p>
-          <p className="mt-3 text-4xl font-semibold text-sky-950">{Math.max(userSettings.length - membersNeedingProfileCompletion.length, 0)}</p>
-          <p className="mt-2 text-sm text-sky-800">Members with enough basic profile context to operate cleanly.</p>
+          <p className="mt-3 text-4xl font-semibold text-sky-950">{healthyMembers.length}</p>
+          <p className="mt-2 text-sm text-sky-800">Members with completed onboarding, no active sanction, and no core profile gaps.</p>
         </div>
       </section>
 
