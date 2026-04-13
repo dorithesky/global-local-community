@@ -2,15 +2,17 @@
 
 import { Flag, Bookmark, Heart, Trash2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
+import { useState } from 'react';
+import { AuthModal } from '@/components/auth-modal';
 
-function ActionButton({ label, icon, tone = 'neutral' }: { label: string; icon: React.ReactNode; tone?: 'neutral' | 'danger' }) {
+function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick }: { label: string; icon: React.ReactNode; tone?: 'neutral' | 'danger'; type?: 'button' | 'submit'; onClick?: () => void }) {
   const { pending } = useFormStatus();
   const toneClass = tone === 'danger'
     ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
     : 'border-sky-200 bg-white text-sky-700 hover:bg-sky-50';
 
   return (
-    <button type="submit" disabled={pending} className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium disabled:opacity-60 ${toneClass}`}>
+    <button type={type} onClick={onClick} disabled={pending} className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium disabled:opacity-60 ${toneClass}`}>
       {icon}
       {pending ? 'Saving...' : label}
     </button>
@@ -33,7 +35,18 @@ export function FeedBookmarkButton({ action, active }: { action: (formData: Form
   );
 }
 
-export function FeedReportButton({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function FeedReportButton({ action, signedIn }: { action: (formData: FormData) => Promise<void>; signedIn: boolean }) {
+  const [authOpen, setAuthOpen] = useState(false);
+
+  if (!signedIn) {
+    return (
+      <>
+        <ActionButton label="Sign in to report" icon={<Flag className="h-3.5 w-3.5" />} tone="danger" type="button" onClick={() => setAuthOpen(true)} />
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      </>
+    );
+  }
+
   return (
     <form action={action}>
       <input type="hidden" name="reason" value="other" />

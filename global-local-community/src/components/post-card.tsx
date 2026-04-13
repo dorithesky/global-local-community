@@ -37,7 +37,7 @@ export function PostCard({ post }: { post: PostRecord }) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">
-          {post.canEdit ? <FeedDeleteButton action={deletePostAction.bind(null, post.id)} /> : <FeedReportButton action={createReportAction.bind(null, post.id)} />}
+          {post.canEdit ? <FeedDeleteButton action={deletePostAction.bind(null, post.id)} /> : <FeedReportButton action={createReportAction.bind(null, post.id)} signedIn={Boolean(post.canEdit || post.liked !== undefined || post.bookmarked !== undefined)} />}
         </div>
       </div>
 
