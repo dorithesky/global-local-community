@@ -121,8 +121,8 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
           {mobileNav.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.href} href={item.href} className="flex min-h-14 min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-2 text-[11px] font-medium leading-tight text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
-                <Icon className="mb-1 h-4 w-4 shrink-0" />
+              <Link key={item.href} href={item.href} className="flex min-h-14 min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-2 text-[12px] font-semibold leading-tight text-[var(--text-primary)] hover:bg-[var(--surface-muted)]">
+                <Icon className="mb-1 h-[18px] w-[18px] shrink-0 stroke-[2.2]" />
                 <span className="w-full truncate text-center">{item.label}</span>
               </Link>
             );
