@@ -17,26 +17,25 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
   const recommendedCategory = settings?.profile.immediateNeed || null;
 
   return (
-    <div className="space-y-4 pb-24 lg:pb-8">
+    <div className="space-y-3 pb-24 lg:pb-8">
       <PageHeader
-        eyebrow="Feed"
         title="Latest posts"
         description="Housing, jobs, and daily-life questions from across Korea."
       />
       {member && !onboardingReady ? (
-        <section className="rounded-3xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950 shadow-sm sm:p-5">
+        <section className="rounded-3xl border border-sky-200 bg-sky-50 p-3.5 text-sm text-sky-950 shadow-sm sm:p-4">
           <p className="font-semibold">Complete your profile</p>
-          <p className="mt-2 leading-6">Add your city and current need to improve the feed.</p>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <p className="mt-1.5 leading-5">Add your city and current need to improve the feed.</p>
+          <div className="mt-3 flex flex-wrap gap-2.5">
             <Link href="/settings?onboarding=1" className="min-h-11 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800">Finish onboarding</Link>
             <Link href="/create" className="min-h-11 rounded-full border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-white">Ask a question</Link>
           </div>
         </section>
       ) : null}
       {member && onboardingReady && recommendedCategory ? (
-        <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 shadow-sm sm:p-5">
+        <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-3.5 text-sm text-emerald-950 shadow-sm sm:p-4">
           <p className="font-semibold">Recommended for you</p>
-          <p className="mt-2 leading-6">Start with <span className="font-semibold">{recommendedCategory}</span>.</p>
+          <p className="mt-1.5 leading-5">Start with <span className="font-semibold">{recommendedCategory}</span>.</p>
         </section>
       ) : null}
       <FeedFilters />
