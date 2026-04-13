@@ -20,7 +20,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
   const isCreatingPassword = view === 'signup' || signInMethod === 'password';
   const isSignupPassword = view === 'signup';
   const passwordChecks = useMemo(() => ({
-    minLength: password.length >= 10,
+    minLength: password.length >= 7,
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
     number: /\d/.test(password),
@@ -172,7 +172,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
                 <div className="space-y-2 px-4 py-3">
                   <div className={`flex items-center gap-2 ${passwordChecks.minLength ? 'text-emerald-700' : 'text-slate-500'}`}>
                     {passwordChecks.minLength ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
-                    <span>10 or more characters</span>
+                    <span>7 or more characters</span>
                   </div>
                   <div className={`flex items-center gap-2 ${passwordChecks.uppercase ? 'text-emerald-700' : 'text-slate-500'}`}>
                     {passwordChecks.uppercase ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
