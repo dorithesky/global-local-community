@@ -7,7 +7,7 @@ import { logServerRequest } from '@/lib/request-logging';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const roleChangeSchema = z.object({
-  userId: z.string().uuid(),
+  userId: z.string().min(1),
   role: z.enum(['admin', 'moderator']),
   intent: z.enum(['grant', 'revoke']),
   confirm: z.string().trim().toLowerCase().optional(),
