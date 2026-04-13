@@ -39,6 +39,7 @@ export interface PostRecord {
   bookmarked?: boolean;
   liked?: boolean;
   canEdit?: boolean;
+  canDelete?: boolean;
   imageUrls?: string[];
   analysis: AiAnalysis;
 }
@@ -53,6 +54,7 @@ export interface CommentRecord {
   deletedAt?: string;
   deletedBy?: Profile;
   canEdit?: boolean;
+  canDelete?: boolean;
   parentCommentId?: string;
   rootCommentId?: string;
   depth?: number;

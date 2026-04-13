@@ -120,8 +120,16 @@ function buildCommentSelect(flags: { hasDeletedAt: boolean; hasDeletedBy: boolea
   return fields.join(', ');
 }
 
-function normalizeCommentRow(row: Record<string, unknown>, author: Profile, memberId?: string | null): CommentRecord {
+function normalizeCommentRow(
+  row: Record<string, unknown>,
+  author: Profile,
+  options?: { memberId?: string | null; memberRoles?: string[] },
+): CommentRecord {
   const deletedAt = row.deleted_at ? String(row.deleted_at) : undefined;
+  const authorId = String(row.author_id);
+  const isOwner = Boolean(!deletedAt && options?.memberId && options.memberId === authorId);
+  const canDelete = Boolean(!deletedAt && (isOwner || canRoleDeleteAuthorContent(options?.memberRoles, author.badges)));
+
   return {
     id: String(row.id),
     postId: String(row.post_id),
@@ -129,7 +137,8 @@ function normalizeCommentRow(row: Record<string, unknown>, author: Profile, memb
     createdAt: String(row.created_at),
     updatedAt: row.updated_at ? String(row.updated_at) : String(row.created_at),
     deletedAt,
-    canEdit: Boolean(!deletedAt && memberId && memberId === String(row.author_id)),
+    canEdit: isOwner,
+    canDelete,
     author,
     parentCommentId: row.parent_comment_id ? String(row.parent_comment_id) : undefined,
     rootCommentId: row.root_comment_id ? String(row.root_comment_id) : undefined,
@@ -226,6 +235,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     bookmarked: bookmarkedPostIds.has(row.id),
     liked: likedPostIds.has(row.id),
     canEdit: member?.id === row.author_id,
+    canDelete: member?.id === row.author_id || canRoleDeleteAuthorContent(member?.roles, profileMap.get(row.author_id)?.badges),
   }));
 
   return applyFeedSort(normalized, filters);
@@ -269,6 +279,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
         bookmarked: Boolean(bookmarksData?.length),
         liked: Boolean(member && likesData?.some((like) => like.user_id === member.id)),
         canEdit: Boolean(member?.id === row.author_id),
+        canDelete: Boolean(member?.id === row.author_id || canRoleDeleteAuthorContent(member?.roles, author.badges)),
       };
     }
   }
@@ -387,7 +398,7 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
       city: 'Daegu',
     };
 
-    return normalizeCommentRow(row, author, member?.id ?? null);
+    return normalizeCommentRow(row, author, { memberId: member?.id ?? null, memberRoles: member?.roles });
   });
 
   const safeComments = comments.filter((comment) => Boolean(comment.id && comment.postId));
@@ -474,6 +485,7 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
     return getCommentsByPostId(postId).map((comment) => ({
       ...comment,
       canEdit: member ? comment.author.id === member.id || comment.author.username === member.username : false,
+      canDelete: member ? comment.author.id === member.id || canRoleDeleteAuthorContent(member.roles, comment.author.badges) : false,
     }));
   }
 
@@ -507,7 +519,7 @@ export async function getPostComments(postId: string): Promise<CommentRecord[]> 
       city: 'Daegu',
     };
 
-    return normalizeCommentRow(row, author, member?.id ?? null);
+    return normalizeCommentRow(row, author, { memberId: member?.id ?? null, memberRoles: member?.roles });
   });
 }
 
@@ -617,7 +629,7 @@ export async function getUserComments(): Promise<CommentRecord[]> {
       };
 
   const commentRows = data as unknown as Array<Record<string, unknown>>;
-  return commentRows.map((row) => normalizeCommentRow(row, author, member.id));
+  return commentRows.map((row) => normalizeCommentRow(row, author, { memberId: member.id, memberRoles: member.roles }));
 }
 
 export async function canCurrentMemberManageComment(commentId: string) {

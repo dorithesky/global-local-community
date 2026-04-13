@@ -100,13 +100,13 @@ function CommentCard({
               <p className={`${isReply ? 'mt-1' : 'mt-1.5'} text-sm leading-6 text-slate-600`}>{comment.body}</p>
               <div className={`${isReply ? 'mt-1' : 'mt-1.5'} flex flex-wrap items-center gap-2 sm:gap-3`}>
                 {comment.canEdit ? (
-                  <>
-                    <button type="button" onClick={() => setEditingId(comment.id)} className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">Edit</button>
-                    <form action={deleteAction}>
-                      <input type="hidden" name="commentId" value={comment.id} />
-                      <CommentActionButton label="Delete" />
-                    </form>
-                  </>
+                  <button type="button" onClick={() => setEditingId(comment.id)} className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">Edit</button>
+                ) : null}
+                {comment.canDelete ? (
+                  <form action={deleteAction}>
+                    <input type="hidden" name="commentId" value={comment.id} />
+                    <CommentActionButton label="Delete" />
+                  </form>
                 ) : null}
                 {!isReply ? (
                   <button
