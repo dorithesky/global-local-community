@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getCurrentMember } from '@/lib/auth';
 import { getMediaBucketName, IMAGE_UPLOAD_RULES } from '@/lib/media';
 import { logServerRequest } from '@/lib/request-logging';
+import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { buildPendingUploadAuthorization, type UploadAuthorizationInput } from '@/lib/upload-authorization';
 
@@ -51,6 +52,20 @@ export async function POST(request: Request) {
   }
 
   await logServerRequest({ userId: member.id, path: '/api/uploads/authorize' });
+
+  await recordSecurityEvent({
+    eventType: 'upload.authorized',
+    severity: 'medium',
+    userId: member.id,
+    path: '/api/uploads/authorize',
+    entityType: 'pending_upload',
+    payload: {
+      file_count: authorizations.length,
+      total_bytes: totalBytes,
+    },
+  });
+
+  await detectSecurityAlerts();
 
   return NextResponse.json({
     data: {
@@ -108,6 +123,18 @@ export async function PATCH(request: Request) {
 
   const { data: signedUrlData, error: signedUrlError } = await supabase.storage.from(row.bucket).createSignedUrl(row.storage_path, 60);
   if (signedUrlError || !signedUrlData?.signedUrl) {
+    await recordSecurityEvent({
+      eventType: 'upload.finalize_failed',
+      severity: 'high',
+      userId: member.id,
+      path: '/api/uploads/authorize/finalize',
+      entityType: 'pending_upload',
+      entityId: uploadId,
+      payload: {
+        reason: 'storage_verification_failed',
+      },
+    });
+    await detectSecurityAlerts();
     return NextResponse.json({ error: 'Uploaded image could not be verified in storage.' }, { status: 400 });
   }
 
@@ -125,6 +152,20 @@ export async function PATCH(request: Request) {
   }
 
   await logServerRequest({ userId: member.id, path: '/api/uploads/authorize/finalize' });
+
+  await recordSecurityEvent({
+    eventType: 'upload.finalized',
+    severity: 'low',
+    userId: member.id,
+    path: '/api/uploads/authorize/finalize',
+    entityType: 'pending_upload',
+    entityId: uploadId,
+    payload: {
+      status: 'uploaded',
+    },
+  });
+
+  await detectSecurityAlerts();
 
   return NextResponse.json({ data: { uploadId, status: 'uploaded' } });
 }

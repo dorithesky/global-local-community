@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { logServerRequest } from '@/lib/request-logging';
 import { sanitizePlainText } from '@/lib/security';
+import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const reportSchema = z.object({
@@ -71,6 +72,20 @@ export async function POST(request: Request) {
     userId: member.id,
     path: '/api/reports',
   });
+
+  await recordSecurityEvent({
+    eventType: 'report.created',
+    severity: 'medium',
+    userId: member.id,
+    path: '/api/reports',
+    entityType: payload.postId ? 'post' : 'comment',
+    entityId: payload.postId ?? payload.commentId ?? null,
+    payload: {
+      reason: sanitizedReason,
+    },
+  });
+
+  await detectSecurityAlerts();
 
   return NextResponse.json({
     data: {

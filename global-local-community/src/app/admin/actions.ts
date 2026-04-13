@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { requireAdmin, requireModerator } from '@/lib/auth';
 import { logServerRequest } from '@/lib/request-logging';
+import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 const roleChangeSchema = z.object({
@@ -63,6 +64,18 @@ export async function updateReportStatusAction(formData: FormData) {
 
   await logServerRequest({ userId: moderator.id, path: '/admin/actions/report-status' });
 
+  await recordSecurityEvent({
+    eventType: 'moderation.report_status_updated',
+    severity: 'medium',
+    userId: moderator.id,
+    path: '/admin/actions/report-status',
+    entityType: 'report',
+    entityId: reportId,
+    payload: { status },
+  });
+
+  await detectSecurityAlerts();
+
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
 }
@@ -109,6 +122,18 @@ export async function setReportedPostVisibilityAction(formData: FormData) {
   }
 
   await logServerRequest({ userId: moderator.id, path: '/admin/actions/post-visibility' });
+
+  await recordSecurityEvent({
+    eventType: 'moderation.post_visibility_updated',
+    severity: 'medium',
+    userId: moderator.id,
+    path: '/admin/actions/post-visibility',
+    entityType: 'post',
+    entityId: postId,
+    payload: { moderationStatus },
+  });
+
+  await detectSecurityAlerts();
 
   revalidatePath('/admin');
   revalidatePath('/admin/reports');
@@ -190,6 +215,18 @@ export async function applyUserSanctionAction(formData: FormData) {
   });
 
   await logServerRequest({ userId: admin.id, path: '/admin/actions/user-sanction' });
+
+  await recordSecurityEvent({
+    eventType: 'moderation.user_sanctioned',
+    severity: 'high',
+    userId: admin.id,
+    path: '/admin/actions/user-sanction',
+    entityType: 'profile',
+    entityId: userId,
+    payload: { sanctionType, reason },
+  });
+
+  await detectSecurityAlerts();
 
   revalidatePath('/admin');
 }
@@ -275,6 +312,18 @@ export async function updateUserRoleAction(formData: FormData) {
   });
 
   await logServerRequest({ userId: admin.id, path: '/admin/actions/user-role' });
+
+  await recordSecurityEvent({
+    eventType: intent === 'grant' ? 'moderation.role_granted' : 'moderation.role_revoked',
+    severity: 'critical',
+    userId: admin.id,
+    path: '/admin/actions/user-role',
+    entityType: 'profile',
+    entityId: userId,
+    payload: { role, intent },
+  });
+
+  await detectSecurityAlerts();
 
   revalidatePath('/admin');
   revalidatePath('/admin/members');
