@@ -41,7 +41,7 @@ function CommentCard({
   const hasHiddenReplies = replies.length > previewReplies.length;
 
   return (
-    <div className={`rounded-2xl ${isReply ? 'border border-slate-200 bg-white' : 'bg-slate-50'} p-4 sm:p-5`}>
+    <div className={`rounded-2xl ${isReply ? 'border border-slate-200 bg-white/90' : 'bg-slate-50'} ${isReply ? 'p-3 sm:p-4' : 'p-4 sm:p-5'}`}>
       <div className="flex items-start gap-3">
         {comment.author.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -89,7 +89,7 @@ function CommentCard({
                 <p className="mt-2 text-xs font-medium uppercase tracking-[0.16em] text-sky-700">Replying to {comment.replyTarget.displayName}</p>
               ) : null}
               <p className="mt-2 text-sm leading-6 text-slate-600">{comment.body}</p>
-              <div className="mt-3 flex flex-wrap items-center gap-2 sm:gap-4">
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:gap-4">
                 {comment.canEdit ? (
                   <>
                     <button type="button" onClick={() => setEditingId(comment.id)} className="min-h-10 rounded-full px-3 py-2 text-xs font-medium text-slate-500 transition hover:bg-white hover:text-slate-900">Edit</button>
@@ -122,7 +122,7 @@ function CommentCard({
           )}
 
           {!isReply && replying ? (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-3 sm:p-4">
+            <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-3 sm:p-4">
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-[0.16em] text-slate-500">Replying to {comment.author.displayName}</p>
@@ -135,16 +135,16 @@ function CommentCard({
           ) : null}
 
           {!isReply && replyCount > 0 ? (
-            <div className="mt-4 rounded-2xl border border-slate-200 bg-white/70 p-3 sm:p-4">
+            <div className="mt-3 border-l border-slate-200 pl-3 sm:pl-4">
               <button
                 type="button"
                 onClick={() => setRepliesExpanded((value) => !value)}
-                className="flex w-full items-center justify-between gap-3 rounded-2xl px-1 py-1 text-left text-xs font-medium text-sky-700 hover:text-sky-800"
+                className="flex w-full items-center justify-between gap-3 px-0 py-0.5 text-left text-xs font-medium text-sky-700 hover:text-sky-800"
               >
                 <span>{repliesExpanded ? `Hide replies` : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}</span>
                 <ChevronDown className={`h-4 w-4 transition ${repliesExpanded ? 'rotate-180' : ''}`} />
               </button>
-              <div className="mt-3 space-y-3">
+              <div className="mt-2.5 space-y-2">
                 {previewReplies.map((reply) => (
                   <CommentCard
                     key={reply.id}
@@ -162,7 +162,7 @@ function CommentCard({
                 <button
                   type="button"
                   onClick={() => setRepliesExpanded(true)}
-                  className="mt-3 text-xs font-medium text-sky-700 hover:text-sky-800"
+                  className="mt-2 text-xs font-medium text-sky-700 hover:text-sky-800"
                 >
                   Show {replies.length - previewReplies.length} more
                 </button>
