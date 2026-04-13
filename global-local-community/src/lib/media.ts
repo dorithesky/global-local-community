@@ -25,7 +25,7 @@ export function isAllowedImageExtension(value: string) {
 export function isSafeStoragePath(path: string, userId?: string) {
   if (!path || path.includes('..') || path.startsWith('/') || path.includes('\\')) return false;
   if (!/^[a-zA-Z0-9/_-]+\.(jpg|jpeg|png|webp)$/i.test(path)) return false;
-  if (userId && !path.startsWith(`${userId}/`)) return false;
+  if (userId && !path.includes(`/${userId}/`) && !path.startsWith(`${userId}/`)) return false;
   return true;
 }
 

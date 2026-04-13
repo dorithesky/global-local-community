@@ -6,6 +6,7 @@ import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { logServerRequest } from '@/lib/request-logging';
 import { sanitizePlainText } from '@/lib/security';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
+import { attachPendingUploadsToPost } from '@/lib/upload-validation';
 
 const createPostSchema = z.object({
   title: z.string().min(5),
@@ -14,7 +15,8 @@ const createPostSchema = z.object({
   city: z.string().default('Daegu'),
   district: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  imageUrls: z.array(z.string().url()).optional(),
+  uploadIds: z.array(z.string().uuid()).optional(),
+  uploadTokens: z.array(z.string().min(1)).optional(),
 });
 
 export async function GET(request: Request) {
@@ -26,13 +28,20 @@ export async function GET(request: Request) {
     sort: searchParams.get('sort'),
   });
 
-  return NextResponse.json({
-    data,
-    pagination: {
-      cursor: null,
-      hasMore: false,
+  return NextResponse.json(
+    {
+      data,
+      pagination: {
+        cursor: null,
+        hasMore: false,
+      },
     },
-  });
+    {
+      headers: {
+        'Cache-Control': 'private, no-store, max-age=0',
+      },
+    },
+  );
 }
 
 export async function POST(request: Request) {
@@ -58,12 +67,18 @@ export async function POST(request: Request) {
     city: sanitizePlainText(payload.city, { maxLength: 40, allowNewlines: false }),
     district: sanitizePlainText(payload.district, { maxLength: 80, allowNewlines: false }),
     tags: (payload.tags ?? []).map((tag) => sanitizePlainText(tag, { maxLength: 32, allowNewlines: false }).toLowerCase()).filter(Boolean).slice(0, 8),
+    uploadIds: (payload.uploadIds ?? []).slice(0, 4),
+    uploadTokens: (payload.uploadTokens ?? []).slice(0, 4),
   };
+
+  if (sanitizedPayload.uploadIds.length !== sanitizedPayload.uploadTokens.length) {
+    return NextResponse.json({ error: 'Uploaded media authorization is incomplete.' }, { status: 400 });
+  }
+
   const classification = classifyContent(sanitizedPayload);
   const moderation = detectToxicityOrSpam(sanitizedPayload);
   const moderationStatus = moderation.label === 'spam-risk' && moderation.score >= 0.7 ? 'review' : 'published';
   const tags = sanitizedPayload.tags;
-  const imageUrls = (payload.imageUrls ?? []).slice(0, 4);
 
   const { data, error } = await supabase
     .from('posts')
@@ -75,7 +90,7 @@ export async function POST(request: Request) {
       city: sanitizedPayload.city || 'Seoul',
       district: sanitizedPayload.district || null,
       tags,
-      image_urls: imageUrls,
+      image_urls: [],
       ai_label: classification.label,
       ai_score: classification.score,
       ai_explanation: `${classification.explanation} ${moderation.explanation}`,
@@ -86,6 +101,20 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  try {
+    await attachPendingUploadsToPost({
+      supabase,
+      userId: member.id,
+      postId: data.id,
+      uploadIds: sanitizedPayload.uploadIds,
+      uploadTokens: sanitizedPayload.uploadTokens,
+      moderationStatus,
+    });
+  } catch (attachError) {
+    await supabase.from('posts').delete().eq('id', data.id);
+    return NextResponse.json({ error: attachError instanceof Error ? attachError.message : 'Could not attach uploaded media.' }, { status: 400 });
   }
 
   await supabase.from('workflow_events').insert({

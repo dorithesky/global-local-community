@@ -1,6 +1,6 @@
 import { getCurrentMember } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
-import { getCommentsByPostId, getPostById, getPostsByCategory, getProfileByUsername, posts as mockPosts } from './mock-data';
+import { getCommentsByPostId } from './mock-data';
 import type { CommentEventRecord, CommentRecord, PostDetailDebug, PostRecord, Profile } from './types';
 
 function cleanLegacyProfileText(value?: unknown) {
@@ -81,7 +81,7 @@ function applyFeedSort(posts: PostRecord[], filters?: { query?: string | null; s
 
 export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
-  if (!supabase) return mockPosts;
+  if (!supabase) return [];
 
   const member = await getCurrentMember();
   let queryBuilder = supabase
@@ -97,7 +97,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
   const { data, error } = await queryBuilder;
 
-  if (error || !data?.length) return applyFeedSort(mockPosts, filters);
+  if (error || !data?.length) return [];
 
   const authorIds = [...new Set(data.map((row) => row.author_id))];
   const postIds = data.map((row) => row.id);
@@ -185,7 +185,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
     }
   }
 
-  return getPostById(id);
+  return undefined;
 }
 
 export async function getPostDetail(id: string): Promise<{ post?: PostRecord; comments: CommentRecord[]; debug: PostDetailDebug }> {
@@ -324,13 +324,12 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
 
 export async function getCategoryPosts(category: string): Promise<PostRecord[]> {
   const feed = await getFeedPosts();
-  const matches = feed.filter((post) => post.category === category);
-  return matches.length ? matches : getPostsByCategory(category);
+  return feed.filter((post) => post.category === category);
 }
 
 export async function getProfile(username: string): Promise<Profile | undefined> {
   const supabase = await getSupabaseServerClient();
-  if (!supabase) return getProfileByUsername(username);
+  if (!supabase) return undefined;
 
   const { data } = await supabase
     .from('profiles')
@@ -338,7 +337,7 @@ export async function getProfile(username: string): Promise<Profile | undefined>
     .eq('username', username)
     .maybeSingle();
 
-  return data ? normalizeProfile(data) : getProfileByUsername(username);
+  return data ? normalizeProfile(data) : undefined;
 }
 
 export async function getProfilePosts(username: string): Promise<PostRecord[]> {
@@ -555,7 +554,8 @@ export async function getAdminModerationView() {
   if (!supabase) {
     return {
       reports: [],
-      recentPosts: mockPosts.slice(0, 8),
+      recentPosts: [],
+      commentHistory: [],
     };
   }
 

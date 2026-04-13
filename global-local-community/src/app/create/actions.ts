@@ -7,7 +7,7 @@ import { assertAccountMaturity, assertMemberCan, assertRateLimit, getCurrentMemb
 import { logServerRequest } from '@/lib/request-logging';
 import { sanitizePlainText, sanitizeTagList } from '@/lib/security';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
-import { validatePendingUploadBatch } from '@/lib/upload-validation';
+import { attachPendingUploadsToPost } from '@/lib/upload-validation';
 
 export async function createPostAction(formData: FormData) {
   const member = await getCurrentMember();
@@ -42,51 +42,9 @@ export async function createPostAction(formData: FormData) {
     throw new Error('Uploaded media authorization is incomplete.');
   }
 
-  let validatedUploads: Array<{
-    id: string;
-    user_id: string;
-    bucket: string;
-    storage_path: string;
-    mime_type: string;
-    size_bytes: number;
-    status: 'authorized' | 'uploaded' | 'attached' | 'expired' | 'rejected';
-    upload_token: string;
-    expires_at: string;
-    attached_post_id?: string | null;
-  }> = [];
-
-  if (uploadIds.length) {
-    const { data: pendingRows, error: pendingError } = await supabase
-      .from('pending_uploads')
-      .select('id, user_id, bucket, storage_path, mime_type, size_bytes, status, upload_token, expires_at, attached_post_id')
-      .in('id', uploadIds)
-      .eq('user_id', member.id);
-
-    if (pendingError) {
-      throw new Error(pendingError.message);
-    }
-
-    if (!pendingRows || pendingRows.length !== uploadIds.length) {
-      throw new Error('One or more uploaded files could not be validated.');
-    }
-
-    const rowMap = new Map(pendingRows.map((row) => [row.id, row]));
-    const orderedRows = uploadIds.map((id, index) => {
-      const row = rowMap.get(id);
-      if (!row || row.upload_token !== uploadTokens[index]) {
-        throw new Error('Uploaded media authorization did not match.');
-      }
-      return row;
-    });
-
-    validatedUploads = validatePendingUploadBatch(orderedRows, member.id);
-  }
-
   const classification = classifyContent({ title, body });
   const safety = detectToxicityOrSpam({ title, body });
   const moderationStatus = safety.label === 'spam-risk' && safety.score >= 0.7 ? 'review' : 'published';
-
-  const imageUrls = validatedUploads.map((file) => `pending://${file.bucket}/${file.storage_path}`);
 
   const { data, error } = await supabase
     .from('posts')
@@ -98,7 +56,7 @@ export async function createPostAction(formData: FormData) {
       city,
       district: district || null,
       tags,
-      image_urls: imageUrls,
+      image_urls: [],
       ai_label: classification.label,
       ai_score: classification.score,
       ai_explanation: `${classification.explanation} ${safety.explanation}`,
@@ -111,35 +69,18 @@ export async function createPostAction(formData: FormData) {
     throw new Error(error.message);
   }
 
-  if (validatedUploads.length) {
-    const mediaRows = validatedUploads.map((file) => ({
-      post_id: data.id,
-      storage_path: file.storage_path,
-      public_url: `pending://${file.bucket}/${file.storage_path}`,
-      mime_type: file.mime_type,
-      size_bytes: file.size_bytes,
-      moderation_status: moderationStatus,
-    }));
-
-    const { error: mediaError } = await supabase.from('post_media').insert(mediaRows);
-    if (mediaError) {
-      throw new Error(mediaError.message);
-    }
-
-    const { error: pendingUpdateError } = await supabase
-      .from('pending_uploads')
-      .update({
-        status: 'attached',
-        attached_post_id: data.id,
-        attached_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .in('id', validatedUploads.map((file) => file.id))
-      .eq('user_id', member.id);
-
-    if (pendingUpdateError) {
-      throw new Error(pendingUpdateError.message);
-    }
+  try {
+    await attachPendingUploadsToPost({
+      supabase,
+      userId: member.id,
+      postId: data.id,
+      uploadIds,
+      uploadTokens,
+      moderationStatus,
+    });
+  } catch (attachError) {
+    await supabase.from('posts').delete().eq('id', data.id);
+    throw attachError;
   }
 
   await supabase.from('workflow_events').insert({

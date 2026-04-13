@@ -6,7 +6,7 @@ const profiles: Profile[] = [
     id: '1',
     username: 'mina-expat',
     displayName: 'Mina Carter',
-    bio: 'Community host for newcomers in Seoul.',
+    bio: 'Community host helping newcomers settle into Seoul paperwork and housing routines.',
     city: 'Seoul',
     originCountry: 'Canada',
     occupation: 'Teacher',
@@ -15,7 +15,7 @@ const profiles: Profile[] = [
     id: '2',
     username: 'jaynomad',
     displayName: 'Jay Park',
-    bio: 'Sharing practical Korea life tips.',
+    bio: 'Sharing practical Korea life tips after years of moving between Busan and Seoul.',
     city: 'Busan',
     originCountry: 'USA',
     occupation: 'Designer',
@@ -24,7 +24,7 @@ const profiles: Profile[] = [
     id: '3',
     username: 'sara-abroad',
     displayName: 'Sara Kim',
-    bio: 'Helping people find housing and jobs.',
+    bio: 'Helping people compare leases, job paths, and local admin steps in Korea.',
     city: 'Daegu',
     originCountry: 'UK',
     occupation: 'Recruiter',
@@ -32,14 +32,14 @@ const profiles: Profile[] = [
 ];
 
 const basePosts = [
-  ['housing', 'Need a short-term officetel near Hongdae', 'Looking for a furnished officetel for 3 months, walking distance to subway, budget around 1.2M KRW.', 'Seoul', 'Mapo-gu'],
-  ['housing', 'No-realtor villa listing near Centum', 'My landlord is re-listing our 2-room place and is okay with foreign tenants if paperwork is clear.', 'Busan', 'Haeundae-gu'],
-  ['jobs', 'Cafe hiring English-speaking weekend staff', 'Saw a handwritten sign at a brunch cafe. They prefer conversational Korean but are open to foreigners.', 'Daegu', 'Nam-gu'],
-  ['jobs', 'Any recruiters focused on F visas in Seoul?', 'Trying to avoid spam recruiters and want someone who understands bilingual office roles.', 'Seoul', 'Jongno-gu'],
-  ['daily-life', 'Foreigner-friendly dentist with Saturday hours', 'Need somewhere gentle, English-friendly, and not impossible to book.', 'Busan', 'Suyeong-gu'],
-  ['daily-life', 'How long did your ARC address update take?', 'I moved districts and want to know realistic processing times this month.', 'Daegu', 'Seo-gu'],
-  ['events', 'Sunday board game meetup for newcomers', 'Small English-speaking meetup, low-pressure, mostly people in their first year here.', 'Seoul', 'Yongsan-gu'],
-  ['marketplace', 'Selling rice cooker and floor lamp before moving', 'Pickup only near university station, both used but clean.', 'Other', 'Jeonju'],
+  ['housing', 'Need a short-term officetel near Hongdae', 'Looking for a furnished officetel for 3 months, walking distance to Line 2, budget around 1.2M KRW, and ideally no huge key money.', 'Seoul', 'Mapo-gu'],
+  ['housing', 'No-realtor villa listing near Centum', 'My landlord is re-listing our 2-room place and is okay with foreign tenants if paperwork is clear and the deposit transfer timing is explained well.', 'Busan', 'Haeundae-gu'],
+  ['jobs', 'Cafe hiring English-speaking weekend staff in Daegu', 'Saw a handwritten sign at a brunch cafe near Kyungpook National University. They prefer conversational Korean but are open to foreigners with valid work status.', 'Daegu', 'Buk-gu'],
+  ['jobs', 'Any recruiters focused on F visas in Seoul?', 'Trying to avoid spam recruiters and want someone who understands bilingual office roles, visa realities, and real salary bands in Seoul.', 'Seoul', 'Jongno-gu'],
+  ['daily-life', 'Foreigner-friendly dentist with Saturday hours in Busan', 'Need somewhere gentle, English-friendly, and not impossible to book. Bonus if they explain insurance coverage clearly.', 'Busan', 'Suyeong-gu'],
+  ['daily-life', 'How long did your ARC address update take this month?', 'I moved districts and want realistic timelines for immigration plus whether the 주민센터 update was enough before my bank app stopped matching.', 'Daegu', 'Suseong-gu'],
+  ['events', 'Sunday board game meetup for newcomers in Itaewon', 'Small English-speaking meetup, low-pressure, mostly people in their first year here who want community without a huge party scene.', 'Seoul', 'Yongsan-gu'],
+  ['marketplace', 'Selling rice cooker and floor lamp before moving cities', 'Pickup only near Jeonju Station this weekend. Good for someone setting up their first Korean apartment on a budget.', 'Other', 'Jeonju'],
 ];
 
 export const posts: PostRecord[] = Array.from({ length: 40 }).map((_, index) => {
@@ -51,10 +51,10 @@ export const posts: PostRecord[] = Array.from({ length: 40 }).map((_, index) => 
     author,
     category: template[0] as PostRecord['category'],
     title: `${template[1]} ${index > 7 ? `#${index + 1}` : ''}`.trim(),
-    body: `${template[2]}\n\nExtra context: ${index % 2 === 0 ? 'Open to DMs.' : 'Would love public replies so others can benefit.'}`,
+    body: `${template[2]}\n\nExtra context: ${index % 2 === 0 ? 'Open to public replies so others in Korea can use the info too.' : 'If you solved something similar in Korea recently, please share what actually worked.'}`,
     city: template[3],
     district: template[4],
-    tags: [template[0], String(template[4]).toLowerCase(), String(template[3]).toLowerCase(), index % 2 === 0 ? 'newcomer' : 'practical'],
+    tags: [template[0], String(template[4]).toLowerCase(), String(template[3]).toLowerCase(), index % 2 === 0 ? 'korea-life' : 'newcomer'],
     createdAt,
     likesCount: 3 + (index % 12),
     commentsCount: 1 + (index % 5),
@@ -62,7 +62,7 @@ export const posts: PostRecord[] = Array.from({ length: 40 }).map((_, index) => 
     analysis: {
       label: template[0] as PostRecord['analysis']['label'],
       score: 0.82 + ((index % 6) * 0.02),
-      explanation: `Detected ${template[0]} intent from explicit community language and local context.`,
+      explanation: `Detected ${template[0]} intent from explicit Korea-specific community language and local context.`,
     },
   };
 });
@@ -72,14 +72,14 @@ export const comments: CommentRecord[] = [
     id: 'comment-1',
     postId: 'post-1',
     author: profiles[1],
-    body: 'I toured a similar place last week. Happy to share the broker contact if you still need it.',
+    body: 'I toured a similar place last week. Happy to share the broker contact if you still need it, and I can tell you what the maintenance fee really covered.',
     createdAt: subHours(new Date(), 2).toISOString(),
   },
   {
     id: 'comment-2',
     postId: 'post-2',
     author: profiles[2],
-    body: 'Ask whether maintenance includes heating. That part surprised me on my last contract.',
+    body: 'Ask whether maintenance includes heating and building internet. That part surprised me on my last contract in Busan.',
     createdAt: subHours(new Date(), 4).toISOString(),
   },
 ];
@@ -94,5 +94,3 @@ export const categories = [
 
 export const getPostById = (id: string) => posts.find((post) => post.id === id);
 export const getCommentsByPostId = (postId: string) => comments.filter((comment) => comment.postId === postId);
-export const getProfileByUsername = (username: string) => profiles.find((profile) => profile.username === username);
-export const getPostsByCategory = (category: string) => posts.filter((post) => post.category === category);

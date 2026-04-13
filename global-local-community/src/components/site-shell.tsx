@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Home, Briefcase, MessageSquare, Shield, Building2, MapPinned, Bookmark, Bell, Activity } from 'lucide-react';
+import { Home, Briefcase, MessageSquare, Shield, Building2, MapPinned, PlusSquare } from 'lucide-react';
 import { clsx } from 'clsx';
 import { HeaderAuthControls } from '@/components/header-auth-controls';
 import { SessionPill } from '@/components/session-pill';
@@ -16,18 +16,40 @@ function navTone(href: string) {
 
 export async function SiteShell({ children }: { children: React.ReactNode }) {
   const member = await getCurrentMember();
-  const nav = [
+  const desktopNav = [
     { href: '/', label: 'Home', icon: Home },
     { href: '/feed', label: 'Feed', icon: MessageSquare },
     { href: '/categories/housing', label: 'Housing', icon: Building2 },
     { href: '/categories/jobs', label: 'Jobs', icon: Briefcase },
     ...(member ? [
-      { href: '/saved', label: 'Saved', icon: Bookmark },
-      { href: '/activity', label: 'Activity', icon: Activity },
-      { href: '/settings', label: 'Alerts', icon: Bell },
+      { href: '/saved', label: 'Saved', icon: MessageSquare },
+      { href: '/activity', label: 'Activity', icon: MessageSquare },
+      { href: '/settings', label: 'Settings', icon: MessageSquare },
     ] : []),
     ...(member?.isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
   ];
+
+  const mobileNav = member?.isAdmin
+    ? [
+        { href: '/', label: 'Home', icon: Home },
+        { href: '/feed', label: 'Feed', icon: MessageSquare },
+        { href: '/create', label: 'Post', icon: PlusSquare },
+        { href: '/settings', label: 'Account', icon: MapPinned },
+        { href: '/admin', label: 'Admin', icon: Shield },
+      ]
+    : member
+      ? [
+          { href: '/', label: 'Home', icon: Home },
+          { href: '/feed', label: 'Feed', icon: MessageSquare },
+          { href: '/create', label: 'Post', icon: PlusSquare },
+          { href: '/settings', label: 'Account', icon: MapPinned },
+        ]
+      : [
+          { href: '/', label: 'Home', icon: Home },
+          { href: '/feed', label: 'Feed', icon: MessageSquare },
+          { href: '/create', label: 'Post', icon: PlusSquare },
+          { href: '/categories/jobs', label: 'Jobs', icon: Briefcase },
+        ];
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-[var(--bg-base)] text-[var(--text-primary)]">
@@ -52,7 +74,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             ) : (
               <HeaderAuthControls signedInContent={<></>} />
             )}
-            <Link href="/create" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[var(--accent-primary-strong)]">
+            <Link href="/create" className="hidden min-h-11 rounded-full bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-[var(--accent-primary-strong)] sm:inline-flex sm:items-center">
               Create post
             </Link>
           </div>
@@ -62,7 +84,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         <aside className="hidden w-72 shrink-0 xl:block">
           <div className="space-y-4">
             <nav className="rounded-3xl border border-[var(--border-strong)] bg-[var(--surface-primary)] p-3 shadow-sm">
-              {nav.map((item) => {
+              {desktopNav.map((item) => {
                 const Icon = item.icon;
                 const tone = navTone(item.href);
                 return (
@@ -94,13 +116,13 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         <main className="min-w-0 flex-1">{children}</main>
       </div>
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 backdrop-blur xl:hidden">
-        <div className={clsx('grid gap-2', member?.isAdmin ? 'grid-cols-5' : 'grid-cols-4')}>
-          {nav.map((item) => {
+        <div className={clsx('grid gap-2', mobileNav.length === 5 ? 'grid-cols-5' : 'grid-cols-4')}>
+          {mobileNav.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.href} href={item.href} className="flex min-h-14 flex-col items-center justify-center rounded-2xl px-2 py-2 text-[11px] font-medium leading-tight text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
-                <Icon className="mb-1 h-4 w-4" />
-                <span className="truncate">{item.label}</span>
+              <Link key={item.href} href={item.href} className="flex min-h-14 min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-2 text-[11px] font-medium leading-tight text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
+                <Icon className="mb-1 h-4 w-4 shrink-0" />
+                <span className="w-full truncate text-center">{item.label}</span>
               </Link>
             );
           })}

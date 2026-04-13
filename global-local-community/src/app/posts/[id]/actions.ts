@@ -16,6 +16,8 @@ const reportSchema = z.object({
   details: z.string().optional(),
 }).refine((value) => Boolean(value.postId || value.commentId), {
   message: 'A postId or commentId is required.',
+}).refine((value) => !(value.postId && value.commentId), {
+  message: 'Report must target either a post or a comment, not both.',
 });
 
 export async function createCommentAction(postId: string, formData: FormData) {
@@ -157,9 +159,11 @@ export async function createReportAction(postId: string, formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
+  const commentId = formData.get('commentId') ? String(formData.get('commentId')) : undefined;
+
   const parsed = reportSchema.safeParse({
-    postId,
-    commentId: formData.get('commentId') ? String(formData.get('commentId')) : undefined,
+    postId: commentId ? undefined : postId,
+    commentId,
     reason: sanitizePlainText(formData.get('reason'), { maxLength: 80, allowNewlines: false }),
     details: sanitizePlainText(formData.get('details'), { maxLength: 500, allowNewlines: true }) || undefined,
   });

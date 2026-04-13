@@ -16,11 +16,13 @@ export function CommentThread({
   updateAction,
   deleteAction,
   reportAction,
+  signedIn,
 }: {
   comments: CommentRecord[];
   updateAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
   reportAction: (formData: FormData) => Promise<void>;
+  signedIn: boolean;
 }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState(false);
@@ -87,7 +89,7 @@ export function CommentThread({
                     ) : (
                       <p className="mt-3 text-xs leading-5 text-slate-400">Only the author can edit or delete this reply.</p>
                     )}
-                    {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} /> : null}
+                    {!comment.deletedAt ? <CommentReportButton action={reportAction} commentId={comment.id} signedIn={signedIn} /> : null}
                   </>
                 )}
               </div>
@@ -95,12 +97,16 @@ export function CommentThread({
           </div>
         );
       })}
-      <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-600 sm:p-5">
-        <p className="font-medium text-slate-900">Want to reply or report?</p>
-        <p className="mt-1">Sign in first so community actions stay tied to a real profile.</p>
-        <button type="button" onClick={() => setAuthOpen(true)} className="mt-3 min-h-11 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Sign in</button>
-      </div>
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+      {!signedIn ? (
+        <>
+          <div className="rounded-2xl border border-dashed border-slate-200 bg-white/70 p-4 text-sm text-slate-600 sm:p-5">
+            <p className="font-medium text-slate-900">Want to reply or report?</p>
+            <p className="mt-1">Sign in first so community actions stay tied to a real profile.</p>
+            <button type="button" onClick={() => setAuthOpen(true)} className="mt-3 min-h-11 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Sign in</button>
+          </div>
+          <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+        </>
+      ) : null}
     </div>
   );
 }

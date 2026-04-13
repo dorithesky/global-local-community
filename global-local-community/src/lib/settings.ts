@@ -1,4 +1,4 @@
-import { getCurrentMember } from './auth';
+import { getCurrentMember, requireModerator } from './auth';
 import { getSupabaseServerClient } from './supabase-server';
 
 function cleanLegacyProfileText(value?: string | null) {
@@ -57,6 +57,9 @@ export async function getAccountSettings() {
 }
 
 export async function getAdminUserSettingsView() {
+  const moderator = await requireModerator();
+  if (!moderator) return [];
+
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
 

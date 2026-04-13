@@ -81,6 +81,22 @@ export async function uploadImagesToSupabase(files: File[]) {
       throw new Error(error.message);
     }
 
+    const uploadedAtResponse = await fetch('/api/uploads/authorize', {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        uploadId: authorization.uploadId,
+        uploadToken: authorization.uploadToken,
+      }),
+    });
+
+    const uploadedAtPayload = await uploadedAtResponse.json().catch(() => null);
+    if (!uploadedAtResponse.ok) {
+      throw new Error(uploadedAtPayload?.error ?? 'Could not finalize uploaded media.');
+    }
+
     uploaded.push({
       uploadId: authorization.uploadId,
       uploadToken: authorization.uploadToken,
