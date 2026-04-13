@@ -52,9 +52,9 @@ function CommentCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <Link href={`/profile/${comment.author.username}`} className="block min-w-0 flex-1 rounded-xl transition hover:bg-white/70">
-              <div className="flex min-w-0 flex-col gap-0 sm:flex-row sm:flex-wrap sm:items-center sm:gap-1">
+              <div className="flex min-w-0 items-center gap-1 sm:flex-row sm:flex-wrap sm:gap-1">
                 <p className="truncate text-sm font-medium leading-5 text-slate-900">{comment.author.displayName}</p>
                 <p className="hidden text-xs text-slate-500 sm:inline">·</p>
                 <p className="hidden truncate text-xs text-slate-500 sm:inline">@{comment.author.username}</p>
@@ -139,36 +139,40 @@ function CommentCard({
 
           {!isReply && replyCount > 0 ? (
             <div className="mt-2 border-l-2 border-slate-200 pl-2.5 sm:pl-3">
-              <button
-                type="button"
-                onClick={() => setRepliesExpanded((value) => !value)}
-                className="flex w-full items-center justify-between gap-3 px-0 py-0.5 text-left text-xs font-medium text-sky-700 hover:text-sky-800"
-              >
-                <span>{repliesExpanded ? `Hide replies` : `View ${replyCount} ${replyCount === 1 ? 'reply' : 'replies'}`}</span>
-                <ChevronDown className={`h-4 w-4 transition ${repliesExpanded ? 'rotate-180' : ''}`} />
-              </button>
-              <div className="mt-1.5 space-y-1.5">
-                {previewReplies.map((reply) => (
-                  <CommentCard
-                    key={reply.id}
-                    comment={reply}
-                    updateAction={updateAction}
-                    deleteAction={deleteAction}
-                    reportAction={reportAction}
-                    replyAction={replyAction}
-                    signedIn={signedIn}
-                    isReply
-                  />
-                ))}
-              </div>
-              {!repliesExpanded && hasHiddenReplies ? (
+              {!repliesExpanded ? (
                 <button
                   type="button"
                   onClick={() => setRepliesExpanded(true)}
-                  className="mt-2 text-xs font-medium text-sky-700 hover:text-sky-800"
+                  className="flex w-full items-center justify-between gap-3 px-0 py-0.5 text-left text-xs font-medium text-sky-700 hover:text-sky-800"
                 >
-                  Show {replies.length - previewReplies.length} more
+                  <span>View {replyCount} {replyCount === 1 ? 'reply' : 'replies'}</span>
+                  <ChevronDown className="h-4 w-4 transition" />
                 </button>
+              ) : null}
+              {repliesExpanded ? (
+                <div className="mt-1.5 space-y-1.5">
+                  {previewReplies.map((reply) => (
+                    <CommentCard
+                      key={reply.id}
+                      comment={reply}
+                      updateAction={updateAction}
+                      deleteAction={deleteAction}
+                      reportAction={reportAction}
+                      replyAction={replyAction}
+                      signedIn={signedIn}
+                      isReply
+                    />
+                  ))}
+                  {hasHiddenReplies ? (
+                    <button
+                      type="button"
+                      onClick={() => setRepliesExpanded(true)}
+                      className="mt-2 text-xs font-medium text-sky-700 hover:text-sky-800"
+                    >
+                      Show {replies.length - previewReplies.length} more
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           ) : null}
