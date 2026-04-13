@@ -33,7 +33,7 @@ export function BookmarkButton({ action, active }: { action: (formData: FormData
   );
 }
 
-export function DeletePostButton({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function DeletePostButton({ action, compact = false }: { action: (formData: FormData) => Promise<void>; compact?: boolean }) {
   const { pending } = useFormStatus();
 
   return (
@@ -41,10 +41,12 @@ export function DeletePostButton({ action }: { action: (formData: FormData) => P
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex min-h-10 items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-60"
+        className={compact
+          ? 'inline-flex h-8 items-center gap-1 rounded-full border border-rose-200 bg-white px-2.5 text-[11px] font-medium text-rose-700 shadow-sm transition hover:bg-rose-50 disabled:opacity-60'
+          : 'inline-flex min-h-10 items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-60'}
       >
-        <Trash2 className="h-4 w-4" />
-        {pending ? 'Deleting...' : 'Delete post'}
+        <Trash2 className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
+        {pending ? 'Deleting...' : compact ? 'Delete' : 'Delete post'}
       </button>
     </form>
   );
