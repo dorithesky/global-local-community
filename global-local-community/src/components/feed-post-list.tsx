@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PostCard } from '@/components/post-card';
 import type { PostRecord } from '@/lib/types';
@@ -13,8 +13,9 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  async function loadMore() {
+  const loadMore = useCallback(async () => {
     if (!hasMore || loading) return;
 
     setLoading(true);
@@ -27,7 +28,18 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
       const response = await fetch(`/api/posts?${params.toString()}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Could not load more posts.');
       const payload = await response.json();
-      setPosts((current) => [...current, ...(payload.data ?? [])]);
+      setPosts((current) => {
+        const incoming = Array.isArray(payload.data) ? payload.data : [];
+        const seen = new Set(current.map((post) => post.id));
+        const merged = [...current];
+        for (const post of incoming) {
+          if (!seen.has(post.id)) {
+            seen.add(post.id);
+            merged.push(post);
+          }
+        }
+        return merged;
+      });
       setPage(payload.pagination?.page ?? page + 1);
       setHasMore(Boolean(payload.pagination?.hasMore));
     } catch (loadError) {
@@ -35,7 +47,29 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
     } finally {
       setLoading(false);
     }
-  }
+  }, [hasMore, loading, page, searchParams]);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry?.isIntersecting) {
+          void loadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '400px 0px',
+        threshold: 0,
+      },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [hasMore, loadMore]);
 
   if (!posts.length) {
     return (
@@ -50,6 +84,7 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
+      <div ref={sentinelRef} className="h-1 w-full" aria-hidden="true" />
       <div className="flex flex-col items-center gap-3 pt-1">
         {hasMore ? (
           <button
@@ -58,7 +93,7 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
             disabled={loading}
             className="min-h-11 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
           >
-            {loading ? 'Loading...' : 'Load 10 more'}
+            {loading ? 'Loading more...' : 'Load 10 more'}
           </button>
         ) : posts.length > 10 ? (
           <a href={`${pathname}#top`} className="text-sm font-medium text-sky-700 hover:text-sky-800">Back to top</a>
