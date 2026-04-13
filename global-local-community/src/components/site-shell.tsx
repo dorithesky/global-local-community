@@ -63,15 +63,15 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
               </div>
               <div className="min-w-0">
                 <h1 className="truncate text-[13px] font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)] sm:text-sm">Living In Korea</h1>
-                <p className="truncate text-sm font-medium leading-5 text-[var(--text-primary)]">English-first support for building life in Korea</p>
+                <p className="hidden truncate text-sm font-medium leading-5 text-[var(--text-primary)] sm:block">English-first support for building life in Korea</p>
               </div>
             </div>
-            <div className="flex items-center gap-2 sm:hidden">
+            <div className="flex items-center gap-1.5 sm:hidden">
               <ThemeToggle compact />
               {member ? (
                 <>
-                  <SessionPill />
-                  <SignOutButton />
+                  <SessionPill compact />
+                  <SignOutButton compact />
                 </>
               ) : (
                 <HeaderAuthControls signedInContent={<></>} />
