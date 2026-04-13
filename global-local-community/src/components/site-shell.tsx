@@ -129,13 +129,13 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         </aside>
         <main className="min-w-0 flex-1">{children}</main>
       </div>
-      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.5rem)] pt-2 backdrop-blur xl:hidden">
-        <div className={clsx('grid gap-2', mobileNav.length === 5 ? 'grid-cols-5' : 'grid-cols-4')}>
+      <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.3rem)] pt-1.5 backdrop-blur xl:hidden">
+        <div className={clsx('grid gap-1.5', mobileNav.length === 5 ? 'grid-cols-5' : 'grid-cols-4')}>
           {mobileNav.map((item) => {
             const Icon = item.icon;
             return (
-              <Link key={item.href} href={item.href} className="flex min-h-14 min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-2 text-[12px] font-semibold leading-tight text-[var(--text-primary)] hover:bg-[var(--surface-muted)]">
-                <Icon className="mb-1 h-[18px] w-[18px] shrink-0 stroke-[2.2]" />
+              <Link key={item.href} href={item.href} className="flex min-h-12 min-w-0 flex-col items-center justify-center rounded-2xl px-1 py-1.5 text-[11px] font-semibold leading-tight text-[var(--text-primary)] hover:bg-[var(--surface-muted)]">
+                <Icon className="mb-0.5 h-[17px] w-[17px] shrink-0 stroke-[2.2]" />
                 <span className="w-full truncate text-center">{item.label}</span>
               </Link>
             );
