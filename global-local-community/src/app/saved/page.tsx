@@ -41,6 +41,7 @@ export default async function SavedPostsPage({ searchParams }: { searchParams: P
         page={posts.page}
         hasMore={posts.hasMore}
         emptyMessage="You have not saved anything yet. Bookmark posts from the feed and they will show up here."
+        itemLabel="saved posts"
       />
     </div>
   );

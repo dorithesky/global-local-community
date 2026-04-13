@@ -65,17 +65,17 @@ export default async function ActivityPage({ searchParams }: { searchParams: Pro
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Saved posts</h2>
-        <ServerPaginatedPostList posts={savedPosts.items} page={savedPosts.page} hasMore={savedPosts.hasMore} emptyMessage="Nothing saved yet." pageParam="savedPage" />
+        <ServerPaginatedPostList posts={savedPosts.items} page={savedPosts.page} hasMore={savedPosts.hasMore} emptyMessage="Nothing saved yet." pageParam="savedPage" itemLabel="saved posts" />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Liked posts</h2>
-        <ServerPaginatedPostList posts={likedPosts.items} page={likedPosts.page} hasMore={likedPosts.hasMore} emptyMessage="No liked posts yet." pageParam="likedPage" />
+        <ServerPaginatedPostList posts={likedPosts.items} page={likedPosts.page} hasMore={likedPosts.hasMore} emptyMessage="No liked posts yet." pageParam="likedPage" itemLabel="liked posts" />
       </section>
 
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-slate-950">Commented posts</h2>
-        <ServerPaginatedPostList posts={commentedPosts.items} page={commentedPosts.page} hasMore={commentedPosts.hasMore} emptyMessage="No commented posts yet." pageParam="commentedPage" />
+        <ServerPaginatedPostList posts={commentedPosts.items} page={commentedPosts.page} hasMore={commentedPosts.hasMore} emptyMessage="No commented posts yet." pageParam="commentedPage" itemLabel="commented posts" />
       </section>
 
       <section className="space-y-4">

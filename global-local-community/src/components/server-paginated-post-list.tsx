@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PostCard } from '@/components/post-card';
 import type { PostRecord } from '@/lib/types';
 
-export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pageParam = 'page' }: { posts: PostRecord[]; page: number; hasMore: boolean; emptyMessage: string; pageParam?: string }) {
+export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pageParam = 'page', itemLabel = 'posts' }: { posts: PostRecord[]; page: number; hasMore: boolean; emptyMessage: string; pageParam?: string; itemLabel?: string }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -40,7 +40,10 @@ export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pa
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
-      <div className="flex items-center justify-center gap-3 pt-1">
+      <div className="rounded-2xl border border-slate-200/80 bg-white/80 px-4 py-3 shadow-sm">
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Showing page {page} of {itemLabel}</p>
+          <div className="flex items-center justify-center gap-3">
         {page > 1 ? (
           <button
             type="button"
@@ -48,7 +51,7 @@ export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pa
             disabled={isPending}
             className="min-h-11 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-60"
           >
-            Previous
+            {isPending && pendingPage === page - 1 ? 'Loading...' : 'Previous 10'}
           </button>
         ) : null}
         {hasMore ? (
@@ -63,6 +66,8 @@ export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pa
         ) : posts.length > 0 ? (
           <Link href="#top" className="text-sm font-medium text-sky-700 hover:text-sky-800">Back to top</Link>
         ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );

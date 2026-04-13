@@ -129,6 +129,7 @@ export default async function ProfilePage({ params, searchParams }: { params: Pr
           page={authoredPosts.page}
           hasMore={authoredPosts.hasMore}
           emptyMessage="No posts yet."
+          itemLabel="profile posts"
         />
       </section>
 

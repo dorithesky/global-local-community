@@ -19,6 +19,7 @@ export default async function CategoryPage({ params, searchParams }: { params: P
         page={categoryPosts.page}
         hasMore={categoryPosts.hasMore}
         emptyMessage="No posts are visible in this category yet."
+        itemLabel={`${category.label.toLowerCase()} posts`}
       />
     </div>
   );
