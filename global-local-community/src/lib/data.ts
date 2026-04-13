@@ -234,7 +234,7 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
       .maybeSingle();
 
     if (row && !error) {
-      const [{ data: profileRow }, { data: likesData }, { data: bookmarksData }] = await Promise.all([
+      const [{ data: profileRow }, { data: likesData }, { data: bookmarksData }, roleBadgeMap] = await Promise.all([
         supabase
           .from('profiles')
           .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
@@ -242,9 +242,10 @@ export async function getPost(id: string): Promise<PostRecord | undefined> {
           .maybeSingle(),
         supabase.from('likes').select('user_id').eq('post_id', id),
         member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).eq('post_id', id) : Promise.resolve({ data: [] }),
+        getRoleBadgeMap([String(row.author_id)]),
       ]);
 
-      const author = profileRow ? normalizeProfile(profileRow) : {
+      const author = profileRow ? normalizeProfile(profileRow, roleBadgeMap.get(String(row.author_id))) : {
         id: String(row.author_id),
         username: 'unknown',
         displayName: 'Unknown member',
@@ -356,14 +357,17 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
 
   const commentRows = rows as unknown as Array<Record<string, unknown>>;
   const authorIds = [...new Set(commentRows.map((row) => row.author_id).filter(Boolean))];
-  const { data: profilesData } = authorIds.length
-    ? await supabase
-        .from('profiles')
-        .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
-        .in('id', authorIds)
-    : { data: [] };
+  const [{ data: profilesData }, roleBadgeMap] = authorIds.length
+    ? await Promise.all([
+        supabase
+          .from('profiles')
+          .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url')
+          .in('id', authorIds),
+        getRoleBadgeMap(authorIds.map(String)),
+      ])
+    : [{ data: [] }, new Map<string, Array<'admin' | 'moderator'>>()];
 
-  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row, roleBadgeMap.get(String(row.id)))]));
 
   const comments = commentRows.map((row) => {
     const author = profileMap.get(row.author_id) ?? {
@@ -433,7 +437,9 @@ export async function getProfile(username: string): Promise<Profile | undefined>
     .eq('username', username)
     .maybeSingle();
 
-  return data ? normalizeProfile(data) : undefined;
+  if (!data) return undefined;
+  const roleBadgeMap = await getRoleBadgeMap([String(data.id)]);
+  return normalizeProfile(data, roleBadgeMap.get(String(data.id)));
 }
 
 export async function getProfilePosts(username: string): Promise<PostRecord[]> {

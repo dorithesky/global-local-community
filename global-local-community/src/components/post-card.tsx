@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ImageIcon, MessageCircle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { FeedBookmarkButton, FeedDeleteButton, FeedLikeButton, FeedReportButton } from '@/components/post-card-actions';
+import { RoleBadge } from '@/components/role-badge';
 import { createReportAction } from '@/app/posts/[id]/actions';
 import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from '@/app/posts/[id]/engagement-actions';
 import { cityScopeLabel } from '@/lib/locations';
@@ -23,7 +24,11 @@ export function PostCard({ post }: { post: PostRecord }) {
               </div>
             )}
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-900">{post.author.displayName}</p>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <p className="truncate text-sm font-semibold text-slate-900">{post.author.displayName}</p>
+                {post.author.badges?.includes('admin') ? <RoleBadge role="admin" /> : null}
+                {!post.author.badges?.includes('admin') && post.author.badges?.includes('moderator') ? <RoleBadge role="moderator" /> : null}
+              </div>
               <p className="text-xs leading-5 text-slate-500 sm:truncate">
                 @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
               </p>

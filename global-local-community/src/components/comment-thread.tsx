@@ -7,6 +7,7 @@ import { ChevronDown, MessageSquareReply } from 'lucide-react';
 import { CommentReportButton } from '@/components/comment-report-button';
 import { AuthModal } from '@/components/auth-modal';
 import { CommentForm } from '@/components/post-engagement-forms';
+import { RoleBadge } from '@/components/role-badge';
 import type { CommentRecord } from '@/lib/types';
 
 function CommentActionButton({ label }: { label: string }) {
@@ -56,6 +57,8 @@ function CommentCard({
             <Link href={`/profile/${comment.author.username}`} className="block min-w-0 flex-1 rounded-xl transition hover:bg-white/70">
               <div className="flex min-w-0 items-center gap-1 sm:flex-row sm:flex-wrap sm:gap-1">
                 <p className="truncate text-sm font-medium leading-5 text-slate-900">{comment.author.displayName}</p>
+                {comment.author.badges?.includes('admin') ? <RoleBadge role="admin" /> : null}
+                {!comment.author.badges?.includes('admin') && comment.author.badges?.includes('moderator') ? <RoleBadge role="moderator" /> : null}
                 <p className="hidden text-xs text-slate-500 sm:inline">·</p>
                 <p className="hidden truncate text-xs text-slate-500 sm:inline">@{comment.author.username}</p>
                 <p className="hidden text-xs text-slate-500 sm:inline">·</p>

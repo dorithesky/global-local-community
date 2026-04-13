@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
+import { RoleBadge } from '@/components/role-badge';
 import { getCurrentMember } from '@/lib/auth';
 import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
 
@@ -35,7 +36,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               </div>
             )}
             <div className="min-w-0">
-              <p className="truncate text-lg font-semibold text-slate-950">{profile.displayName}</p>
+              <div className="flex min-w-0 items-center gap-2">
+                <p className="truncate text-lg font-semibold text-slate-950">{profile.displayName}</p>
+                {profile.badges?.includes('admin') ? <RoleBadge role="admin" /> : null}
+                {!profile.badges?.includes('admin') && profile.badges?.includes('moderator') ? <RoleBadge role="moderator" /> : null}
+              </div>
               <p className="text-sm text-slate-500">@{profile.username}</p>
               <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profileComments.length} comments</p>
               <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-medium">
