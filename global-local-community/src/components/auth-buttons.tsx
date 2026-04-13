@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { CheckCircle2, Circle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 
@@ -15,6 +16,12 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const isCreatingPassword = view === 'signup' || signInMethod === 'password';
+  const passwordChecks = useMemo(() => ({
+    minLength: password.length >= 6,
+    strongerLength: password.length >= 10,
+  }), [password]);
 
   async function signInWithGoogle() {
     const supabase = getSupabaseBrowserClient();
@@ -107,7 +114,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
     <div id="signin" className={`space-y-4 rounded-3xl border border-slate-200 bg-white ${compact ? 'p-4 shadow-none' : 'p-5 shadow-sm'}`}>
       <div>
         <p className="text-sm font-semibold text-slate-900">Welcome</p>
-        <p className="mt-1 text-sm leading-6 text-slate-600">Make the first choice obvious: create an account, or sign in to an existing one.</p>
+        <p className="mt-1 text-sm leading-5 text-slate-600">Create an account or sign in.</p>
       </div>
 
       <div className="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1">
@@ -131,16 +138,6 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       ) : null}
 
       <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-        {view === 'signup' ? (
-          <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
-            <p className="font-medium">Before you create your account</p>
-            <ul className="mt-2 list-disc pl-5 text-sm leading-6 text-sky-900">
-              <li>Use a real email you can access right now</li>
-              <li>You may need to confirm the account from your inbox before signing in</li>
-              <li>Password must be at least 6 characters</li>
-            </ul>
-          </div>
-        ) : null}
         <input
           type="email"
           value={email}
@@ -148,7 +145,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
           placeholder="you@example.com"
           className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
         />
-        {(view === 'signup' || signInMethod === 'password') ? (
+        {isCreatingPassword ? (
           <div className="space-y-2">
             <input
               type="password"
@@ -157,9 +154,21 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
               placeholder={view === 'signup' ? 'Create a password' : 'Enter your password'}
               className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring"
             />
-            <p className="text-xs leading-5 text-slate-500 sm:leading-6">
-              Password rules: minimum 6 characters. For a real public launch, use a stronger password than something short or reused.
-            </p>
+            {view === 'signup' ? (
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
+                <p className="font-medium text-slate-900">Password rules</p>
+                <div className="mt-2 space-y-1.5 text-sm">
+                  <div className={`flex items-center gap-2 ${passwordChecks.minLength ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    {passwordChecks.minLength ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                    <span>At least 6 characters</span>
+                  </div>
+                  <div className={`flex items-center gap-2 ${passwordChecks.strongerLength ? 'text-emerald-700' : 'text-slate-500'}`}>
+                    {passwordChecks.strongerLength ? <CheckCircle2 className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                    <span>10+ characters recommended</span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
         <button
@@ -197,7 +206,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       ) : null}
       {message ? <p className="text-sm leading-6 text-slate-600">{message}</p> : null}
       {view === 'signup' && !message ? (
-        <p className="text-sm leading-6 text-slate-500">After creating your account, check your inbox for a confirmation email if Supabase email confirmation is enabled, then finish your profile settings so your city and immediate needs are reflected correctly.</p>
+        <p className="text-sm leading-5 text-slate-500">Use an email you can access. You may need to confirm it before signing in.</p>
       ) : null}
     </div>
   );
