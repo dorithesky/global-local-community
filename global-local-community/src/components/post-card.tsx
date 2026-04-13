@@ -37,7 +37,6 @@ export function PostCard({ post }: { post: PostRecord }) {
             <span className="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-800">{post.category}</span>
             {post.author.city ? <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">{post.author.city}</span> : null}
             {post.author.occupation ? <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">{post.author.occupation}</span> : null}
-            {post.author.onboardingCompleted ? <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700">Profile completed</span> : null}
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 sm:justify-end">

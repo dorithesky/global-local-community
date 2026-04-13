@@ -70,8 +70,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <p className="text-sm text-slate-500">@{profile.username}</p>
               <p className="mt-1 text-xs text-slate-500">{authoredPosts.length} posts • {profile.publicCommentCount ?? profileComments.length} comments</p>
               <div className="mt-2 flex flex-wrap gap-2 text-[11px] font-medium">
-                <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-sky-800">Profile context {identitySignals >= 3 ? 'complete enough to trust at a glance' : 'still growing'}</span>
-                {profile.onboardingCompleted ? <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700">Onboarding complete</span> : null}
+                <span className="inline-flex rounded-full bg-sky-100 px-2.5 py-1 text-sky-800">{identitySignals >= 3 ? 'Established member context' : 'Member profile'}</span>
                 {memberAgeLabel ? <span className="inline-flex rounded-full bg-cyan-50 px-2.5 py-1 text-cyan-800">Member since {memberAgeLabel}</span> : null}
               </div>
             </div>
@@ -114,8 +113,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
               <p>{savedPosts.length}</p>
             </div>
             <div>
-              <p className="font-medium text-slate-900">Account state</p>
-              <p>{profile.onboardingCompleted ? 'Onboarding completed' : 'Profile still needs context'}</p>
+              <p className="font-medium text-slate-900">Comments</p>
+              <p>{profile.publicCommentCount ?? profileComments.length}</p>
             </div>
           </div>
         </section>
