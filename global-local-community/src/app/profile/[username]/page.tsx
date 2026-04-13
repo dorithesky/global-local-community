@@ -10,9 +10,26 @@ import { getCurrentMember } from '@/lib/auth';
 import { getProfile, getProfileComments, getProfilePosts, getSavedPosts } from '@/lib/data';
 
 export const metadata: Metadata = {
+  title: 'Member profile',
+  description: 'Member profiles are available inside the community with limited public exposure.',
   robots: {
     index: false,
     follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      nosnippet: true,
+    },
+  },
+  openGraph: {
+    title: 'Member profile',
+    description: 'Member profiles are available inside the community with limited public exposure.',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Member profile',
+    description: 'Member profiles are available inside the community with limited public exposure.',
   },
 };
 

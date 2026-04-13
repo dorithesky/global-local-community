@@ -9,9 +9,17 @@ import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getAccountSettings } from '@/lib/settings';
 
 export const metadata: Metadata = {
+  title: 'Settings',
+  description: 'Private account settings inside Global Local Community.',
   robots: {
     index: false,
     follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      nosnippet: true,
+    },
   },
 };
 

@@ -7,11 +7,24 @@ import { SessionGuard } from '@/components/session-guard';
 import { validateServerEnv } from '@/lib/env';
 
 export const metadata: Metadata = {
-  title: 'Global Local Community',
+  title: {
+    default: 'Global Local Community',
+    template: '%s | Global Local Community',
+  },
   description: 'A high-signal community platform for foreigners living in Korea.',
   robots: {
     index: true,
     follow: true,
+  },
+  openGraph: {
+    title: 'Global Local Community',
+    description: 'A high-signal community platform for foreigners living in Korea.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Global Local Community',
+    description: 'A high-signal community platform for foreigners living in Korea.',
   },
 };
 

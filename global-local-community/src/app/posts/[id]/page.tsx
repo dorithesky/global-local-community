@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
@@ -14,6 +15,39 @@ import { getCurrentMember } from '@/lib/auth';
 import { SignInGuard } from '@/components/sign-in-guard';
 import { createCommentAction, createReportAction, deleteCommentAction, updateCommentAction } from './actions';
 import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from './engagement-actions';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const { post } = await getPostDetail(id);
+
+  if (!post) {
+    return {
+      title: 'Post not found',
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const description = `${post.body.replace(/\s+/g, ' ').trim().slice(0, 140)}${post.body.length > 140 ? '…' : ''}`;
+  const title = post.title;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
+  };
+}
 
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

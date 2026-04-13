@@ -7,9 +7,17 @@ import { markSensitiveRoute } from '@/lib/cache-policy';
 import { getSavedPosts } from '@/lib/data';
 
 export const metadata: Metadata = {
+  title: 'Saved posts',
+  description: 'Private saved posts inside Global Local Community.',
   robots: {
     index: false,
     follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      nosnippet: true,
+    },
   },
 };
 
