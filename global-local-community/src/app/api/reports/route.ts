@@ -12,6 +12,8 @@ const reportSchema = z.object({
   details: z.string().optional(),
 }).refine((value) => Boolean(value.postId || value.commentId), {
   message: 'A postId or commentId is required.',
+}).refine((value) => !(value.postId && value.commentId), {
+  message: 'Report must target either a post or a comment, not both.',
 });
 
 export async function POST(request: Request) {
