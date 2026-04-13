@@ -51,3 +51,11 @@ create policy if not exists pending_uploads_owner_update on pending_uploads for 
 
 create policy if not exists comment_events_actor_insert on comment_events for insert with check (actor_id = auth.uid());
 create policy if not exists comment_events_actor_read on comment_events for select using (actor_id = auth.uid());
+
+create policy if not exists user_roles_public_read on user_roles for select using (true);
+
+create policy if not exists moderator_notes_no_public_read on moderator_notes for select using (false);
+create policy if not exists user_sanctions_owner_read on user_sanctions for select using (user_id = auth.uid());
+create policy if not exists pending_uploads_no_public_leak on pending_uploads for select using (user_id = auth.uid());
+create policy if not exists workflow_events_no_public_read on workflow_events for select using (false);
+create policy if not exists request_logs_no_public_read on request_logs for select using (false);

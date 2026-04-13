@@ -13,6 +13,7 @@ export interface Profile {
   avatarUrl?: string;
   createdAt?: string;
   onboardingCompleted?: boolean;
+  badges?: Array<'admin' | 'moderator'>;
 }
 
 export interface AiAnalysis {

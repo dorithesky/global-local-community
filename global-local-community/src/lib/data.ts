@@ -10,7 +10,7 @@ function cleanLegacyProfileText(value?: unknown) {
   return text;
 }
 
-function normalizeProfile(row: Record<string, unknown>): Profile {
+function normalizeProfile(row: Record<string, unknown>, badges?: Array<'admin' | 'moderator'>): Profile {
   return {
     id: String(row.id),
     username: String(row.username ?? ''),
@@ -22,6 +22,7 @@ function normalizeProfile(row: Record<string, unknown>): Profile {
     avatarUrl: row.avatar_url ? String(row.avatar_url) : undefined,
     createdAt: row.created_at ? String(row.created_at) : undefined,
     onboardingCompleted: typeof row.onboarding_completed === 'boolean' ? row.onboarding_completed : undefined,
+    badges: badges ?? [],
   };
 }
 
@@ -130,6 +131,28 @@ function normalizeCommentRow(row: Record<string, unknown>, author: Profile, memb
   };
 }
 
+async function getRoleBadgeMap(userIds: string[]) {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase || !userIds.length) return new Map<string, Array<'admin' | 'moderator'>>();
+
+  const { data, error } = await supabase
+    .from('user_roles')
+    .select('user_id, role')
+    .in('user_id', userIds);
+
+  if (error || !data?.length) return new Map<string, Array<'admin' | 'moderator'>>();
+
+  const roleMap = new Map<string, Array<'admin' | 'moderator'>>();
+  for (const row of data) {
+    if (row.role !== 'admin' && row.role !== 'moderator') continue;
+    const existing = roleMap.get(String(row.user_id)) ?? [];
+    if (!existing.includes(row.role)) existing.push(row.role);
+    roleMap.set(String(row.user_id), existing);
+  }
+
+  return roleMap;
+}
+
 export async function getFeedPosts(filters?: { city?: string | null; category?: string | null; query?: string | null; sort?: string | null }): Promise<PostRecord[]> {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return [];
@@ -152,10 +175,13 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
 
   const authorIds = [...new Set(data.map((row) => row.author_id))];
   const postIds = data.map((row) => row.id);
-  const { data: profilesData } = await supabase
-    .from('profiles')
-    .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
-    .in('id', authorIds);
+  const [{ data: profilesData }, roleBadgeMap] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, username, display_name, bio, city, origin_country, occupation, avatar_url, created_at, onboarding_completed')
+      .in('id', authorIds),
+    getRoleBadgeMap(authorIds.map(String)),
+  ]);
 
   const [{ data: likesData }, { data: commentsData }, { data: bookmarksData }] = await Promise.all([
     supabase.from('likes').select('post_id, user_id').in('post_id', postIds),
@@ -163,7 +189,7 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
     member ? supabase.from('bookmarks').select('post_id').eq('user_id', member.id).in('post_id', postIds) : Promise.resolve({ data: [] }),
   ]);
 
-  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row)]));
+  const profileMap = new Map((profilesData ?? []).map((row) => [row.id, normalizeProfile(row, roleBadgeMap.get(String(row.id)))]));
   const likeCounts = new Map<string, number>();
   const likedPostIds = new Set<string>();
   const commentCounts = new Map<string, number>();
