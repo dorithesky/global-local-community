@@ -11,6 +11,7 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: '/admin', label: 'Overview', description: 'KPIs, watchlist, and shortcuts' },
   { href: '/admin/reports', label: 'Reports', description: 'Review and resolve moderation cases' },
   { href: '/admin/members', label: 'Members', description: 'Search members, roles, and sanctions' },
+  { href: '/admin/content', label: 'Content', description: 'Publish operator-seeded posts safely' },
   { href: '/admin/activity', label: 'Activity', description: 'Recent community actions and moderation history' },
 ];
 

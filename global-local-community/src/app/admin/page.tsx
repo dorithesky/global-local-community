@@ -130,6 +130,7 @@ export default async function AdminOverviewPage() {
             <div className="mt-4 space-y-2 text-sm">
               <a href="/admin/reports" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Reports queue</a>
               <a href="/admin/members" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Members</a>
+              <a href="/admin/content" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Content operations</a>
               <a href="/admin/activity" className="block rounded-2xl bg-white px-4 py-3 text-slate-700 hover:bg-sky-50">Activity log</a>
             </div>
           </section>

@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { assertRateLimit, requireAdmin, requireModerator } from '@/lib/auth';
+import { sanitizeAdminContentInput } from '@/lib/admin-content';
+import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { logServerRequest } from '@/lib/request-logging';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
@@ -41,6 +43,16 @@ const moderatorNoteSchema = z.object({
   note: z.string().trim().min(3).max(500),
 }).refine((value) => Boolean(value.targetUserId || value.reportId || value.postId || value.commentId), {
   message: 'Moderator note must target a report, post, comment, or member.',
+});
+
+const adminSeedPostSchema = z.object({
+  authorId: z.string().uuid(),
+  city: z.string().min(1),
+  district: z.string().optional(),
+  category: z.string().min(1),
+  title: z.string().min(5).max(140),
+  body: z.string().min(20).max(5000),
+  tags: z.string().optional(),
 });
 
 export async function updateReportStatusAction(formData: FormData) {
@@ -276,6 +288,102 @@ export async function applyUserSanctionAction(formData: FormData) {
   }
 
   revalidatePath('/admin');
+}
+
+export async function createAdminSeedPostAction(formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) throw new Error('Unauthorized');
+
+  await assertRateLimit('admin');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const parsed = adminSeedPostSchema.safeParse({
+    authorId: String(formData.get('authorId') ?? '').trim(),
+    city: String(formData.get('city') ?? '').trim(),
+    district: String(formData.get('district') ?? '').trim() || undefined,
+    category: String(formData.get('category') ?? '').trim(),
+    title: String(formData.get('title') ?? '').trim(),
+    body: String(formData.get('body') ?? '').trim(),
+    tags: String(formData.get('tags') ?? '').trim() || undefined,
+  });
+
+  if (!parsed.success) throw new Error('Seed post request is incomplete or invalid.');
+
+  const input = sanitizeAdminContentInput(parsed.data);
+
+  const { data: authorProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', input.authorId)
+    .maybeSingle();
+
+  if (!authorProfile) throw new Error('Selected author profile does not exist.');
+
+  const classification = classifyContent({ title: input.title, body: input.body });
+  const safety = detectToxicityOrSpam({ title: input.title, body: input.body });
+  const moderationStatus = safety.label === 'spam-risk' && safety.score >= 0.7 ? 'review' : 'published';
+
+  const { data: insertedPost, error } = await supabase
+    .from('posts')
+    .insert({
+      author_id: input.authorId,
+      category: input.category,
+      title: input.title,
+      body: input.body,
+      city: input.city,
+      district: input.district,
+      tags: input.tags,
+      image_urls: [],
+      ai_label: classification.label,
+      ai_score: classification.score,
+      ai_explanation: `${classification.explanation} ${safety.explanation}`,
+      moderation_status: moderationStatus,
+    })
+    .select('id, category, title')
+    .single();
+
+  if (error) throw new Error(error.message);
+
+  await supabase.from('workflow_events').insert({
+    event_type: 'moderation.seed_post_created',
+    entity_type: 'post',
+    entity_id: insertedPost.id,
+    actor_id: admin.id,
+    payload: {
+      author_id: input.authorId,
+      category: input.category,
+      moderation_status: moderationStatus,
+    },
+  });
+
+  await logServerRequest({ userId: admin.id, path: '/admin/actions/seed-post' });
+
+  try {
+    await recordSecurityEvent({
+      eventType: 'moderation.seed_post_created',
+      severity: 'high',
+      userId: admin.id,
+      path: '/admin/actions/seed-post',
+      entityType: 'post',
+      entityId: insertedPost.id,
+      payload: {
+        authorId: input.authorId,
+        category: input.category,
+        moderationStatus,
+      },
+    });
+
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for moderation.seed_post_created', securityError);
+  }
+
+  revalidatePath('/');
+  revalidatePath('/feed');
+  revalidatePath('/admin');
+  revalidatePath(`/categories/${input.category}`);
 }
 
 export async function updateUserRoleAction(formData: FormData) {
