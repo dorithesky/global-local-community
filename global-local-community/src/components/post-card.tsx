@@ -17,15 +17,18 @@ export function PostCard({ post }: { post: PostRecord }) {
         </div>
       ) : null}
       <div className="mb-2.5 flex flex-col gap-2.5">
-        {typeof post.rank === 'number' ? (
-          <div className="flex items-center gap-2 text-[11px] font-medium text-[var(--text-tertiary)]">
-            <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none ${post.rank === 1 ? 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' : post.rank === 2 ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-500/15 dark:text-indigo-200' : post.rank === 3 ? 'bg-teal-100 text-teal-900 dark:bg-teal-500/15 dark:text-teal-200' : 'bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>
-              <TrendingUp className="h-3 w-3" />
-              Trending now
-            </span>
-            <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold ${post.rank === 1 ? 'bg-amber-500 text-white dark:bg-amber-400 dark:text-slate-950' : post.rank === 2 ? 'bg-indigo-500 text-white dark:bg-indigo-400 dark:text-slate-950' : post.rank === 3 ? 'bg-teal-500 text-white dark:bg-teal-400 dark:text-slate-950' : 'bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>#{post.rank}</span>
-          </div>
-        ) : null}
+        <div className="flex items-start justify-between gap-3">
+          {typeof post.rank === 'number' ? (
+            <div className="flex items-center gap-2 text-[11px] font-medium text-[var(--text-tertiary)]">
+              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold leading-none ${post.rank === 1 ? 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' : post.rank === 2 ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-500/15 dark:text-indigo-200' : post.rank === 3 ? 'bg-teal-100 text-teal-900 dark:bg-teal-500/15 dark:text-teal-200' : 'bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>
+                <TrendingUp className="h-3 w-3" />
+                Trending now
+              </span>
+              <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold ${post.rank === 1 ? 'bg-amber-500 text-white dark:bg-amber-400 dark:text-slate-950' : post.rank === 2 ? 'bg-indigo-500 text-white dark:bg-indigo-400 dark:text-slate-950' : post.rank === 3 ? 'bg-teal-500 text-white dark:bg-teal-400 dark:text-slate-950' : 'bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>#{post.rank}</span>
+            </div>
+          ) : <span />}
+          <span className="inline-flex rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--accent-primary)]">{post.category}</span>
+        </div>
         <div className="min-w-0 flex-1 pr-16 sm:pr-20">
           <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-[var(--surface-muted)]/80">
             {post.author.avatarUrl ? (
@@ -47,11 +50,11 @@ export function PostCard({ post }: { post: PostRecord }) {
               </p>
             </div>
           </Link>
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            <span className="rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--accent-primary)]">{post.category}</span>
-            {post.author.city ? <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.city}</span> : null}
-            {post.author.occupation ? <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.occupation}</span> : null}
-          </div>
+          {post.author.occupation ? (
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.occupation}</span>
+            </div>
+          ) : null}
         </div>
       </div>
 
