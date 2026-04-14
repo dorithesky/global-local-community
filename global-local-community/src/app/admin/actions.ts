@@ -424,22 +424,41 @@ export async function updateContentOperatorAction(formData: FormData) {
 
   if (!targetProfile) throw new Error('Target user not found.');
 
-  if (intent === 'grant') {
-    const { error } = await supabase
-      .from('content_operator_accounts')
-      .upsert({ user_id: userId, active: true, note: note ?? null, created_by: admin.id, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  const timestamp = new Date().toISOString();
 
-    if (error) throw new Error(error.message);
+  if (intent === 'grant') {
+    const { data: existingOperator, error: existingOperatorError } = await supabase
+      .from('content_operator_accounts')
+      .select('user_id')
+      .eq('user_id', userId)
+      .maybeSingle();
+
+    if (existingOperatorError) throw new Error(`content_operator_accounts lookup failed: ${existingOperatorError.message}`);
+
+    if (existingOperator) {
+      const { error } = await supabase
+        .from('content_operator_accounts')
+        .update({ active: true, note: note ?? null, updated_at: timestamp })
+        .eq('user_id', userId);
+
+      if (error) throw new Error(`content_operator_accounts update failed: ${error.message}`);
+    } else {
+      const { error } = await supabase
+        .from('content_operator_accounts')
+        .insert({ user_id: userId, active: true, note: note ?? null, created_by: admin.id, updated_at: timestamp });
+
+      if (error) throw new Error(`content_operator_accounts insert failed: ${error.message}`);
+    }
   } else {
     const { error } = await supabase
       .from('content_operator_accounts')
-      .update({ active: false, note: note ?? null, updated_at: new Date().toISOString() })
+      .update({ active: false, note: note ?? null, updated_at: timestamp })
       .eq('user_id', userId);
 
-    if (error) throw new Error(error.message);
+    if (error) throw new Error(`content_operator_accounts revoke failed: ${error.message}`);
   }
 
-  await supabase.from('workflow_events').insert({
+  const { error: workflowError } = await supabase.from('workflow_events').insert({
     event_type: intent === 'grant' ? 'moderation.content_operator_granted' : 'moderation.content_operator_revoked',
     entity_type: 'profile',
     entity_id: userId,
@@ -449,6 +468,8 @@ export async function updateContentOperatorAction(formData: FormData) {
       intent,
     },
   });
+
+  if (workflowError) throw new Error(`workflow_events insert failed: ${workflowError.message}`);
 
   await logServerRequest({ userId: admin.id, path: '/admin/actions/content-operator' });
 
