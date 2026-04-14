@@ -1,4 +1,3 @@
-import { cache } from 'react';
 import { getSupabaseServerClient } from './supabase-server';
 
 export type ActiveSanction = {
@@ -14,10 +13,10 @@ function slugifyUsername(value: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .slice(0, 24) || `member`;
+    .slice(0, 24) || 'member';
 }
 
-export const getCurrentMember = cache(async () => {
+export async function getCurrentMember() {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return null;
 
@@ -86,15 +85,15 @@ export const getCurrentMember = cache(async () => {
     isAdmin: roles.includes('admin'),
     roles,
   };
-});
+}
 
-export const getCurrentUserCreatedAt = cache(async () => {
+export async function getCurrentUserCreatedAt() {
   const supabase = await getSupabaseServerClient();
   if (!supabase) return null;
 
   const { data } = await supabase.auth.getUser();
   return data.user?.created_at ?? null;
-});
+}
 
 export async function assertAccountMaturity(action: 'post' | 'comment' | 'report') {
   const createdAt = await getCurrentUserCreatedAt();
@@ -177,7 +176,7 @@ export function canRoleDeleteAuthorContent(actorRoles?: string[], targetRoles?: 
   return targetRank <= 2;
 }
 
-export const getActiveSanctions = cache(async (): Promise<ActiveSanction[]> => {
+export async function getActiveSanctions(): Promise<ActiveSanction[]> {
   const member = await getCurrentMember();
   if (!member) return [];
 
@@ -201,7 +200,7 @@ export const getActiveSanctions = cache(async (): Promise<ActiveSanction[]> => {
     active: row.active,
     endsAt: row.ends_at ?? undefined,
   }));
-});
+}
 
 export async function assertMemberCan(action: 'post' | 'comment' | 'engage' | 'report') {
   const sanctions = await getActiveSanctions();
