@@ -1,5 +1,5 @@
 const REQUIRED_SERVER_ENV = ['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'] as const;
-const OPTIONAL_SENSITIVE_SERVER_ENV = ['OPENCLAW_AUTOMATION_SECRET', 'OPENCLAW_AUTOMATION_AUTHOR_IDS'] as const;
+const OPTIONAL_SENSITIVE_SERVER_ENV = ['OPENCLAW_AUTOMATION_SECRET'] as const;
 
 function isLocalUrl(value: string) {
   return value.includes('localhost') || value.includes('127.0.0.1');
@@ -24,11 +24,6 @@ export function validateServerEnv() {
     const automationSecret = process.env.OPENCLAW_AUTOMATION_SECRET?.trim();
     if (automationSecret && automationSecret.length < 32) {
       throw new Error('OPENCLAW_AUTOMATION_SECRET must be at least 32 characters in production.');
-    }
-
-    const automationAuthorIds = process.env.OPENCLAW_AUTOMATION_AUTHOR_IDS?.trim();
-    if (automationSecret && !automationAuthorIds) {
-      throw new Error('OPENCLAW_AUTOMATION_AUTHOR_IDS must be configured when OPENCLAW_AUTOMATION_SECRET is enabled.');
     }
   }
 }

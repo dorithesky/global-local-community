@@ -15,7 +15,6 @@
 - Minimum production expectation: 32+ random characters.
 - Never expose it in client code, logs, chat, or `NEXT_PUBLIC_*` variables.
 - Current scope is intentionally narrow: it may only create seed posts through approved `content_operator` accounts.
-- `OPENCLAW_AUTOMATION_AUTHOR_IDS` must explicitly allowlist which operator UUIDs automation may publish as.
 - It must not be reused for general admin or moderation actions.
 - If compromised, rotate it immediately and review workflow/security events for `moderation.seed_post_automation_used`.
 

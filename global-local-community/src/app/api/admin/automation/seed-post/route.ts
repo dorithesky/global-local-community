@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminSeedPost } from '@/lib/admin-seed-post';
-import { assertAutomationAuthorAllowed, assertAutomationSecret, getAutomationCaller } from '@/lib/internal-automation';
+import { assertAutomationSecret, getAutomationCaller } from '@/lib/internal-automation';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 
 export async function POST(request: Request) {
@@ -9,13 +9,11 @@ export async function POST(request: Request) {
 
     const caller = getAutomationCaller(request.headers);
     const body = await request.json();
-    const authorId = String(body.authorId ?? '').trim();
-    assertAutomationAuthorAllowed(authorId);
 
     const result = await createAdminSeedPost({
       actorId: null,
       actorLabel: `automation:${caller}`,
-      authorId,
+      authorId: body.authorId,
       city: body.city,
       district: body.district,
       category: body.category,
@@ -34,7 +32,7 @@ export async function POST(request: Request) {
         entityId: result.id,
         payload: {
           caller,
-          authorId,
+          authorId: body.authorId,
           authorUsername: result.authorUsername,
           category: body.category,
         },
