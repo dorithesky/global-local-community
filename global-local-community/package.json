@@ -7,8 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "check:security": "bash ./scripts/check-security.sh",
-    "publish:automation": "node ./scripts/publish-automation-post.mjs"
+    "check:security": "bash ./scripts/check-security.sh"
   },
   "dependencies": {
     "@next/third-parties": "^16.2.3",

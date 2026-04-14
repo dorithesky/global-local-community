@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createAdminSeedPost } from '@/lib/admin-seed-post';
-import { assertAutomationAuthorAllowed, assertAutomationRateLimit, assertAutomationSecret, assertAutomationTimestamp, getAutomationCaller } from '@/lib/internal-automation';
+import { assertAutomationAuthorAllowed, assertAutomationSecret, getAutomationCaller } from '@/lib/internal-automation';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 
 export async function POST(request: Request) {
   try {
     assertAutomationSecret(request.headers.get('x-openclaw-secret'));
-    const requestTimestamp = assertAutomationTimestamp(request.headers);
 
     const caller = getAutomationCaller(request.headers);
     const body = await request.json();
     const authorId = String(body.authorId ?? '').trim();
     assertAutomationAuthorAllowed(authorId);
-    await assertAutomationRateLimit(caller, authorId);
 
     const result = await createAdminSeedPost({
       actorId: null,
@@ -39,7 +37,6 @@ export async function POST(request: Request) {
           authorId,
           authorUsername: result.authorUsername,
           category: body.category,
-          requestTimestamp,
         },
       });
       await detectSecurityAlerts();
