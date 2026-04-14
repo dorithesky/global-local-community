@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { assertRateLimit, requireAdmin, requireModerator } from '@/lib/auth';
-import { sanitizeAdminContentInput } from '@/lib/admin-content';
+import { isAllowedOperatorUsername, sanitizeAdminContentInput } from '@/lib/admin-content';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { logServerRequest } from '@/lib/request-logging';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
@@ -315,11 +315,14 @@ export async function createAdminSeedPostAction(formData: FormData) {
 
   const { data: authorProfile } = await supabase
     .from('profiles')
-    .select('id')
+    .select('id, username')
     .eq('id', input.authorId)
     .maybeSingle();
 
   if (!authorProfile) throw new Error('Selected author profile does not exist.');
+  if (!isAllowedOperatorUsername(authorProfile.username)) {
+    throw new Error('Only approved operator accounts can publish through this tool.');
+  }
 
   const classification = classifyContent({ title: input.title, body: input.body });
   const safety = detectToxicityOrSpam({ title: input.title, body: input.body });
@@ -353,6 +356,7 @@ export async function createAdminSeedPostAction(formData: FormData) {
     actor_id: admin.id,
     payload: {
       author_id: input.authorId,
+      author_username: authorProfile.username,
       category: input.category,
       moderation_status: moderationStatus,
     },
@@ -370,6 +374,7 @@ export async function createAdminSeedPostAction(formData: FormData) {
       entityId: insertedPost.id,
       payload: {
         authorId: input.authorId,
+        authorUsername: authorProfile.username,
         category: input.category,
         moderationStatus,
       },

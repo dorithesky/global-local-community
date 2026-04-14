@@ -68,14 +68,16 @@ export async function detectSecurityAlerts() {
     uploads: new Date(now - 10 * 60 * 1000).toISOString(),
     sanctions: new Date(now - 60 * 60 * 1000).toISOString(),
     roles: new Date(now - 60 * 60 * 1000).toISOString(),
+    seedPosts: new Date(now - 60 * 60 * 1000).toISOString(),
   };
 
-  const [{ data: reportEvents }, { data: uploadEvents }, { data: sanctionEvents }, { data: roleEvents }, { data: cleanupFailures }] = await Promise.all([
+  const [{ data: reportEvents }, { data: uploadEvents }, { data: sanctionEvents }, { data: roleEvents }, { data: cleanupFailures }, { data: seedPostEvents }] = await Promise.all([
     supabase.from('security_events').select('ip, created_at').eq('event_type', 'report.created').gte('created_at', windows.reports),
     supabase.from('security_events').select('ip, created_at').eq('event_type', 'upload.authorized').gte('created_at', windows.uploads),
     supabase.from('security_events').select('created_at').eq('event_type', 'moderation.user_sanctioned').gte('created_at', windows.sanctions),
     supabase.from('security_events').select('created_at, payload').in('event_type', ['moderation.role_granted', 'moderation.role_revoked']).gte('created_at', windows.roles),
     supabase.from('security_events').select('created_at, payload').in('event_type', ['upload.cleanup_partial_failure', 'upload.cleanup_db_update_failed']).gte('created_at', windows.uploads),
+    supabase.from('security_events').select('created_at, payload').eq('event_type', 'moderation.seed_post_created').gte('created_at', windows.seedPosts),
   ]);
 
   const reportCounts = new Map<string, number>();
@@ -138,6 +140,15 @@ export async function detectSecurityAlerts() {
       severity: 'high',
       summary: 'Upload cleanup failure detected',
       payload: { count: cleanupFailures?.length ?? 0, events: cleanupFailures ?? [] },
+    });
+  }
+
+  if ((seedPostEvents ?? []).length >= 8) {
+    alerts.push({
+      ruleName: 'seed-post-spike',
+      severity: 'high',
+      summary: 'High admin seed-post volume detected',
+      payload: { count: seedPostEvents?.length ?? 0, window: '1h', events: seedPostEvents ?? [] },
     });
   }
 

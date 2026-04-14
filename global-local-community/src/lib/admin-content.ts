@@ -1,6 +1,8 @@
 import { sanitizePlainText, sanitizeTagList } from '@/lib/security';
 import type { Category } from '@/lib/types';
 
+export const ADMIN_CONTENT_OPERATOR_USERNAMES = ['livingkoreateam', 'koreasetupdesk', 'communitysignal'] as const;
+
 export const ADMIN_CONTENT_ALLOWED_CATEGORIES: Category[] = [
   'housing',
   'jobs',
@@ -16,6 +18,11 @@ export const ADMIN_CONTENT_ALLOWED_CATEGORIES: Category[] = [
   'local-tips',
   'marketplace',
 ];
+
+export function isAllowedOperatorUsername(username?: string | null) {
+  if (!username) return false;
+  return ADMIN_CONTENT_OPERATOR_USERNAMES.includes(username.toLowerCase() as typeof ADMIN_CONTENT_OPERATOR_USERNAMES[number]);
+}
 
 export function sanitizeAdminContentInput(input: {
   authorId: string;
