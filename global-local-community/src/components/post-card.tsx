@@ -46,15 +46,16 @@ export function PostCard({ post }: { post: PostRecord }) {
                 {!post.author.badges?.includes('admin') && post.author.badges?.includes('moderator') ? <RoleBadge role="moderator" /> : null}
               </div>
               <p className="text-xs leading-4.5 text-[var(--text-tertiary)] sm:truncate">
-                @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {post.category} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
+                @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
               </p>
             </div>
             </Link>
-          {post.author.occupation ? (
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {post.author.occupation ? (
               <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.occupation}</span>
-            </div>
-          ) : null}
+            ) : null}
+            <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.category}</span>
+          </div>
         </div>
       </div>
 
