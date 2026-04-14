@@ -54,7 +54,7 @@ export function PostCard({ post }: { post: PostRecord }) {
             {post.author.occupation ? (
               <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.occupation}</span>
             ) : null}
-            <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.category}</span>
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium leading-none ${post.category === 'jobs' ? 'bg-indigo-100 text-indigo-900 dark:bg-indigo-500/15 dark:text-indigo-200' : post.category === 'housing' ? 'bg-sky-100 text-sky-900 dark:bg-sky-500/15 dark:text-sky-200' : post.category === 'events' ? 'bg-amber-100 text-amber-900 dark:bg-amber-500/15 dark:text-amber-200' : post.category === 'marketplace' ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-500/15 dark:text-emerald-200' : 'bg-rose-100 text-rose-900 dark:bg-rose-500/15 dark:text-rose-200'}`}>{post.category}</span>
           </div>
         </div>
       </div>
