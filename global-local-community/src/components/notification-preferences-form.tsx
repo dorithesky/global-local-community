@@ -1,4 +1,7 @@
-import { saveNotificationPreferencesAction } from '@/app/settings/actions';
+"use client";
+
+import { useActionState } from 'react';
+import { INITIAL_SETTINGS_ACTION_STATE, saveNotificationPreferencesAction } from '@/app/settings/actions';
 
 const options = [
   { name: 'notifyLikes', label: 'Get Likes' },
@@ -7,9 +10,11 @@ const options = [
 ] as const;
 
 export function NotificationPreferencesForm() {
+  const [state, action] = useActionState(saveNotificationPreferencesAction, INITIAL_SETTINGS_ACTION_STATE);
+
   return (
     <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-      <form action={saveNotificationPreferencesAction} className="space-y-4">
+      <form action={action} className="space-y-4">
         <div>
           <p className="text-sm font-semibold text-slate-900">Settings</p>
           <p className="mt-1 text-sm text-slate-600">Choose which updates and emails you want to receive.</p>
@@ -25,6 +30,8 @@ export function NotificationPreferencesForm() {
         <button type="submit" className="min-h-11 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
           Save preferences
         </button>
+        {state.error ? <p className="text-sm text-rose-700">{state.error}</p> : null}
+        {state.success ? <p className="text-sm text-emerald-700">{state.success}</p> : null}
       </form>
     </section>
   );

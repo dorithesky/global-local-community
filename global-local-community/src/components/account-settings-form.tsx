@@ -1,5 +1,23 @@
-import { saveConsentSettingsAction, saveNotificationPreferencesAction, saveProfileIdentityAction } from '@/app/settings/actions';
+"use client";
+
+import { useActionState } from 'react';
 import Link from 'next/link';
+import { saveConsentSettingsAction, saveNotificationPreferencesAction, saveProfileIdentityAction } from '@/app/settings/actions';
+
+const INITIAL_STATE = { error: null as string | null, success: null as string | null };
+
+function AccentSubmitButton({ label }: { label: string }) {
+  return <button type="submit" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">{label}</button>;
+}
+
+function FormFeedback({ error, success }: { error: string | null; success: string | null }) {
+  return (
+    <>
+      {error ? <p className="text-sm text-rose-700">{error}</p> : null}
+      {success ? <p className="text-sm text-emerald-700">{success}</p> : null}
+    </>
+  );
+}
 
 export function AccountSettingsForm({
   settings,
@@ -10,10 +28,14 @@ export function AccountSettingsForm({
     consent: { marketingConsent: boolean; thirdPartyEmailConsent: boolean };
   };
 }) {
+  const [profileState, profileAction] = useActionState(saveProfileIdentityAction, INITIAL_STATE);
+  const [notificationState, notificationAction] = useActionState(saveNotificationPreferencesAction, INITIAL_STATE);
+  const [consentState, consentAction] = useActionState(saveConsentSettingsAction, INITIAL_STATE);
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
-        <form action={saveProfileIdentityAction} className="space-y-4">
+        <form action={profileAction} className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-[var(--text-primary)]">Public profile</p>
@@ -59,14 +81,13 @@ export function AccountSettingsForm({
             </select>
             <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">This helps shape the first posts and recommendations you should see.</p>
           </div>
-          <button type="submit" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">
-            Save profile
-          </button>
+          <AccentSubmitButton label="Save profile" />
+          <FormFeedback error={profileState.error} success={profileState.success} />
         </form>
       </section>
 
       <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
-        <form action={saveNotificationPreferencesAction} className="space-y-4">
+        <form action={notificationAction} className="space-y-4">
           <div>
             <p className="text-sm font-semibold text-[var(--text-primary)]">Notifications</p>
             <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Choose the activity updates you want to receive.</p>
@@ -81,14 +102,13 @@ export function AccountSettingsForm({
               <input type="checkbox" name="notifyComments" defaultChecked={settings.notifications.notifyComments} className="h-4 w-4 shrink-0" />
             </label>
           </div>
-          <button type="submit" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">
-            Save notification settings
-          </button>
+          <AccentSubmitButton label="Save notification settings" />
+          <FormFeedback error={notificationState.error} success={notificationState.success} />
         </form>
       </section>
 
       <section id="account-controls" className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
-        <form action={saveConsentSettingsAction} className="space-y-4">
+        <form action={consentAction} className="space-y-4">
           <div>
             <p className="text-sm font-semibold text-[var(--text-primary)]">Marketing and data consent</p>
             <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Separate consent for marketing communication and approved third-party delivery tools.</p>
@@ -110,6 +130,7 @@ export function AccountSettingsForm({
           <button type="submit" className="min-h-11 rounded-full bg-[var(--text-primary)] px-5 py-3 text-sm font-medium text-[var(--surface-primary)] hover:opacity-90">
             Save consent settings
           </button>
+          <FormFeedback error={consentState.error} success={consentState.success} />
           <p className="text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">If you need stricter compliance handling later, this should move into a dedicated consent table with audit timestamps.</p>
         </form>
       </section>
