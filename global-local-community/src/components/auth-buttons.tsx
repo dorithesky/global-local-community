@@ -7,18 +7,16 @@ import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import { buildSiteUrl } from '@/lib/site-url';
 
 type AuthView = 'signup' | 'signin';
-type SignInMethod = 'password' | 'magic-link';
 
 export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean; onSuccess?: () => void } = {}) {
   const router = useRouter();
   const [view, setView] = useState<AuthView>('signup');
-  const [signInMethod, setSignInMethod] = useState<SignInMethod>('password');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  const isCreatingPassword = view === 'signup' || signInMethod === 'password';
+  const isCreatingPassword = true;
   const isSignupPassword = view === 'signup';
   const passwordChecks = useMemo(() => ({
     minLength: password.length >= 7,
@@ -70,7 +68,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       return;
     }
 
-    if (view === 'signin' && signInMethod === 'password' && password.length < 1) {
+    if (view === 'signin' && password.length < 1) {
       setMessage('Enter your password first.');
       return;
     }
@@ -88,23 +86,6 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
 
       setBusy(false);
       setMessage(error ? error.message : 'Account created. Check your email for the confirmation link, then finish setup after your first sign-in.');
-      if (!error) {
-        router.refresh();
-        onSuccess?.();
-      }
-      return;
-    }
-
-    if (signInMethod === 'magic-link') {
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: {
-          emailRedirectTo: buildSiteUrl('/auth/callback?next=/feed'),
-        },
-      });
-
-      setBusy(false);
-      setMessage(error ? error.message : 'Check your email for the sign-in link.');
       if (!error) {
         router.refresh();
         onSuccess?.();
@@ -136,17 +117,6 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
           Sign in
         </button>
       </div>
-
-      {view === 'signin' ? (
-        <div className="grid grid-cols-2 gap-2 rounded-2xl bg-[var(--surface-muted)] p-1">
-          <button type="button" onClick={() => setSignInMethod('password')} className={`min-h-10 rounded-2xl px-3 py-2 text-sm font-medium ${signInMethod === 'password' ? 'bg-[var(--surface-interactive)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
-            Password
-          </button>
-          <button type="button" onClick={() => setSignInMethod('magic-link')} className={`min-h-10 rounded-2xl px-3 py-2 text-sm font-medium ${signInMethod === 'magic-link' ? 'bg-[var(--surface-interactive)] text-[var(--text-primary)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
-            Magic link
-          </button>
-        </div>
-      ) : null}
 
       <div className="space-y-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-4">
         <input
@@ -198,7 +168,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
           disabled={busy}
           className="min-h-11 w-full rounded-full bg-[var(--text-primary)] px-5 py-3 text-sm font-medium text-[var(--surface-primary)] hover:opacity-90 disabled:opacity-60"
         >
-          {view === 'signup' ? 'Create account' : signInMethod === 'password' ? 'Sign in' : 'Send magic link'}
+          {view === 'signup' ? 'Create account' : 'Sign in'}
         </button>
       </div>
 
@@ -220,7 +190,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         </svg>
         <span>Continue with Google</span>
       </button>
-      {view === 'signin' && signInMethod === 'password' ? (
+      {view === 'signin' ? (
         <p className="text-sm leading-6 text-[var(--text-tertiary)]">
           Forgot your password? <a href="/auth/reset" className="font-medium text-[var(--accent-primary)]">Reset it here</a>
         </p>
@@ -229,7 +199,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       {view === 'signup' && !message ? (
         <div className="space-y-2">
           <p className="text-sm leading-5 text-[var(--text-tertiary)]">Use an email you can access. You may need to confirm it before signing in.</p>
-          <p className="text-xs leading-5 text-[var(--text-tertiary)]">By creating an account, you agree to the <a href="/terms" className="font-medium text-[var(--accent-primary)]">Terms and Conditions</a> and acknowledge the <a href="/privacy" className="font-medium text-[var(--accent-primary)]">Privacy Policy</a>.</p>
+          <p className="text-[11px] leading-4 text-[var(--text-quaternary)]">By creating an account, you agree to the <a href="/terms" className="font-medium text-[var(--text-tertiary)]">Terms</a> and acknowledge the <a href="/privacy" className="font-medium text-[var(--text-tertiary)]">Privacy Policy</a>.</p>
         </div>
       ) : null}
     </div>
