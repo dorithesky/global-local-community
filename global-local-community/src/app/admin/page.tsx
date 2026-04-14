@@ -104,7 +104,7 @@ export default async function AdminOverviewPage() {
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">Security alerts</p>
                 <h2 className="mt-2 text-lg font-semibold text-slate-900">Open alerts</h2>
-                <p className="mt-1 text-sm text-slate-500">This is the live watchlist for suspicious activity and high-impact moderation changes.</p>
+                <p className="mt-1 text-sm text-slate-500">This watchlist highlights suspicious activity and high-impact moderation events that may require follow-up.</p>
               </div>
               <a href="/admin/activity" className="text-sm font-medium text-rose-700 hover:text-rose-800">Open activity</a>
             </div>

@@ -37,14 +37,14 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
       <PageHeader
         eyebrow={onboarding ? 'Welcome' : 'Settings'}
         title={onboarding ? 'Complete your profile' : 'Settings'}
-        description={onboarding ? 'Add the basics so the feed and identity make sense from day one.' : 'Manage notifications, consent, appearance, and account controls here. Public identity lives on your profile.'}
+        description={onboarding ? 'Add the basics so your profile and feed start in the right place.' : 'Manage profile details, notifications, consent preferences, and account controls here.'}
       />
       {!onboarding ? (
         <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold text-[var(--text-primary)]">Appearance and profile</p>
-              <p className="mt-1 text-sm text-[var(--text-tertiary)]">Update your public details here, or open your profile to preview how other members see you.</p>
+              <p className="mt-1 text-sm text-[var(--text-tertiary)]">Update your profile details here, or open your profile to preview what other members can see.</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />

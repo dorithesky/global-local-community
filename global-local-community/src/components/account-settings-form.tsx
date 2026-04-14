@@ -78,7 +78,7 @@ export function AccountSettingsForm({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-sm font-semibold text-[var(--text-primary)]">Public profile</p>
-              <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Change the identity details people see in the community.</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Manage the profile information shown across the community. Some details remain limited to signed-in members or admins.</p>
             </div>
             <Link href="#account-controls" className="text-sm font-medium text-[var(--accent-primary)] hover:text-[var(--accent-primary-strong)]">Jump to account controls</Link>
           </div>
@@ -118,7 +118,7 @@ export function AccountSettingsForm({
               <option value="events">Events</option>
               <option value="marketplace">Marketplace</option>
             </select>
-            <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">We use this to personalize what shows up first for you.</p>
+            <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">We use this preference to personalize parts of your experience, including what may surface first in the feed.</p>
           </div>
           <AccentSubmitButton label="Save profile" pending={pending === 'profile'} />
           <FormFeedback error={profileState.error} success={profileState.success} />
@@ -188,19 +188,19 @@ export function AccountSettingsForm({
         >
           <div>
             <p className="text-sm font-semibold text-[var(--text-primary)]">Marketing and data consent</p>
-            <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Separate consent for marketing communication and approved third-party delivery tools.</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Manage optional marketing communications and consent for approved delivery providers.</p>
           </div>
           <label className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-4 text-sm text-[var(--text-secondary)]">
             <span>
               <span className="block font-medium text-[var(--text-primary)]">I agree to receive marketing information</span>
-              <span className="mt-1 block leading-6 text-[var(--text-tertiary)]">Includes product updates, launches, and community announcements.</span>
+              <span className="mt-1 block leading-6 text-[var(--text-tertiary)]">Includes optional product updates, launches, and community announcements.</span>
             </span>
             <input type="checkbox" name="marketingConsent" defaultChecked={settings.consent.marketingConsent} className="mt-1 h-4 w-4 shrink-0" />
           </label>
           <label className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-4 text-sm text-[var(--text-secondary)]">
             <span>
               <span className="block font-medium text-[var(--text-primary)]">I allow approved third-party providers to help deliver those emails</span>
-              <span className="mt-1 block leading-6 text-[var(--text-tertiary)]">Used only for sending the communication you agreed to receive.</span>
+              <span className="mt-1 block leading-6 text-[var(--text-tertiary)]">Used only to help deliver communications you have chosen to receive.</span>
             </span>
             <input type="checkbox" name="thirdPartyEmailConsent" defaultChecked={settings.consent.thirdPartyEmailConsent} className="mt-1 h-4 w-4 shrink-0" />
           </label>
