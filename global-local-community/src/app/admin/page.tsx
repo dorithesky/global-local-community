@@ -112,7 +112,7 @@ export default async function AdminOverviewPage() {
           <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm sm:p-6">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Overview note</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">Keep this page light</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">Detailed moderation queues, full member lists, and long audit trails now belong to their dedicated admin routes. This overview should stay focused on summary and exceptions.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600">Use this page for the big picture, then open the detailed admin sections when you need to go deeper.</p>
           </section>
         </div>
       </section>

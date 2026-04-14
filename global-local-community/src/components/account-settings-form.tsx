@@ -118,7 +118,7 @@ export function AccountSettingsForm({
               <option value="events">Events</option>
               <option value="marketplace">Marketplace</option>
             </select>
-            <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">This helps shape the first posts and recommendations you should see.</p>
+            <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">We use this to personalize what shows up first for you.</p>
           </div>
           <AccentSubmitButton label="Save profile" pending={pending === 'profile'} />
           <FormFeedback error={profileState.error} success={profileState.success} />
@@ -208,7 +208,6 @@ export function AccountSettingsForm({
             {pending === 'consent' ? 'Saving...' : 'Save consent settings'}
           </button>
           <FormFeedback error={consentState.error} success={consentState.success} />
-          <p className="text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">If you need stricter compliance handling later, this should move into a dedicated consent table with audit timestamps.</p>
         </form>
       </section>
     </div>

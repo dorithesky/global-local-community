@@ -11,7 +11,7 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { href: '/admin', label: 'Overview', description: 'KPIs, watchlist, and shortcuts' },
   { href: '/admin/reports', label: 'Reports', description: 'Review and resolve moderation cases' },
   { href: '/admin/members', label: 'Members', description: 'Search members, roles, and sanctions' },
-  { href: '/admin/activity', label: 'Activity', description: 'Audit trail and recent community actions' },
+  { href: '/admin/activity', label: 'Activity', description: 'Recent community actions and moderation history' },
 ];
 
 export function AdminShell({ currentPath, title, description, children }: { currentPath: string; title: string; description: string; children: ReactNode }) {
@@ -45,7 +45,7 @@ export function AdminShell({ currentPath, title, description, children }: { curr
           </div>
           <div className="rounded-3xl border border-sky-300/80 bg-sky-50 p-4 shadow-sm sm:p-5 dark:border-[var(--border-strong)] dark:bg-[var(--accent-soft)]">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sky-800 dark:text-[var(--accent-primary)]">Access</p>
-            <p className="mt-3 text-sm leading-6 text-slate-900 dark:text-[var(--text-primary)]">These admin routes stay server-gated and unavailable to non-admin users.</p>
+            <p className="mt-3 text-sm leading-6 text-slate-900 dark:text-[var(--text-primary)]">Only admins can access these tools.</p>
           </div>
         </aside>
 
