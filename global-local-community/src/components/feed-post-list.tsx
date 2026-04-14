@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PostCard } from '@/components/post-card';
 import { PostListItem } from '@/components/post-list-item';
-import { getPostListViewMode, PostListViewToggle } from '@/components/post-list-view-toggle';
+import { getPostListViewMode } from '@/components/post-list-view-toggle';
 import type { PostRecord } from '@/lib/types';
 
 export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMore }: { initialPosts: PostRecord[]; initialPage: number; hasMore: boolean }) {
@@ -84,9 +84,6 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <PostListViewToggle view={view} />
-      </div>
       <div className="space-y-4">
         {posts.map((post) => (
           view === 'list' ? <PostListItem key={post.id} post={post} /> : <PostCard key={post.id} post={post} />

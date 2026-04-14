@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PostCard } from '@/components/post-card';
 import { PostListItem } from '@/components/post-list-item';
-import { getPostListViewMode, PostListViewToggle } from '@/components/post-list-view-toggle';
+import { getPostListViewMode } from '@/components/post-list-view-toggle';
 import type { PostRecord } from '@/lib/types';
 
 export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pageParam = 'page', itemLabel = 'posts' }: { posts: PostRecord[]; page: number; hasMore: boolean; emptyMessage: string; pageParam?: string; itemLabel?: string }) {
@@ -40,9 +40,6 @@ export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pa
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <PostListViewToggle view={view} />
-      </div>
       <div className="space-y-4">
         {posts.map((post) => (
           view === 'list' ? <PostListItem key={post.id} post={post} /> : <PostCard key={post.id} post={post} />

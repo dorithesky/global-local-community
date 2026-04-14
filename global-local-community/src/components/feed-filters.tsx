@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { ChevronDown, Search, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, LayoutGrid, Rows3, Search, SlidersHorizontal } from 'lucide-react';
 import { KOREA_CITIES } from '@/lib/locations';
 
 const categoryOptions = [
@@ -20,6 +20,7 @@ export function FeedFilters() {
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
   const [expanded, setExpanded] = useState(false);
+  const view = searchParams.get('view') === 'list' ? 'list' : 'card';
 
   const activeCount = useMemo(() => {
     let count = 0;
@@ -39,6 +40,13 @@ export function FeedFilters() {
 
   function submitQuery() {
     updateParam('q', query.trim());
+  }
+
+  function setView(nextView: 'card' | 'list') {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextView === 'card') params.delete('view');
+    else params.set('view', nextView);
+    router.push(params.toString() ? `${pathname}?${params.toString()}` : pathname);
   }
 
   return (
@@ -67,16 +75,37 @@ export function FeedFilters() {
         </div>
 
         <div className="flex items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => setExpanded((value) => !value)}
-            className="inline-flex min-h-9.5 items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filters
-            {activeCount > 0 ? <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-800 dark:bg-sky-950/50 dark:text-sky-200">{activeCount}</span> : null}
-            <ChevronDown className={`h-4 w-4 transition ${expanded ? 'rotate-180' : ''}`} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              className="inline-flex min-h-9.5 items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2 text-sm font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+              {activeCount > 0 ? <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-semibold text-sky-800 dark:bg-sky-950/50 dark:text-sky-200">{activeCount}</span> : null}
+              <ChevronDown className={`h-4 w-4 transition ${expanded ? 'rotate-180' : ''}`} />
+            </button>
+
+            <div className="inline-flex items-center gap-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-1 shadow-sm">
+              <button
+                type="button"
+                onClick={() => setView('card')}
+                className={`inline-flex min-h-8 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition ${view === 'card' ? 'bg-[var(--surface-primary)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}`}
+                aria-label="Card view"
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('list')}
+                className={`inline-flex min-h-8 items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium transition ${view === 'list' ? 'bg-[var(--surface-primary)] text-[var(--text-primary)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}`}
+                aria-label="List view"
+              >
+                <Rows3 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
 
           {activeCount > 0 ? (
             <button
