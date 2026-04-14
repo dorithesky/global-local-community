@@ -26,7 +26,7 @@ export default async function CreatePostPage() {
         ) : (
           <SignInGuard
             title="Create an account to post"
-            description="Reading stays open, but posting is reserved for signed-in members so requests stay tied to real profiles, cities, and moderation context."
+            description="Reading is open to everyone, but you need an account to post and get replies."
             ctaLabel="Create account or sign in"
             className="rounded-3xl border border-sky-200 bg-white/85 p-5 shadow-sm sm:p-6"
           />

@@ -17,8 +17,8 @@ export default async function AdminActivityPage() {
   return (
     <AdminShell
       currentPath="/admin/activity"
-      title="Activity and audit trail"
-      description="Review recent community activity and inspect comment history without competing with moderation or member management controls."
+      title="Recent activity"
+      description="Review recent posts and comment history across the community."
     >
       <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] xl:gap-6">
         <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/30 p-4 shadow-sm sm:p-6">
@@ -41,7 +41,7 @@ export default async function AdminActivityPage() {
         </section>
 
         <section className="rounded-3xl border border-amber-100 bg-gradient-to-br from-white to-amber-50/30 p-4 shadow-sm sm:p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Audit trail</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Comment history</p>
           <h2 className="mt-2 text-lg font-semibold text-slate-900">Comment history</h2>
           <div className="mt-4 space-y-3">
             {commentHistory.length ? commentHistory.map((event) => (

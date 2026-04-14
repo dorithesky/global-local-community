@@ -214,7 +214,7 @@ export function CommentThread({
         <>
           <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--surface-primary)]/70 p-4 text-sm text-[var(--text-secondary)] sm:p-5">
             <p className="font-medium text-[var(--text-primary)]">Want to reply or report?</p>
-            <p className="mt-1">Sign in first so community actions stay tied to a real profile.</p>
+            <p className="mt-1">Sign in to reply or report.</p>
             <button type="button" onClick={() => setAuthOpen(true)} className="mt-3 min-h-11 rounded-full bg-[var(--text-primary)] px-4 py-2 text-sm font-medium text-[var(--surface-primary)] hover:opacity-90">Sign in</button>
           </div>
           <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />

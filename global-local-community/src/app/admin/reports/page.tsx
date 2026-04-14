@@ -37,8 +37,8 @@ export default async function AdminReportsPage() {
   return (
     <AdminShell
       currentPath="/admin/reports"
-      title="Reports queue"
-      description="Dedicated moderation workspace for reviewing and resolving reported posts and comments."
+      title="Reports"
+      description="Review reported posts and comments, then take action when needed."
     >
       <section className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
