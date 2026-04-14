@@ -69,15 +69,17 @@ export async function detectSecurityAlerts() {
     sanctions: new Date(now - 60 * 60 * 1000).toISOString(),
     roles: new Date(now - 60 * 60 * 1000).toISOString(),
     seedPosts: new Date(now - 60 * 60 * 1000).toISOString(),
+    automationSeedPosts: new Date(now - 30 * 60 * 1000).toISOString(),
   };
 
-  const [{ data: reportEvents }, { data: uploadEvents }, { data: sanctionEvents }, { data: roleEvents }, { data: cleanupFailures }, { data: seedPostEvents }] = await Promise.all([
+  const [{ data: reportEvents }, { data: uploadEvents }, { data: sanctionEvents }, { data: roleEvents }, { data: cleanupFailures }, { data: seedPostEvents }, { data: automationSeedPostEvents }] = await Promise.all([
     supabase.from('security_events').select('ip, created_at').eq('event_type', 'report.created').gte('created_at', windows.reports),
     supabase.from('security_events').select('ip, created_at').eq('event_type', 'upload.authorized').gte('created_at', windows.uploads),
     supabase.from('security_events').select('created_at').eq('event_type', 'moderation.user_sanctioned').gte('created_at', windows.sanctions),
     supabase.from('security_events').select('created_at, payload').in('event_type', ['moderation.role_granted', 'moderation.role_revoked']).gte('created_at', windows.roles),
     supabase.from('security_events').select('created_at, payload').in('event_type', ['upload.cleanup_partial_failure', 'upload.cleanup_db_update_failed']).gte('created_at', windows.uploads),
     supabase.from('security_events').select('created_at, payload').eq('event_type', 'moderation.seed_post_created').gte('created_at', windows.seedPosts),
+    supabase.from('security_events').select('created_at, payload').eq('event_type', 'moderation.seed_post_automation_used').gte('created_at', windows.automationSeedPosts),
   ]);
 
   const reportCounts = new Map<string, number>();
@@ -149,6 +151,15 @@ export async function detectSecurityAlerts() {
       severity: 'high',
       summary: 'High admin seed-post volume detected',
       payload: { count: seedPostEvents?.length ?? 0, window: '1h', events: seedPostEvents ?? [] },
+    });
+  }
+
+  if ((automationSeedPostEvents ?? []).length >= 5) {
+    alerts.push({
+      ruleName: 'automation-seed-post-spike',
+      severity: 'critical',
+      summary: 'High automation seed-post volume detected',
+      payload: { count: automationSeedPostEvents?.length ?? 0, window: '30m', events: automationSeedPostEvents ?? [] },
     });
   }
 
