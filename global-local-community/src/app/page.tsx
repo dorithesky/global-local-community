@@ -2,15 +2,20 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { PostCard } from '@/components/post-card';
-import { getTrendingPosts } from '@/lib/data';
+import { getCategoryPosts, getTrendingPosts } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
 import { getAccountSettings } from '@/lib/settings';
+import { TOP_LEVEL_NAV_GROUPS } from '@/lib/categories';
 
 export default async function HomePage() {
   const member = await getCurrentMember();
-  const [posts, accountSettings] = await Promise.all([
+  const [posts, accountSettings, housingPosts, jobsPosts, lifeInKoreaPosts, communityPosts] = await Promise.all([
     getTrendingPosts(5),
     member ? getAccountSettings() : Promise.resolve(null),
+    getCategoryPosts('housing', { page: 1, limit: 2 }),
+    getCategoryPosts('jobs', { page: 1, limit: 2 }),
+    getCategoryPosts(TOP_LEVEL_NAV_GROUPS.find((group) => group.slug === 'life-in-korea')?.categories ?? [], { page: 1, limit: 2 }),
+    getCategoryPosts(TOP_LEVEL_NAV_GROUPS.find((group) => group.slug === 'community')?.categories ?? [], { page: 1, limit: 2 }),
   ]);
   const recommendedCategory = accountSettings?.profile.immediateNeed || null;
 
@@ -72,6 +77,32 @@ export default async function HomePage() {
           <PostCard key={post.id} post={{ ...post, rank: index + 1 }} />
         ))}
       </div>
+
+      <section className="grid gap-3 lg:grid-cols-2">
+        {[
+          { title: 'Housing', href: '/categories/housing', posts: housingPosts.items },
+          { title: 'Jobs', href: '/categories/jobs', posts: jobsPosts.items },
+          { title: 'Life in Korea', href: '/categories/life-in-korea', posts: lifeInKoreaPosts.items },
+          { title: 'Community', href: '/categories/community', posts: communityPosts.items },
+        ].map((section) => (
+          <div key={section.title} className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-[var(--text-primary)]">{section.title}</p>
+                <p className="mt-1 text-sm text-[var(--text-secondary)]">A quick read on what is useful right now.</p>
+              </div>
+              <Link href={section.href} className="text-sm font-medium text-[var(--accent-primary)] hover:text-[var(--accent-primary-strong)]">View all</Link>
+            </div>
+            <div className="mt-3 space-y-2">
+              {section.posts.map((post) => (
+                <Link key={post.id} href={`/posts/${post.id}`} className="block rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-3.5 py-3 text-sm font-medium text-[var(--text-primary)] transition hover:bg-[var(--surface-elevated)]">
+                  <span className="line-clamp-2">{post.title}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
 
       <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
