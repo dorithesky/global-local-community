@@ -17,6 +17,12 @@ export function PostCard({ post }: { post: PostRecord }) {
         </div>
       ) : null}
       <div className="mb-2.5 flex flex-col gap-2.5">
+        {typeof post.rank === 'number' ? (
+          <div className="flex items-center gap-2 text-[11px] font-medium text-[var(--text-tertiary)]">
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--surface-muted)] px-1.5 text-[10px] font-semibold text-[var(--text-primary)]">#{post.rank}</span>
+            <span>Active now</span>
+          </div>
+        ) : null}
         <div className="min-w-0 flex-1 pr-16 sm:pr-20">
           <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-[var(--surface-muted)]/80">
             {post.author.avatarUrl ? (

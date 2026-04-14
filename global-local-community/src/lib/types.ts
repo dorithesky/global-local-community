@@ -42,6 +42,7 @@ export interface PostRecord {
   canDelete?: boolean;
   imageUrls?: string[];
   analysis: AiAnalysis;
+  rank?: number;
 }
 
 export interface CommentRecord {

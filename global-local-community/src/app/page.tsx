@@ -68,8 +68,8 @@ export default async function HomePage() {
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+        {posts.map((post, index) => (
+          <PostCard key={post.id} post={{ ...post, rank: index + 1 }} />
         ))}
       </div>
 
