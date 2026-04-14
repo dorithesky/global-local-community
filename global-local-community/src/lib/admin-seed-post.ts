@@ -68,8 +68,8 @@ export async function createAdminSeedPost(input: {
     event_type: 'moderation.seed_post_created',
     entity_type: 'post',
     entity_id: insertedPost.id,
+    actor_id: input.actorId ?? null,
     payload: {
-      actor_id: input.actorId ?? null,
       actor_label: input.actorLabel ?? null,
       author_id: sanitized.authorId,
       author_username: authorProfile.username,
