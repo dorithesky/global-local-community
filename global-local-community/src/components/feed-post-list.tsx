@@ -3,12 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { PostCard } from '@/components/post-card';
+import { PostListItem } from '@/components/post-list-item';
+import { getPostListViewMode, PostListViewToggle } from '@/components/post-list-view-toggle';
 import type { PostRecord } from '@/lib/types';
 
 export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMore }: { initialPosts: PostRecord[]; initialPage: number; hasMore: boolean }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [posts, setPosts] = useState<PostRecord[]>(initialPosts);
+  const view = getPostListViewMode(searchParams.get('view'));
   const [page, setPage] = useState(initialPage);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
@@ -81,9 +84,14 @@ export function FeedPostList({ initialPosts, initialPage, hasMore: initialHasMor
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      <div className="flex justify-end">
+        <PostListViewToggle view={view} />
+      </div>
+      <div className="space-y-4">
+        {posts.map((post) => (
+          view === 'list' ? <PostListItem key={post.id} post={post} /> : <PostCard key={post.id} post={post} />
+        ))}
+      </div>
       <div ref={sentinelRef} className="h-1 w-full" aria-hidden="true" />
       <div className="flex flex-col items-center gap-3 pt-1">
         {hasMore ? (

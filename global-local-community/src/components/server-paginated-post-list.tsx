@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { PostCard } from '@/components/post-card';
+import { PostListItem } from '@/components/post-list-item';
+import { getPostListViewMode, PostListViewToggle } from '@/components/post-list-view-toggle';
 import type { PostRecord } from '@/lib/types';
 
 export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pageParam = 'page', itemLabel = 'posts' }: { posts: PostRecord[]; page: number; hasMore: boolean; emptyMessage: string; pageParam?: string; itemLabel?: string }) {
@@ -12,6 +14,7 @@ export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pa
   const searchParams = useSearchParams();
   const [pendingPage, setPendingPage] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
+  const view = getPostListViewMode(searchParams.get('view'));
 
   const goToPage = (nextPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -37,9 +40,14 @@ export function ServerPaginatedPostList({ posts, page, hasMore, emptyMessage, pa
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
+      <div className="flex justify-end">
+        <PostListViewToggle view={view} />
+      </div>
+      <div className="space-y-4">
+        {posts.map((post) => (
+          view === 'list' ? <PostListItem key={post.id} post={post} /> : <PostCard key={post.id} post={post} />
+        ))}
+      </div>
       <div className="rounded-2xl border border-slate-200/80 bg-white/80 px-4 py-3 shadow-sm">
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-400">Showing page {page} of {itemLabel}</p>
