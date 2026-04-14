@@ -5,7 +5,8 @@ import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events
 import { getSupabaseServerClient } from '@/lib/supabase-server';
 
 export async function createAdminSeedPost(input: {
-  actorId: string;
+  actorId?: string | null;
+  actorLabel?: string | null;
   authorId: string;
   city: unknown;
   district?: unknown;
@@ -67,8 +68,9 @@ export async function createAdminSeedPost(input: {
     event_type: 'moderation.seed_post_created',
     entity_type: 'post',
     entity_id: insertedPost.id,
-    actor_id: input.actorId,
+    actor_id: input.actorId ?? null,
     payload: {
+      actor_label: input.actorLabel ?? null,
       author_id: sanitized.authorId,
       author_username: authorProfile.username,
       category: sanitized.category,
@@ -78,13 +80,13 @@ export async function createAdminSeedPost(input: {
 
   if (workflowError) throw new Error(`workflow_events insert failed: ${workflowError.message}`);
 
-  await logServerRequest({ userId: input.actorId, path: '/admin/seed-post' });
+  await logServerRequest({ userId: input.actorId ?? null, path: '/admin/seed-post' });
 
   try {
     await recordSecurityEvent({
       eventType: 'moderation.seed_post_created',
       severity: 'high',
-      userId: input.actorId,
+      userId: input.actorId ?? null,
       path: '/admin/seed-post',
       entityType: 'post',
       entityId: insertedPost.id,
@@ -106,5 +108,6 @@ export async function createAdminSeedPost(input: {
     category: sanitized.category,
     title: sanitized.title,
     moderationStatus,
+    authorUsername: authorProfile.username,
   };
 }
