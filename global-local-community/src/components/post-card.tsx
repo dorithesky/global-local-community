@@ -24,7 +24,7 @@ export function PostCard({ post }: { post: PostRecord }) {
                 <TrendingUp className="h-3 w-3" />
                 Trending now
               </span>
-              <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-[10px] font-semibold ${post.rank === 1 ? 'bg-amber-500 text-white dark:bg-amber-400 dark:text-slate-950' : post.rank === 2 ? 'bg-indigo-500 text-white dark:bg-indigo-400 dark:text-slate-950' : post.rank === 3 ? 'bg-teal-500 text-white dark:bg-teal-400 dark:text-slate-950' : 'bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>#{post.rank}</span>
+              <span className={`inline-flex h-6 min-w-6 items-center justify-center rounded-full border px-1.5 text-[10px] font-bold shadow-sm ${post.rank === 1 ? 'border-amber-300 bg-amber-500 text-white dark:border-amber-300 dark:bg-amber-400 dark:text-slate-950' : post.rank === 2 ? 'border-indigo-300 bg-indigo-600 text-white dark:border-indigo-300 dark:bg-indigo-400 dark:text-slate-950' : post.rank === 3 ? 'border-teal-300 bg-teal-600 text-white dark:border-teal-300 dark:bg-teal-400 dark:text-slate-950' : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>#{post.rank}</span>
             </div>
             <span className="inline-flex rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--accent-primary)]">{post.category}</span>
           </div>
