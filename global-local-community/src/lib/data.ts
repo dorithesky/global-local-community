@@ -489,8 +489,47 @@ export async function getPostDetail(id: string): Promise<{ post?: PostRecord; co
   };
 }
 
-export async function getCategoryPosts(category: string, options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
-  return getPaginatedFeedPosts({ category, sort: 'recent', page: options?.page ?? 1, limit: options?.limit ?? 10 });
+export async function getCategoryPosts(category: string | string[], options?: { page?: number; limit?: number }): Promise<PaginatedPostList> {
+  const categoryList = Array.isArray(category) ? category : [category];
+
+  if (categoryList.length === 1) {
+    return getPaginatedFeedPosts({ category: categoryList[0], sort: 'recent', page: options?.page ?? 1, limit: options?.limit ?? 10 });
+  }
+
+  const page = Math.max(options?.page ?? 1, 1);
+  const pageSize = Math.max(options?.limit ?? 10, 1);
+  const supabase = await getSupabaseServerClient();
+  const member = await getCurrentMember();
+
+  if (!supabase) {
+    const fallback = (await getFeedPosts({ sort: 'recent', limit: 200, page: 1 })).filter((post) => categoryList.includes(post.category));
+    const items = fallback.slice((page - 1) * pageSize, page * pageSize);
+    return { items, total: fallback.length, page, pageSize, hasMore: page * pageSize < fallback.length };
+  }
+
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+  const { data, count } = await supabase
+    .from('posts')
+    .select(POST_SELECT, { count: 'exact' })
+    .in('category', categoryList)
+    .eq('moderation_status', 'published')
+    .order('created_at', { ascending: false })
+    .range(from, to);
+
+  const items = await enrichPosts((data ?? []) as Array<Record<string, unknown>>, {
+    memberId: member?.id ?? null,
+    memberRoles: member?.roles,
+    viewerIsMember: Boolean(member),
+  });
+
+  return {
+    items,
+    total: count ?? items.length,
+    page,
+    pageSize,
+    hasMore: to + 1 < (count ?? 0),
+  };
 }
 
 export async function getProfile(username: string): Promise<Profile | undefined> {

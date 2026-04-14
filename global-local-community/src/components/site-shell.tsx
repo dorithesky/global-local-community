@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Home, Briefcase, MessageSquare, Shield, Building2, PlusSquare } from 'lucide-react';
+import { Home, Briefcase, MessageSquare, Shield, Building2, PlusSquare, HeartPulse, Users } from 'lucide-react';
 import { clsx } from 'clsx';
 import { HeaderAuthControls } from '@/components/header-auth-controls';
 import { SessionPill } from '@/components/session-pill';
@@ -12,6 +12,8 @@ function navTone(href: string) {
   if (href === '/admin') return 'graphite';
   if (href.includes('/housing')) return 'housing';
   if (href.includes('/jobs')) return 'jobs';
+  if (href.includes('/categories/life-in-korea')) return 'life';
+  if (href.includes('/categories/community')) return 'community';
   return 'default';
 }
 
@@ -22,6 +24,8 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
     { href: '/feed', label: 'Feed', icon: MessageSquare },
     { href: '/categories/housing', label: 'Housing', icon: Building2 },
     { href: '/categories/jobs', label: 'Jobs', icon: Briefcase },
+    { href: '/categories/life-in-korea', label: 'Life in Korea', icon: HeartPulse },
+    { href: '/categories/community', label: 'Community', icon: Users },
     ...(member ? [
       { href: '/saved', label: 'Saved', icon: MessageSquare },
       { href: '/activity', label: 'Activity', icon: MessageSquare },
@@ -110,6 +114,8 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
                       tone === 'graphite' && 'text-[var(--text-secondary)] hover:bg-slate-900 hover:text-white dark:hover:bg-slate-100',
                       tone === 'housing' && 'text-[var(--text-secondary)] hover:bg-sky-50 hover:text-sky-800 dark:hover:bg-sky-950/40 dark:hover:text-sky-200',
                       tone === 'jobs' && 'text-[var(--text-secondary)] hover:bg-indigo-50 hover:text-indigo-800 dark:hover:bg-indigo-950/40 dark:hover:text-indigo-200',
+                      tone === 'life' && 'text-[var(--text-secondary)] hover:bg-emerald-50 hover:text-emerald-800 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-200',
+                      tone === 'community' && 'text-[var(--text-secondary)] hover:bg-amber-50 hover:text-amber-800 dark:hover:bg-amber-950/40 dark:hover:text-amber-200',
                       tone === 'default' && 'text-[var(--text-secondary)] hover:bg-[var(--surface-muted)] hover:text-[var(--text-primary)]',
                     )}
                   >
@@ -122,7 +128,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
             <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm">
               <p className="text-sm font-semibold text-[var(--text-primary)]">Korea-wide</p>
               <p className="mt-1.5 text-sm leading-6 text-[var(--text-secondary)]">
-                Housing, jobs, daily life, and local questions.
+                Housing, jobs, life admin, and community signals for foreigners in Korea.
               </p>
             </div>
           </div>

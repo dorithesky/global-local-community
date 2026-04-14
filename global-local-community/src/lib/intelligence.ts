@@ -2,9 +2,17 @@ import type { AiAnalysis, Category } from './types';
 
 const CATEGORY_RULES: Record<Category, string[]> = {
   housing: ['rent', 'deposit', 'officetel', 'apartment', 'villa', 'landlord', 'housing'],
-  jobs: ['job', 'hiring', 'recruiter', 'salary', 'visa', 'part-time', 'full-time'],
-  'daily-life': ['bank', 'hospital', 'arc', 'phone', 'dentist', 'immigration', 'utility'],
-  events: ['meetup', 'event', 'exchange', 'club', 'gathering', 'sunday'],
+  jobs: ['job', 'hiring', 'recruiter', 'salary', 'career', 'part-time', 'full-time'],
+  visa: ['visa', 'arc', 'immigration', 'extension', 'sponsorship', 'f-visa'],
+  healthcare: ['hospital', 'clinic', 'dentist', 'insurance', 'prescription', 'mental health'],
+  banking: ['bank', 'transfer', 'card', 'kakaobank', 'payment', 'verification'],
+  'phone-internet': ['sim', 'phone plan', 'carrier', 'internet', 'wifi', 'mobile'],
+  transport: ['subway', 'bus', 'ktx', 'taxi', 'commute', 'driving'],
+  documents: ['certificate', 'registration', 'office', 'document', 'paperwork', 'resident center'],
+  'daily-life': ['delivery', 'trash', 'utility', 'apps', 'culture', 'routine'],
+  events: ['event', 'festival', 'class', 'exchange'],
+  meetups: ['meetup', 'hangout', 'board game', 'networking', 'group'],
+  'local-tips': ['recommend', 'neighborhood', 'best area', 'where to', 'tips'],
   marketplace: ['selling', 'buy', 'pickup', 'marketplace', 'rice cooker', 'furniture'],
 };
 

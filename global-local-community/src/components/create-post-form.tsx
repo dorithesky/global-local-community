@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { KOREA_CITIES } from '@/lib/locations';
 import { validateImageFiles } from '@/lib/media';
+import { CATEGORY_OPTIONS } from '@/lib/categories';
 
 function SubmitButton({ label }: { label?: string }) {
   const { pending } = useFormStatus();
@@ -65,11 +66,9 @@ export function CreatePostForm({
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-900">Category</label>
           <select name="category" defaultValue="housing" className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
-            <option value="housing">Housing</option>
-            <option value="jobs">Jobs</option>
-            <option value="daily-life">Daily life</option>
-            <option value="events">Events</option>
-            <option value="marketplace">Marketplace</option>
+            {CATEGORY_OPTIONS.filter((option) => option.value !== 'all').map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))}
           </select>
         </div>
         <div>

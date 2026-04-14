@@ -7,8 +7,11 @@ import { deletePostAction, toggleBookmarkAction, toggleLikeAction } from '@/app/
 import { cityScopeLabel } from '@/lib/locations';
 import type { PostRecord } from '@/lib/types';
 import { PostImages } from '@/components/post-images';
+import { getCategoryMeta } from '@/lib/categories';
 
 export function PostCard({ post }: { post: PostRecord }) {
+  const categoryMeta = getCategoryMeta(post.category);
+
   return (
     <article className="relative overflow-hidden rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:p-4 lg:p-4.5">
       {post.canDelete ? (
@@ -54,7 +57,7 @@ export function PostCard({ post }: { post: PostRecord }) {
             {post.author.occupation ? (
               <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.occupation}</span>
             ) : null}
-            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium leading-none ${post.category === 'jobs' ? 'bg-indigo-100 text-slate-950 dark:bg-indigo-500/15 dark:text-indigo-200' : post.category === 'housing' ? 'bg-sky-100 text-slate-950 dark:bg-sky-500/15 dark:text-sky-200' : post.category === 'events' ? 'bg-amber-100 text-slate-950 dark:bg-amber-500/15 dark:text-amber-200' : post.category === 'marketplace' ? 'bg-emerald-100 text-slate-950 dark:bg-emerald-500/15 dark:text-emerald-200' : 'bg-rose-100 text-slate-950 dark:bg-rose-500/15 dark:text-rose-200'}`}>{post.category}</span>
+            <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium leading-none ${categoryMeta.tone}`}>{categoryMeta.shortLabel}</span>
           </div>
         </div>
       </div>

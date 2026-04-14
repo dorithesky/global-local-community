@@ -4,15 +4,7 @@ import { useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { ChevronDown, LayoutGrid, Rows3, Search, SlidersHorizontal } from 'lucide-react';
 import { KOREA_CITIES } from '@/lib/locations';
-
-const categoryOptions = [
-  { value: 'all', label: 'All categories' },
-  { value: 'housing', label: 'Housing' },
-  { value: 'jobs', label: 'Jobs' },
-  { value: 'daily-life', label: 'Daily life' },
-  { value: 'events', label: 'Events' },
-  { value: 'marketplace', label: 'Marketplace' },
-] as const;
+import { CATEGORY_OPTIONS } from '@/lib/categories';
 
 export function FeedFilters() {
   const router = useRouter();
@@ -136,7 +128,7 @@ export function FeedFilters() {
               onChange={(event) => updateParam('category', event.target.value)}
               className="min-h-10.5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none ring-sky-200 focus:ring"
             >
-              {categoryOptions.map((category) => (
+              {CATEGORY_OPTIONS.map((category) => (
                 <option key={category.value} value={category.value}>{category.label}</option>
               ))}
             </select>

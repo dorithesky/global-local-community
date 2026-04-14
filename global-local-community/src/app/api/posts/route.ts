@@ -11,7 +11,7 @@ import { attachPendingUploadsToPost } from '@/lib/upload-validation';
 const createPostSchema = z.object({
   title: z.string().min(5),
   body: z.string().min(20),
-  category: z.enum(['housing', 'jobs', 'daily-life', 'events', 'marketplace']),
+  category: z.enum(['housing', 'jobs', 'visa', 'healthcare', 'banking', 'phone-internet', 'transport', 'documents', 'daily-life', 'events', 'meetups', 'local-tips', 'marketplace']),
   city: z.string().default('Daegu'),
   district: z.string().optional(),
   tags: z.array(z.string()).optional(),

@@ -36,10 +36,14 @@ const basePosts = [
   ['housing', 'No-realtor villa listing near Centum', 'My landlord is re-listing our 2-room place and is okay with foreign tenants if paperwork is clear and the deposit transfer timing is explained well.', 'Busan', 'Haeundae-gu'],
   ['jobs', 'Cafe hiring English-speaking weekend staff in Daegu', 'Saw a handwritten sign at a brunch cafe near Kyungpook National University. They prefer conversational Korean but are open to foreigners with valid work status.', 'Daegu', 'Buk-gu'],
   ['jobs', 'Any recruiters focused on F visas in Seoul?', 'Trying to avoid spam recruiters and want someone who understands bilingual office roles, visa realities, and real salary bands in Seoul.', 'Seoul', 'Jongno-gu'],
-  ['daily-life', 'Foreigner-friendly dentist with Saturday hours in Busan', 'Need somewhere gentle, English-friendly, and not impossible to book. Bonus if they explain insurance coverage clearly.', 'Busan', 'Suyeong-gu'],
-  ['daily-life', 'How long did your ARC address update take this month?', 'I moved districts and want realistic timelines for immigration plus whether the 주민센터 update was enough before my bank app stopped matching.', 'Daegu', 'Suseong-gu'],
-  ['events', 'Sunday board game meetup for newcomers in Itaewon', 'Small English-speaking meetup, low-pressure, mostly people in their first year here who want community without a huge party scene.', 'Seoul', 'Yongsan-gu'],
+  ['healthcare', 'Foreigner-friendly dentist with Saturday hours in Busan', 'Need somewhere gentle, English-friendly, and not impossible to book. Bonus if they explain insurance coverage clearly.', 'Busan', 'Suyeong-gu'],
+  ['visa', 'How long did your ARC address update take this month?', 'I moved districts and want realistic timelines for immigration plus whether the 주민센터 update was enough before my bank app stopped matching.', 'Daegu', 'Suseong-gu'],
+  ['meetups', 'Sunday board game meetup for newcomers in Itaewon', 'Small English-speaking meetup, low-pressure, mostly people in their first year here who want community without a huge party scene.', 'Seoul', 'Yongsan-gu'],
   ['marketplace', 'Selling rice cooker and floor lamp before moving cities', 'Pickup only near Jeonju Station this weekend. Good for someone setting up their first Korean apartment on a budget.', 'Other', 'Jeonju'],
+  ['banking', 'Which Korean bank app has been easiest with ARC verification lately?', 'Trying to open a more reliable account for transfers and bill payments without repeated identity check failures.', 'Seoul', 'Seodaemun-gu'],
+  ['transport', 'Best intercity commute setup if you work in Seoul but live outside it?', 'Curious what people are realistically doing with KTX, express buses, or split-week routines.', 'Other', 'Suwon'],
+  ['documents', 'What paperwork did your landlord ask for during contract renewal?', 'Trying to prepare documents before renewal week so I do not get blindsided by extra admin requests.', 'Incheon', 'Bupyeong-gu'],
+  ['local-tips', 'Most foreigner-friendly neighborhoods in Daejeon for daily errands?', 'Looking for places where grocery shopping, gyms, and daily admin feel manageable without constant friction.', 'Daejeon', 'Yuseong-gu'],
 ];
 
 export const posts: PostRecord[] = Array.from({ length: 40 }).map((_, index) => {
@@ -107,8 +111,16 @@ export const comments: CommentRecord[] = [
 export const categories = [
   { slug: 'housing', label: 'Housing', description: 'Apartments, officetels, contracts, deposits.' },
   { slug: 'jobs', label: 'Jobs', description: 'Hiring posts, referrals, visa-compatible work.' },
-  { slug: 'daily-life', label: 'Daily Life', description: 'Banking, hospitals, ARC, language, routines.' },
-  { slug: 'events', label: 'Events', description: 'Meetups, classes, language exchange, social plans.' },
+  { slug: 'visa', label: 'Visa & ARC', description: 'Immigration, ARC, sponsorship, and extension questions.' },
+  { slug: 'healthcare', label: 'Healthcare', description: 'Hospitals, clinics, insurance, and prescriptions.' },
+  { slug: 'banking', label: 'Banking', description: 'Transfers, cards, bank accounts, and app verification.' },
+  { slug: 'phone-internet', label: 'Phone & Internet', description: 'SIMs, plans, internet setup, and carrier issues.' },
+  { slug: 'transport', label: 'Transport', description: 'Subway, bus, taxis, KTX, and commuting.' },
+  { slug: 'documents', label: 'Documents', description: 'Government paperwork, registrations, and admin tasks.' },
+  { slug: 'daily-life', label: 'Daily Life', description: 'Everyday routines, apps, etiquette, and practical friction.' },
+  { slug: 'events', label: 'Events', description: 'Public happenings, classes, and social plans.' },
+  { slug: 'meetups', label: 'Meetups', description: 'Smaller gatherings, networking, and hobby groups.' },
+  { slug: 'local-tips', label: 'Local Tips', description: 'Neighborhood advice and practical recommendations.' },
   { slug: 'marketplace', label: 'Marketplace', description: 'Buy/sell useful items for expat life.' },
 ] as const;
 

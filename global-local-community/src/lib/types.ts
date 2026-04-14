@@ -1,4 +1,4 @@
-export type Category = 'housing' | 'jobs' | 'daily-life' | 'events' | 'marketplace';
+export type Category = 'housing' | 'jobs' | 'visa' | 'healthcare' | 'banking' | 'phone-internet' | 'transport' | 'documents' | 'daily-life' | 'events' | 'meetups' | 'local-tips' | 'marketplace';
 
 export type AiLabel = Category | 'spam-risk' | 'safe';
 

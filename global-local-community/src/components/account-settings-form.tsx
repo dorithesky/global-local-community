@@ -114,8 +114,16 @@ export function AccountSettingsForm({
               <option value="">Choose one</option>
               <option value="housing">Housing</option>
               <option value="jobs">Jobs</option>
+              <option value="visa">Visa & ARC</option>
+              <option value="healthcare">Healthcare</option>
+              <option value="banking">Banking</option>
+              <option value="phone-internet">Phone & Internet</option>
+              <option value="transport">Transport</option>
+              <option value="documents">Documents</option>
               <option value="daily-life">Daily life</option>
               <option value="events">Events</option>
+              <option value="meetups">Meetups</option>
+              <option value="local-tips">Local tips</option>
               <option value="marketplace">Marketplace</option>
             </select>
             <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">We use this preference to personalize parts of your experience, including what may surface first in the feed.</p>

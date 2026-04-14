@@ -48,7 +48,7 @@ export default async function HomePage() {
         <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
           <h1 className="max-w-3xl text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">Practical help for foreigners building life in Korea.</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">
-            Housing, jobs, and daily-life questions in one community.
+            Housing, jobs, life-in-Korea questions, and community signals in one place.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <Link href="/feed" className="rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">

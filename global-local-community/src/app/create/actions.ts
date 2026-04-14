@@ -27,7 +27,7 @@ export async function createPostAction(formData: FormData) {
   const title = sanitizePlainText(formData.get('title'), { maxLength: 140, allowNewlines: false });
   const body = sanitizePlainText(formData.get('body'), { maxLength: 5000, allowNewlines: true });
   const category = sanitizePlainText(formData.get('category') ?? 'daily-life', { maxLength: 40, allowNewlines: false });
-  const allowedCategories = new Set(['housing', 'jobs', 'daily-life', 'events', 'marketplace']);
+  const allowedCategories = new Set(['housing', 'jobs', 'visa', 'healthcare', 'banking', 'phone-internet', 'transport', 'documents', 'daily-life', 'events', 'meetups', 'local-tips', 'marketplace']);
   const district = sanitizePlainText(formData.get('district'), { maxLength: 80, allowNewlines: false });
   const tags = sanitizeTagList(formData.get('tags'));
   const city = sanitizePlainText(formData.get('city') ?? process.env.NEXT_PUBLIC_CITY ?? 'Seoul', { maxLength: 40, allowNewlines: false }) || 'Seoul';
