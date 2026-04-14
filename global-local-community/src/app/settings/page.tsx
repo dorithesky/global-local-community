@@ -43,8 +43,8 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
         <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-semibold text-[var(--text-primary)]">Public identity moved out of Settings</p>
-              <p className="mt-1 text-sm text-[var(--text-tertiary)]">Use your profile page when you want to review how you appear to other members.</p>
+              <p className="font-semibold text-[var(--text-primary)]">Appearance and profile</p>
+              <p className="mt-1 text-sm text-[var(--text-tertiary)]">Update your public details here, or open your profile to preview how other members see you.</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
