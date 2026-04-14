@@ -2,7 +2,7 @@ import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { sanitizeAdminContentInput, isAllowedContentOperator } from '@/lib/admin-content';
 import { logServerRequest } from '@/lib/request-logging';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
-import { getSupabaseServerClient } from '@/lib/supabase-server';
+import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 
 export async function createAdminSeedPost(input: {
   actorId?: string | null;
@@ -15,8 +15,8 @@ export async function createAdminSeedPost(input: {
   body: unknown;
   tags?: unknown;
 }) {
-  const supabase = await getSupabaseServerClient();
-  if (!supabase) throw new Error('Supabase is not configured.');
+  const supabase = getSupabaseAdminClient();
+  if (!supabase) throw new Error('Supabase admin client is not configured.');
 
   const sanitized = sanitizeAdminContentInput(input);
 
