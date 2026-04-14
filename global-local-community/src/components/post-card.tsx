@@ -30,12 +30,8 @@ export function PostCard({ post }: { post: PostRecord }) {
           </div>
         ) : null}
         <div className="min-w-0 flex-1 pr-16 sm:pr-20">
-          {typeof post.rank !== 'number' ? (
-            <div className="mb-1.5 flex justify-end">
-              <span className="inline-flex rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--accent-primary)]">{post.category}</span>
-            </div>
-          ) : null}
-          <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-[var(--surface-muted)]/80">
+          <div className="flex items-start justify-between gap-3">
+            <Link href={`/profile/${post.author.username}`} className="flex min-w-0 flex-1 items-center gap-3 rounded-2xl transition hover:bg-[var(--surface-muted)]/80">
             {post.author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-8 w-8 rounded-full object-cover ring-2 ring-[var(--border-subtle)]" />
@@ -54,7 +50,9 @@ export function PostCard({ post }: { post: PostRecord }) {
                 @{post.author.username} • {cityScopeLabel(post.city, post.district)} • {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
               </p>
             </div>
-          </Link>
+            </Link>
+            {typeof post.rank !== 'number' ? <span className="inline-flex rounded-full bg-[var(--accent-soft)] px-2.5 py-1 text-[11px] font-semibold leading-none text-[var(--accent-primary)]">{post.category}</span> : null}
+          </div>
           {post.author.occupation ? (
             <div className="mt-1.5 flex flex-wrap gap-1.5">
               <span className="rounded-full bg-[var(--surface-muted)] px-2.5 py-1 text-[11px] font-medium leading-none text-[var(--text-secondary)]">{post.author.occupation}</span>
