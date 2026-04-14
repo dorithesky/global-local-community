@@ -21,9 +21,9 @@ export function PostCard({ post }: { post: PostRecord }) {
           <Link href={`/profile/${post.author.username}`} className="flex min-w-0 items-center gap-3 rounded-2xl transition hover:bg-[var(--surface-muted)]/80">
             {post.author.avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-11 w-11 rounded-full object-cover ring-2 ring-[var(--border-subtle)]" />
+              <img src={post.author.avatarUrl} alt={post.author.displayName} className="h-8 w-8 rounded-full object-cover ring-2 ring-[var(--border-subtle)]" />
             ) : (
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--accent-soft)] text-sm font-semibold text-[var(--accent-primary)] ring-2 ring-[var(--border-subtle)]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[12px] font-semibold text-[var(--accent-primary)] ring-2 ring-[var(--border-subtle)]">
                 {post.author.displayName.slice(0, 1).toUpperCase()}
               </div>
             )}

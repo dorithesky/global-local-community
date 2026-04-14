@@ -45,9 +45,9 @@ function CommentCard({
       <div className={`flex items-start ${isReply ? 'gap-2' : 'gap-2.5'}`}>
         {comment.author.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={comment.author.avatarUrl} alt={comment.author.displayName} className={`${isReply ? 'h-7.5 w-7.5' : 'h-8 w-8'} rounded-full object-cover ring-2 ring-[var(--surface-primary)]`} />
+          <img src={comment.author.avatarUrl} alt={comment.author.displayName} className={`${isReply ? 'h-6 w-6' : 'h-7 w-7'} rounded-full object-cover ring-2 ring-[var(--surface-primary)]`} />
         ) : (
-          <div className={`flex ${isReply ? 'h-7.5 w-7.5' : 'h-8 w-8'} items-center justify-center rounded-full bg-[var(--accent-soft)] text-[11px] font-semibold text-[var(--accent-primary)] ring-2 ring-[var(--surface-primary)]`}>
+          <div className={`flex ${isReply ? 'h-6 w-6' : 'h-7 w-7'} items-center justify-center rounded-full bg-[var(--accent-soft)] text-[10px] font-semibold text-[var(--accent-primary)] ring-2 ring-[var(--surface-primary)]`}>
             {comment.author.displayName.slice(0, 1).toUpperCase()}
           </div>
         )}
