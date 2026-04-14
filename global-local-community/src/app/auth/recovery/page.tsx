@@ -9,7 +9,7 @@ export default function RecoveryPage() {
         title="Set your new password"
         description="Finish password recovery by choosing a new password for your account."
       />
-      <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+      <section className="rounded-[28px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-sm">
         <UpdatePasswordForm />
       </section>
     </div>

@@ -31,20 +31,20 @@ export function ResetPasswordForm() {
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="you@example.com"
-        className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none ring-sky-200 focus:ring"
+        className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring"
       />
       <button
         type="button"
         onClick={handleReset}
         disabled={busy}
-        className="rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+        className="rounded-full bg-[var(--text-primary)] px-5 py-3 text-sm font-medium text-[var(--surface-primary)] hover:opacity-90 disabled:opacity-60"
       >
         {busy ? 'Sending...' : 'Send reset link'}
       </button>
-      <p className="text-sm text-slate-500">
-        Remembered it? <Link href="/" className="font-medium text-sky-700">Back to sign in</Link>
+      <p className="text-sm text-[var(--text-tertiary)]">
+        Remembered it? <Link href="/" className="font-medium text-[var(--accent-primary)]">Back to sign in</Link>
       </p>
-      {message ? <p className="text-sm text-slate-600">{message}</p> : null}
+      {message ? <p className="text-sm text-[var(--text-secondary)]">{message}</p> : null}
     </div>
   );
 }

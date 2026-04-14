@@ -5,10 +5,10 @@ import { useFormStatus } from 'react-dom';
 function AdminButton({ label, tone = 'neutral' }: { label: string; tone?: 'neutral' | 'danger' | 'success' }) {
   const { pending } = useFormStatus();
   const toneClass = tone === 'danger'
-    ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
+    ? 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)] hover:brightness-110'
     : tone === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-      : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50';
+      ? 'border-[var(--border-strong)] bg-[var(--accent-soft)] text-[var(--accent-primary)] hover:brightness-110'
+      : 'border-[var(--border-subtle)] bg-[var(--surface-interactive)] text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]';
 
   return (
     <button
@@ -40,7 +40,7 @@ export function PostVisibilityForm({ postId, moderationStatus, action }: { postI
         type="text"
         name="note"
         placeholder="Optional moderator note"
-        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-3 py-2 text-xs text-[var(--text-primary)]"
       />
       <AdminButton label={moderationStatus === 'hidden' ? 'Hide post' : 'Keep post'} tone={moderationStatus === 'hidden' ? 'danger' : 'success'} />
     </form>
@@ -59,7 +59,7 @@ export function ModeratorNoteForm({ action, reportId, postId, commentId, targetU
         name="note"
         required
         placeholder="Internal note"
-        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-3 py-2 text-xs text-[var(--text-primary)]"
       />
       <AdminButton label="Add note" />
     </form>
@@ -68,9 +68,9 @@ export function ModeratorNoteForm({ action, reportId, postId, commentId, targetU
 
 export function UserSanctionForm({ action, userId }: { action: (formData: FormData) => Promise<void>; userId: string }) {
   return (
-    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-3">
+    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-3">
       <input type="hidden" name="userId" value={userId} />
-      <select name="sanctionType" required className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700">
+      <select name="sanctionType" required className="min-h-10 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-3 py-2 text-xs text-[var(--text-primary)]">
         <option value="warn">Warn</option>
         <option value="mute">Mute</option>
         <option value="suspend">Suspend</option>
@@ -81,16 +81,16 @@ export function UserSanctionForm({ action, userId }: { action: (formData: FormDa
         name="reason"
         required
         placeholder="Reason"
-        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-3 py-2 text-xs text-[var(--text-primary)]"
       />
       <input type="hidden" name="confirm" value="yes" />
       <input
         type="text"
         name="note"
         placeholder="Optional note"
-        className="min-h-10 rounded-full border border-slate-300 px-3 py-2 text-xs text-slate-700"
+        className="min-h-10 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-3 py-2 text-xs text-[var(--text-primary)]"
       />
-      <p className="basis-full text-[11px] leading-5 text-rose-700">Sanctions are admin-only. Use a clear reason and apply carefully.</p>
+      <p className="basis-full text-[11px] leading-5 text-[var(--danger-text)]">Sanctions are admin-only. Use a clear reason and apply carefully.</p>
       <AdminButton label="Apply sanction" tone="danger" />
     </form>
   );
@@ -114,12 +114,12 @@ export function UserRoleForm({
     : `Remove ${role}`;
 
   return (
-    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
+    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
       <input type="hidden" name="userId" value={userId} />
       <input type="hidden" name="role" value={role} />
       <input type="hidden" name="intent" value={intent} />
       {requireConfirm ? <input type="hidden" name="confirm" value="yes" /> : null}
-      <p className="basis-full text-[11px] leading-5 text-slate-500">
+      <p className="basis-full text-[11px] leading-5 text-[var(--text-tertiary)]">
         {role === 'admin'
           ? 'Admin changes are high impact and protected against last-admin removal.'
           : 'Moderator changes control operational trust and review powers.'}
