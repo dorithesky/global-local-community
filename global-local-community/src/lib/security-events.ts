@@ -1,6 +1,7 @@
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getClientIpFromHeaders } from '@/lib/request-logging';
 import { sanitizePlainText } from '@/lib/security';
+import type { SecurityAlertRecord } from '@/lib/types';
 
 type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -159,4 +160,28 @@ export async function detectSecurityAlerts() {
       payload: alert.payload,
     });
   }
+}
+
+export async function getOpenSecurityAlerts(limit = 10): Promise<SecurityAlertRecord[]> {
+  const supabase = getSupabaseAdminClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('security_alerts')
+    .select('id, rule_name, severity, summary, status, created_at, payload')
+    .eq('status', 'open')
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return [];
+
+  return data.map((row) => ({
+    id: row.id,
+    ruleName: row.rule_name,
+    severity: row.severity,
+    summary: row.summary,
+    status: row.status,
+    createdAt: row.created_at,
+    payload: typeof row.payload === 'object' && row.payload ? row.payload as Record<string, unknown> : undefined,
+  }));
 }

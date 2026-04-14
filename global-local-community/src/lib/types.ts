@@ -74,6 +74,16 @@ export interface CommentEventRecord {
   createdAt: string;
 }
 
+export interface SecurityAlertRecord {
+  id: string;
+  ruleName: string;
+  severity: 'medium' | 'high' | 'critical';
+  summary: string;
+  status: string;
+  createdAt: string;
+  payload?: Record<string, unknown>;
+}
+
 export interface PaginatedPostList {
   items: PostRecord[];
   total: number;

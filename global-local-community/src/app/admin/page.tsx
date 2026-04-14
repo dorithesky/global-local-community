@@ -2,6 +2,7 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { AdminShell } from '@/components/admin-shell';
 import { requireAdmin } from '@/lib/auth';
+import { getOpenSecurityAlerts } from '@/lib/security-events';
 import { getAdminUserSettingsView } from '@/lib/settings';
 
 export default async function AdminOverviewPage() {
@@ -9,7 +10,10 @@ export default async function AdminOverviewPage() {
   const admin = await requireAdmin();
   if (!admin) notFound();
 
-  const userSettings = await getAdminUserSettingsView();
+  const [userSettings, securityAlerts] = await Promise.all([
+    getAdminUserSettingsView(),
+    getOpenSecurityAlerts(6),
+  ]);
   const totalMembers = userSettings.length;
   const sanctionedMembers = userSettings.filter((setting) => Boolean(setting.activeSanction));
   const onboardingIncompleteMembers = userSettings.filter((setting) => !setting.profile?.onboardingCompleted);
@@ -95,6 +99,27 @@ export default async function AdminOverviewPage() {
         </section>
 
         <div className="space-y-6">
+          <section className="rounded-3xl border border-rose-200 bg-gradient-to-br from-white to-rose-50/40 p-4 shadow-sm sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-700">Security alerts</p>
+                <h2 className="mt-2 text-lg font-semibold text-slate-900">Open alerts</h2>
+                <p className="mt-1 text-sm text-slate-500">This is the live watchlist for suspicious activity and high-impact moderation changes.</p>
+              </div>
+              <a href="/admin/activity" className="text-sm font-medium text-rose-700 hover:text-rose-800">Open activity</a>
+            </div>
+            <div className="mt-4 space-y-3">
+              {securityAlerts.length ? securityAlerts.map((alert) => (
+                <div key={alert.id} className="rounded-2xl border border-rose-200 bg-white p-4 shadow-sm">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] ${alert.severity === 'critical' ? 'bg-rose-100 text-rose-800' : alert.severity === 'high' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'}`}>{alert.severity}</span>
+                    <p className="text-sm font-medium text-slate-900">{alert.summary}</p>
+                  </div>
+                  <p className="mt-2 text-xs text-slate-500">Rule: {alert.ruleName}</p>
+                </div>
+              )) : <p className="text-sm text-slate-500">No open security alerts right now.</p>}
+            </div>
+          </section>
           <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/30 p-4 shadow-sm sm:p-6">
             <div className="flex items-start justify-between gap-3">
               <div>
