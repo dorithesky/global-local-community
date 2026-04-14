@@ -227,7 +227,10 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       ) : null}
       {message ? <p className="text-sm leading-6 text-[var(--text-secondary)]">{message}</p> : null}
       {view === 'signup' && !message ? (
-        <p className="text-sm leading-5 text-[var(--text-tertiary)]">Use an email you can access. You may need to confirm it before signing in.</p>
+        <div className="space-y-2">
+          <p className="text-sm leading-5 text-[var(--text-tertiary)]">Use an email you can access. You may need to confirm it before signing in.</p>
+          <p className="text-xs leading-5 text-[var(--text-tertiary)]">By creating an account, you agree to the <a href="/terms" className="font-medium text-[var(--accent-primary)]">Terms and Conditions</a> and <a href="/privacy" className="font-medium text-[var(--accent-primary)]">Privacy Policy</a>.</p>
+        </div>
       ) : null}
     </div>
   );

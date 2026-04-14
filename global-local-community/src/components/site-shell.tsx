@@ -129,6 +129,13 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         </aside>
         <main className="min-w-0 flex-1">{children}</main>
       </div>
+      <footer className="mx-auto max-w-7xl px-4 pb-24 pt-2 text-xs text-[var(--text-tertiary)] sm:px-6 lg:pb-8">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--border-subtle)] pt-4">
+          <Link href="/terms" className="hover:text-[var(--text-primary)]">Terms</Link>
+          <Link href="/privacy" className="hover:text-[var(--text-primary)]">Privacy</Link>
+          <span>© Living In Korea</span>
+        </div>
+      </footer>
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-[var(--border-subtle)] bg-[color:var(--surface-primary)]/95 px-2 pb-[calc(env(safe-area-inset-bottom)+0.3rem)] pt-1.5 backdrop-blur xl:hidden">
         <div className={clsx('grid gap-1.5', mobileNav.length === 5 ? 'grid-cols-5' : 'grid-cols-4')}>
           {mobileNav.map((item) => {
