@@ -44,12 +44,16 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
       ) : null}
       {member && onboardingReady && recommendedCategory ? (
         <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-3.5 text-sm text-emerald-950 shadow-sm sm:p-4">
-          <p className="font-semibold">Recommended for you</p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <p className="font-semibold">Recommended for you</p>
+            <span className="text-xs font-medium text-emerald-800/80">Trending in {recommendedCategory}</span>
+          </div>
           {recommendedPosts.length ? (
             <div className="mt-2 space-y-1.5">
-              {recommendedPosts.map((post) => (
-                <Link key={post.id} href={`/posts/${post.id}`} className="block truncate text-sm font-medium text-slate-950 hover:underline">
-                  {post.title}
+              {recommendedPosts.map((post, index) => (
+                <Link key={post.id} href={`/posts/${post.id}`} className="flex items-start gap-2 text-sm text-slate-950 hover:underline">
+                  <span className="mt-0.5 text-[11px] font-semibold text-emerald-800/80">{index + 1}.</span>
+                  <span className="min-w-0 flex-1 truncate font-medium">{post.title}</span>
                 </Link>
               ))}
             </div>
