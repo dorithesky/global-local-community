@@ -27,12 +27,17 @@ export async function createPostAction(formData: FormData) {
   const title = sanitizePlainText(formData.get('title'), { maxLength: 140, allowNewlines: false });
   const body = sanitizePlainText(formData.get('body'), { maxLength: 5000, allowNewlines: true });
   const category = sanitizePlainText(formData.get('category') ?? 'daily-life', { maxLength: 40, allowNewlines: false });
+  const allowedCategories = new Set(['housing', 'jobs', 'daily-life', 'events', 'marketplace']);
   const district = sanitizePlainText(formData.get('district'), { maxLength: 80, allowNewlines: false });
   const tags = sanitizeTagList(formData.get('tags'));
   const city = sanitizePlainText(formData.get('city') ?? process.env.NEXT_PUBLIC_CITY ?? 'Seoul', { maxLength: 40, allowNewlines: false }) || 'Seoul';
 
   if (!title || !body) {
     throw new Error('Title and body are required.');
+  }
+
+  if (!allowedCategories.has(category)) {
+    throw new Error('Category is invalid.');
   }
 
   const uploadIds = formData.getAll('uploadIds').map(String).filter(Boolean).slice(0, 4);

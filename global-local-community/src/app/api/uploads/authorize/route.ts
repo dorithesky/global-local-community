@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getCurrentMember } from '@/lib/auth';
+import { assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { getMediaBucketName, IMAGE_UPLOAD_RULES } from '@/lib/media';
 import { logServerRequest } from '@/lib/request-logging';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
@@ -11,6 +11,8 @@ export async function POST(request: Request) {
   if (!member) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  await assertRateLimit('upload');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) {

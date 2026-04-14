@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { requireAdmin, requireModerator } from '@/lib/auth';
+import { assertRateLimit, requireAdmin, requireModerator } from '@/lib/auth';
 import { logServerRequest } from '@/lib/request-logging';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
 import { getSupabaseServerClient } from '@/lib/supabase-server';
@@ -36,6 +36,8 @@ const userSanctionSchema = z.object({
 export async function updateReportStatusAction(formData: FormData) {
   const moderator = await requireModerator();
   if (!moderator) throw new Error('Unauthorized');
+
+  await assertRateLimit('admin');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -87,6 +89,8 @@ export async function updateReportStatusAction(formData: FormData) {
 export async function setReportedPostVisibilityAction(formData: FormData) {
   const moderator = await requireModerator();
   if (!moderator) throw new Error('Unauthorized');
+
+  await assertRateLimit('admin');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -153,6 +157,8 @@ export async function addModeratorNoteAction(formData: FormData) {
   const moderator = await requireModerator();
   if (!moderator) throw new Error('Unauthorized');
 
+  await assertRateLimit('admin');
+
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
@@ -184,6 +190,8 @@ export async function addModeratorNoteAction(formData: FormData) {
 export async function applyUserSanctionAction(formData: FormData) {
   const admin = await requireAdmin();
   if (!admin) throw new Error('Unauthorized');
+
+  await assertRateLimit('admin');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -246,6 +254,8 @@ export async function applyUserSanctionAction(formData: FormData) {
 export async function updateUserRoleAction(formData: FormData) {
   const admin = await requireAdmin();
   if (!admin) throw new Error('Unauthorized');
+
+  await assertRateLimit('admin');
 
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');

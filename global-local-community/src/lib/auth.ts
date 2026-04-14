@@ -112,7 +112,7 @@ export async function assertAccountMaturity(action: 'post' | 'comment' | 'report
   }
 }
 
-export async function assertRateLimit(action: 'post' | 'comment' | 'report') {
+export async function assertRateLimit(action: 'post' | 'comment' | 'report' | 'upload' | 'settings' | 'admin') {
   const member = await getCurrentMember();
   if (!member) return;
 
@@ -123,6 +123,9 @@ export async function assertRateLimit(action: 'post' | 'comment' | 'report') {
     post: { table: 'posts', field: 'author_id', minutes: 15, limit: 4 },
     comment: { table: 'comments', field: 'author_id', minutes: 5, limit: 10 },
     report: { table: 'reports', field: 'reporter_id', minutes: 15, limit: 5 },
+    upload: { table: 'pending_uploads', field: 'user_id', minutes: 10, limit: 24 },
+    settings: { table: 'request_logs', field: 'user_id', minutes: 10, limit: 30 },
+    admin: { table: 'request_logs', field: 'user_id', minutes: 5, limit: 40 },
   } as const;
 
   const config = windows[action];
@@ -131,7 +134,9 @@ export async function assertRateLimit(action: 'post' | 'comment' | 'report') {
   const query = supabase.from(config.table).select('*', { count: 'exact', head: true }).gte('created_at', since);
   const scoped = config.field === 'reporter_id'
     ? query.eq('reporter_id', member.id)
-    : query.eq('author_id', member.id);
+    : config.field === 'user_id'
+      ? query.eq('user_id', member.id)
+      : query.eq('author_id', member.id);
 
   const { count } = await scoped;
   if ((count ?? 0) >= config.limit) {

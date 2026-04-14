@@ -1,13 +1,15 @@
 "use server";
 
 import { revalidatePath } from 'next/cache';
-import { getCurrentMember } from '@/lib/auth';
+import { assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { sanitizePlainText } from '@/lib/security';
 import { ensureUserSettingsRow } from '@/lib/settings';
 
 export async function saveNotificationPreferencesAction(formData: FormData) {
   const member = await getCurrentMember();
   if (!member) throw new Error('Unauthorized');
+
+  await assertRateLimit('settings');
 
   const supabase = await ensureUserSettingsRow(member.id);
   if (!supabase) throw new Error('Supabase is not configured.');
@@ -31,6 +33,8 @@ export async function saveConsentSettingsAction(formData: FormData) {
   const member = await getCurrentMember();
   if (!member) throw new Error('Unauthorized');
 
+  await assertRateLimit('settings');
+
   const supabase = await ensureUserSettingsRow(member.id);
   if (!supabase) throw new Error('Supabase is not configured.');
 
@@ -52,6 +56,8 @@ export async function saveConsentSettingsAction(formData: FormData) {
 export async function saveProfileIdentityAction(formData: FormData) {
   const member = await getCurrentMember();
   if (!member) throw new Error('Unauthorized');
+
+  await assertRateLimit('settings');
 
   const supabase = await ensureUserSettingsRow(member.id);
   if (!supabase) throw new Error('Supabase is not configured.');

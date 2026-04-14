@@ -6,6 +6,8 @@ function getSafeNextPath(next: string | null) {
   if (!next) return '/feed';
   if (!next.startsWith('/')) return '/feed';
   if (next.startsWith('//')) return '/feed';
+  if (/[\r\n]/.test(next)) return '/feed';
+  if (!/^\/[a-zA-Z0-9/_?&=%.+-]*$/.test(next)) return '/feed';
   return next;
 }
 
