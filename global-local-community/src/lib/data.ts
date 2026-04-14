@@ -252,15 +252,23 @@ export async function getFeedPosts(filters?: { city?: string | null; category?: 
   return applyFeedSort(normalized, filters);
 }
 
+function scoreTrendingPost(post: PostRecord) {
+  return (post.likesCount * 2) + (post.commentsCount * 3) + (new Date(post.createdAt).getTime() / 1000 / 60 / 60 / 24) * 0.01;
+}
+
 export async function getTrendingPosts(limit = 5): Promise<PostRecord[]> {
   const posts = await getFeedPosts({ sort: 'recent', limit: 200, page: 1 });
 
   return [...posts]
-    .sort((a, b) => {
-      const scoreA = (a.likesCount * 2) + (a.commentsCount * 3) + (new Date(a.createdAt).getTime() / 1000 / 60 / 60 / 24) * 0.01;
-      const scoreB = (b.likesCount * 2) + (b.commentsCount * 3) + (new Date(b.createdAt).getTime() / 1000 / 60 / 60 / 24) * 0.01;
-      return scoreB - scoreA;
-    })
+    .sort((a, b) => scoreTrendingPost(b) - scoreTrendingPost(a))
+    .slice(0, limit);
+}
+
+export async function getTrendingPostsByCategory(category: string, limit = 2): Promise<PostRecord[]> {
+  const posts = await getFeedPosts({ sort: 'recent', category, limit: 100, page: 1 });
+
+  return [...posts]
+    .sort((a, b) => scoreTrendingPost(b) - scoreTrendingPost(a))
     .slice(0, limit);
 }
 

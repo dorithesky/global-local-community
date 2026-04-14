@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
 import { FeedFilters } from '@/components/feed-filters';
 import { FeedPostList } from '@/components/feed-post-list';
-import { getPaginatedFeedPosts } from '@/lib/data';
+import { getPaginatedFeedPosts, getTrendingPostsByCategory } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
 import { getAccountSettings } from '@/lib/settings';
 
@@ -24,6 +24,7 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
     settings?.profile.city || settings?.profile.occupation || settings?.profile.originCountry || settings?.profile.lifeStage || settings?.profile.immediateNeed,
   );
   const recommendedCategory = settings?.profile.immediateNeed || null;
+  const recommendedPosts = recommendedCategory ? await getTrendingPostsByCategory(recommendedCategory, 2) : [];
 
   return (
     <div className="space-y-3 pb-24 lg:pb-8">
@@ -44,7 +45,17 @@ export default async function FeedPage({ searchParams }: { searchParams: Promise
       {member && onboardingReady && recommendedCategory ? (
         <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-3.5 text-sm text-emerald-950 shadow-sm sm:p-4">
           <p className="font-semibold">Recommended for you</p>
-          <p className="mt-1.5 leading-5">Start with <span className="font-semibold">{recommendedCategory}</span>.</p>
+          {recommendedPosts.length ? (
+            <div className="mt-2 space-y-1.5">
+              {recommendedPosts.map((post) => (
+                <Link key={post.id} href={`/posts/${post.id}`} className="block truncate text-sm font-medium text-slate-950 hover:underline">
+                  {post.title}
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-1.5 leading-5">Start with <span className="font-semibold">{recommendedCategory}</span>.</p>
+          )}
         </section>
       ) : null}
       <FeedFilters />
