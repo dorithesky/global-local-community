@@ -1,4 +1,3 @@
-import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { sanitizePlainText, sanitizeTagList } from '@/lib/security';
 import type { Category } from '@/lib/types';
 
@@ -18,19 +17,8 @@ export const ADMIN_CONTENT_ALLOWED_CATEGORIES: Category[] = [
   'marketplace',
 ];
 
-export async function isAllowedContentOperator(userId: string) {
-  const supabase = await getSupabaseServerClient();
-  if (!supabase) return false;
-
-  const { data, error } = await supabase
-    .from('content_operator_accounts')
-    .select('user_id, active')
-    .eq('user_id', userId)
-    .eq('active', true)
-    .maybeSingle();
-
-  if (error || !data) return false;
-  return true;
+export function isAllowedContentOperator(roles?: string[] | null) {
+  return Array.isArray(roles) && roles.includes('content_operator');
 }
 
 export function sanitizeAdminContentInput(input: {

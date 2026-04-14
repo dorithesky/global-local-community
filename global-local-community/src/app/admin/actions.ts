@@ -58,7 +58,6 @@ const adminSeedPostSchema = z.object({
 const contentOperatorSchema = z.object({
   userId: z.string().uuid(),
   intent: z.enum(['grant', 'revoke']),
-  note: z.string().trim().max(200).optional(),
 });
 
 export async function updateReportStatusAction(formData: FormData) {
@@ -319,14 +318,22 @@ export async function createAdminSeedPostAction(formData: FormData) {
 
   const input = sanitizeAdminContentInput(parsed.data);
 
-  const { data: authorProfile } = await supabase
-    .from('profiles')
-    .select('id, username')
-    .eq('id', input.authorId)
-    .maybeSingle();
+  const [{ data: authorProfile }, { data: authorRoleRows, error: authorRoleError }] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, username')
+      .eq('id', input.authorId)
+      .maybeSingle(),
+    supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', input.authorId),
+  ]);
 
   if (!authorProfile) throw new Error('Selected author profile does not exist.');
-  if (!(await isAllowedContentOperator(authorProfile.id))) {
+  if (authorRoleError) throw new Error(`user_roles lookup failed: ${authorRoleError.message}`);
+  const authorRoles = (authorRoleRows ?? []).map((row) => row.role);
+  if (!isAllowedContentOperator(authorRoles)) {
     throw new Error('Only approved operator accounts can publish through this tool.');
   }
 
@@ -409,12 +416,11 @@ export async function updateContentOperatorAction(formData: FormData) {
   const parsed = contentOperatorSchema.safeParse({
     userId: String(formData.get('userId') ?? '').trim(),
     intent: String(formData.get('intent') ?? '').trim().toLowerCase(),
-    note: String(formData.get('note') ?? '').trim() || undefined,
   });
 
   if (!parsed.success) throw new Error('Invalid content operator change request.');
 
-  const { userId, intent, note } = parsed.data;
+  const { userId, intent } = parsed.data;
 
   const { data: targetProfile } = await supabase
     .from('profiles')
@@ -424,38 +430,20 @@ export async function updateContentOperatorAction(formData: FormData) {
 
   if (!targetProfile) throw new Error('Target user not found.');
 
-  const timestamp = new Date().toISOString();
-
   if (intent === 'grant') {
-    const { data: existingOperator, error: existingOperatorError } = await supabase
-      .from('content_operator_accounts')
-      .select('user_id')
-      .eq('user_id', userId)
-      .maybeSingle();
+    const { error } = await supabase
+      .from('user_roles')
+      .upsert({ user_id: userId, role: 'content_operator', created_by: admin.id }, { onConflict: 'user_id,role' });
 
-    if (existingOperatorError) throw new Error(`content_operator_accounts lookup failed: ${existingOperatorError.message}`);
-
-    if (existingOperator) {
-      const { error } = await supabase
-        .from('content_operator_accounts')
-        .update({ active: true, note: note ?? null, updated_at: timestamp })
-        .eq('user_id', userId);
-
-      if (error) throw new Error(`content_operator_accounts update failed: ${error.message}`);
-    } else {
-      const { error } = await supabase
-        .from('content_operator_accounts')
-        .insert({ user_id: userId, active: true, note: note ?? null, created_by: admin.id, updated_at: timestamp });
-
-      if (error) throw new Error(`content_operator_accounts insert failed: ${error.message}`);
-    }
+    if (error) throw new Error(`user_roles content_operator grant failed: ${error.message}`);
   } else {
     const { error } = await supabase
-      .from('content_operator_accounts')
-      .update({ active: false, note: note ?? null, updated_at: timestamp })
-      .eq('user_id', userId);
+      .from('user_roles')
+      .delete()
+      .eq('user_id', userId)
+      .eq('role', 'content_operator');
 
-    if (error) throw new Error(`content_operator_accounts revoke failed: ${error.message}`);
+    if (error) throw new Error(`user_roles content_operator revoke failed: ${error.message}`);
   }
 
   const { error: workflowError } = await supabase.from('workflow_events').insert({
@@ -464,7 +452,7 @@ export async function updateContentOperatorAction(formData: FormData) {
     entity_id: userId,
     actor_id: admin.id,
     payload: {
-      note: note ?? null,
+      role: 'content_operator',
       intent,
     },
   });

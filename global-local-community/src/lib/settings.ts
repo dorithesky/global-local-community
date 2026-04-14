@@ -64,15 +64,16 @@ export async function getContentOperatorAccounts() {
   if (!supabase) return [];
 
   const { data, error } = await supabase
-    .from('content_operator_accounts')
-    .select('user_id, active, note, created_at, created_by');
+    .from('user_roles')
+    .select('user_id, role, created_at, created_by')
+    .eq('role', 'content_operator');
 
   if (error || !data) return [];
 
   return data.map((row) => ({
     userId: row.user_id,
-    active: Boolean(row.active),
-    note: row.note ?? null,
+    active: true,
+    note: null,
     createdAt: row.created_at,
     createdBy: row.created_by ?? null,
   }));
