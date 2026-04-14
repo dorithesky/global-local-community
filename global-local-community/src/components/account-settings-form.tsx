@@ -2,9 +2,7 @@
 
 import { useActionState } from 'react';
 import Link from 'next/link';
-import { saveConsentSettingsAction, saveNotificationPreferencesAction, saveProfileIdentityAction } from '@/app/settings/actions';
-
-const INITIAL_STATE = { error: null as string | null, success: null as string | null };
+import { INITIAL_SETTINGS_ACTION_STATE, saveConsentSettingsAction, saveNotificationPreferencesAction, saveProfileIdentityAction } from '@/app/settings/actions';
 
 function AccentSubmitButton({ label }: { label: string }) {
   return <button type="submit" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">{label}</button>;
@@ -28,9 +26,9 @@ export function AccountSettingsForm({
     consent: { marketingConsent: boolean; thirdPartyEmailConsent: boolean };
   };
 }) {
-  const [profileState, profileAction] = useActionState(saveProfileIdentityAction, INITIAL_STATE);
-  const [notificationState, notificationAction] = useActionState(saveNotificationPreferencesAction, INITIAL_STATE);
-  const [consentState, consentAction] = useActionState(saveConsentSettingsAction, INITIAL_STATE);
+  const [profileState, profileAction] = useActionState(saveProfileIdentityAction, INITIAL_SETTINGS_ACTION_STATE);
+  const [notificationState, notificationAction] = useActionState(saveNotificationPreferencesAction, INITIAL_SETTINGS_ACTION_STATE);
+  const [consentState, consentAction] = useActionState(saveConsentSettingsAction, INITIAL_SETTINGS_ACTION_STATE);
 
   return (
     <div className="space-y-5 sm:space-y-6">
