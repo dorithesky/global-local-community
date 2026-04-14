@@ -10,7 +10,7 @@ function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick 
     : 'border-[var(--border-strong)] bg-[var(--surface-interactive)] text-[var(--accent-primary)] hover:bg-[var(--surface-muted)]';
 
   return (
-    <button type={type} onClick={onClick} disabled={pending} className={`inline-flex min-h-8 items-center gap-1 rounded-full border px-2 py-1 text-[10px] font-medium disabled:opacity-60 ${toneClass}`}>
+    <button type={type} onClick={onClick} disabled={pending} className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-medium disabled:opacity-60 ${toneClass}`}>
       {icon}
       {pending ? 'Saving...' : label}
     </button>
@@ -20,7 +20,7 @@ function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick 
 export function FeedLikeButton({ action, active, count }: { action: (formData: FormData) => Promise<void>; active: boolean; count: number }) {
   return (
     <form action={action}>
-      <ActionButton label={`${active ? 'Liked' : 'Like'} · ${count}`} icon={<Heart className="h-3 w-3" />} />
+      <ActionButton label={`${active ? 'Liked' : 'Like'} · ${count}`} icon={<Heart className="h-3.5 w-3.5" />} />
     </form>
   );
 }
@@ -28,7 +28,7 @@ export function FeedLikeButton({ action, active, count }: { action: (formData: F
 export function FeedBookmarkButton({ action, active }: { action: (formData: FormData) => Promise<void>; active: boolean }) {
   return (
     <form action={action}>
-      <ActionButton label={active ? 'Saved' : 'Save'} icon={<Bookmark className="h-3 w-3" />} />
+      <ActionButton label={active ? 'Saved' : 'Save'} icon={<Bookmark className="h-3.5 w-3.5" />} />
     </form>
   );
 }
@@ -44,8 +44,8 @@ export function FeedDeleteButton({ action, compact = false }: { action: (formDat
       }}
     >
       {compact ? (
-        <button type="submit" className="inline-flex h-7.5 items-center gap-1 rounded-full border border-[var(--danger-border)] bg-[var(--surface-interactive)] px-2 text-[10px] font-medium text-[var(--danger-text)] shadow-sm transition hover:bg-[var(--danger-soft)]">
-          <Trash2 className="h-3 w-3" />
+        <button type="submit" className="inline-flex h-8 items-center gap-1 rounded-full border border-[var(--danger-border)] bg-[var(--surface-interactive)] px-2.5 text-[11px] font-medium text-[var(--danger-text)] shadow-sm transition hover:bg-[var(--danger-soft)]">
+          <Trash2 className="h-3.5 w-3.5" />
           Delete
         </button>
       ) : (
