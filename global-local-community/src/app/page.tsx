@@ -62,8 +62,8 @@ export default async function HomePage() {
       )}
 
       <PageHeader
-        eyebrow="Trending"
-        title="Top posts right now"
+        eyebrow="Active now"
+        title="What people are talking about"
         description={member ? 'A quick read on what is getting attention across the community.' : 'Start with the posts people are engaging with most right now.'}
       />
 
