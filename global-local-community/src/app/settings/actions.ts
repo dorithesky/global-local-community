@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { assertRateLimit, getCurrentMember } from '@/lib/auth';
 import { sanitizePlainText } from '@/lib/security';
@@ -41,7 +42,7 @@ export async function saveNotificationPreferencesAction(
 
     revalidatePath('/settings');
     revalidatePath(`/profile/${member.username}`);
-    return { error: null, success: 'Notification settings saved.' };
+    redirect('/settings?saved=notifications');
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Could not save notification settings.', success: null };
   }
@@ -73,7 +74,7 @@ export async function saveConsentSettingsAction(
 
     revalidatePath('/settings');
     revalidatePath(`/profile/${member.username}`);
-    return { error: null, success: 'Consent settings saved.' };
+    redirect('/settings?saved=consent#account-controls');
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Could not save consent settings.', success: null };
   }
@@ -128,7 +129,7 @@ export async function saveProfileIdentityAction(
 
     revalidatePath('/settings');
     revalidatePath(`/profile/${member.username}`);
-    return { error: null, success: 'Profile saved.' };
+    redirect('/settings?saved=profile');
   } catch (error) {
     return { error: error instanceof Error ? error.message : 'Could not save your profile.', success: null };
   }

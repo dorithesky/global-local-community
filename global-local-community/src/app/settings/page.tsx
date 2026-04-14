@@ -23,13 +23,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function SettingsPage({ searchParams }: { searchParams?: Promise<{ onboarding?: string }> }) {
+export default async function SettingsPage({ searchParams }: { searchParams?: Promise<{ onboarding?: string; saved?: string }> }) {
   markSensitiveRoute();
   const member = await getCurrentMember();
   if (!member) redirect('/');
   const settings = await getAccountSettings();
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const onboarding = resolvedSearchParams?.onboarding === '1';
+  const saved = resolvedSearchParams?.saved;
 
   return (
     <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
@@ -60,6 +61,11 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
             <li>Choose your life stage and current need.</li>
             <li>Save, then go to the <Link href="/feed" className="font-medium text-[var(--accent-primary)] underline underline-offset-4">feed</Link> or <Link href="/create" className="font-medium text-[var(--accent-primary)] underline underline-offset-4">ask a question</Link>.</li>
           </ol>
+        </section>
+      ) : null}
+      {saved ? (
+        <section className="rounded-3xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 shadow-sm sm:p-5">
+          {saved === 'profile' ? 'Profile saved.' : saved === 'notifications' ? 'Notification settings saved.' : 'Consent settings saved.'}
         </section>
       ) : null}
       {settings ? <AccountSettingsForm settings={settings} /> : null}
