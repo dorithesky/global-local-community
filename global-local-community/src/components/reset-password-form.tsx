@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { buildSiteUrl } from '@/lib/site-url';
 
 export function ResetPasswordForm() {
   const [email, setEmail] = useState('');
@@ -18,7 +19,7 @@ export function ResetPasswordForm() {
 
     setBusy(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/recovery`,
+      redirectTo: buildSiteUrl('/auth/recovery'),
     });
     setBusy(false);
     setMessage(error ? error.message : 'Password reset link sent. Check your email.');

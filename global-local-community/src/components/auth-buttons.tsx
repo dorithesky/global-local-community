@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
+import { buildSiteUrl } from '@/lib/site-url';
 
 type AuthView = 'signup' | 'signin';
 type SignInMethod = 'password' | 'magic-link';
@@ -39,7 +40,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+        redirectTo: buildSiteUrl('/auth/callback?next=/feed'),
       },
     });
 
@@ -81,7 +82,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/settings?onboarding=1&fromSignup=1`,
+          emailRedirectTo: buildSiteUrl('/auth/callback?next=/settings?onboarding=1&fromSignup=1'),
         },
       });
 
@@ -98,7 +99,7 @@ export function AuthButtons({ compact = false, onSuccess }: { compact?: boolean;
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=/feed`,
+          emailRedirectTo: buildSiteUrl('/auth/callback?next=/feed'),
         },
       });
 
