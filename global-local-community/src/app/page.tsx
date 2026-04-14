@@ -45,41 +45,20 @@ export default async function HomePage() {
           ) : null}
         </section>
       ) : (
-        <>
-          <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
-            <p className="text-xs uppercase tracking-[0.24em] text-[var(--accent-primary)]">Living In Korea</p>
-            <h1 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">Practical help for foreigners building life in Korea.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--text-secondary)] sm:text-base">
-              Housing, jobs, and daily-life questions, in one clean community.
-            </p>
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/feed" className="rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">
-                Browse posts
-              </Link>
-              <Link href="/#signin" className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-5 py-3 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
-                Sign in
-              </Link>
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
-            <p className="text-xs uppercase tracking-[0.24em] text-[var(--accent-primary)]">How it works</p>
-            <div className="mt-3 grid gap-3 md:grid-cols-3">
-              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4 shadow-sm ring-1 ring-[var(--border-subtle)]">
-                <p className="text-sm font-semibold text-[var(--text-primary)]">Browse</p>
-                <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">See what people need help with now.</p>
-              </div>
-              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4 shadow-sm ring-1 ring-[var(--border-subtle)]">
-                <p className="text-sm font-semibold text-[var(--text-primary)]">Set context</p>
-                <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">Add your city and current need.</p>
-              </div>
-              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4 shadow-sm ring-1 ring-[var(--border-subtle)]">
-                <p className="text-sm font-semibold text-[var(--text-primary)]">Ask clearly</p>
-                <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">Specific questions get better answers.</p>
-              </div>
-            </div>
-          </section>
-        </>
+        <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-5">
+          <h1 className="max-w-3xl text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-4xl">Practical help for foreigners building life in Korea.</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--text-secondary)] sm:text-base">
+            Housing, jobs, and daily-life questions in one community.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/feed" className="rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">
+              Browse posts
+            </Link>
+            <Link href="/#signin" className="rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-5 py-3 text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--surface-muted)]">
+              Sign in
+            </Link>
+          </div>
+        </section>
       )}
 
       <PageHeader
