@@ -123,21 +123,30 @@ export async function assertRateLimit(action: 'post' | 'comment' | 'report' | 'u
     comment: { table: 'comments', field: 'author_id', minutes: 5, limit: 10 },
     report: { table: 'reports', field: 'reporter_id', minutes: 15, limit: 5 },
     upload: { table: 'pending_uploads', field: 'user_id', minutes: 10, limit: 24 },
-    settings: { table: 'request_logs', field: 'user_id', minutes: 10, limit: 30 },
-    admin: { table: 'request_logs', field: 'user_id', minutes: 5, limit: 40 },
+    settings: { table: 'workflow_events', field: 'actor', minutes: 10, limit: 30 },
+    admin: { table: 'workflow_events', field: 'actor', minutes: 5, limit: 40 },
   } as const;
 
   const config = windows[action];
   const since = new Date(Date.now() - config.minutes * 60 * 1000).toISOString();
 
-  const query = supabase.from(config.table).select('*', { count: 'exact', head: true }).gte('created_at', since);
-  const scoped = config.field === 'reporter_id'
-    ? query.eq('reporter_id', member.id)
-    : config.field === 'user_id'
-      ? query.eq('user_id', member.id)
-      : query.eq('author_id', member.id);
+  let query = supabase.from(config.table).select('*', { count: 'exact', head: true }).gte('created_at', since);
 
-  const { count } = await scoped;
+  if (config.table === 'workflow_events') {
+    const eventPrefixes = action === 'settings'
+      ? ['settings.', 'profile.']
+      : ['moderation.'];
+
+    query = query.eq('entity_type', 'profile').eq('actor_id', member.id).or(eventPrefixes.map((prefix) => `event_type.like.${prefix}%`).join(','));
+  } else if (config.field === 'reporter_id') {
+    query = query.eq('reporter_id', member.id);
+  } else if (config.field === 'user_id') {
+    query = query.eq('user_id', member.id);
+  } else {
+    query = query.eq('author_id', member.id);
+  }
+
+  const { count } = await query;
   if ((count ?? 0) >= config.limit) {
     throw new Error(`Rate limit reached for ${action}. Please wait a bit and try again.`);
   }

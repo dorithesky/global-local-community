@@ -4,6 +4,9 @@ import { PageHeader } from '@/components/page-header';
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Privacy Policy for Living In Korea.',
+  alternates: {
+    canonical: '/privacy',
+  },
 };
 
 export default function PrivacyPage() {

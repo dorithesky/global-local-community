@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageHeader } from '@/components/page-header';
 import { FeedFilters } from '@/components/feed-filters';
@@ -5,6 +6,14 @@ import { FeedPostList } from '@/components/feed-post-list';
 import { getPaginatedFeedPosts } from '@/lib/data';
 import { getCurrentMember } from '@/lib/auth';
 import { getAccountSettings } from '@/lib/settings';
+
+export const metadata: Metadata = {
+  title: 'Feed',
+  description: 'Browse the latest housing, jobs, daily life, and event posts from foreigners living across Korea.',
+  alternates: {
+    canonical: '/feed',
+  },
+};
 
 export default async function FeedPage({ searchParams }: { searchParams: Promise<{ city?: string; category?: string; q?: string; sort?: string }> }) {
   const params = await searchParams;

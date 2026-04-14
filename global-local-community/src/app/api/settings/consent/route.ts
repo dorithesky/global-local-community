@@ -20,6 +20,17 @@ export async function POST(request: Request) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
+    await supabase.from('workflow_events').insert({
+      event_type: 'settings.consent_updated',
+      entity_type: 'profile',
+      entity_id: member.id,
+      actor_id: member.id,
+      payload: {
+        marketing_consent: Boolean(body.marketingConsent),
+        third_party_email_consent: Boolean(body.thirdPartyEmailConsent),
+      },
+    });
+
     return NextResponse.json({ ok: true, message: 'Consent settings saved.' });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not save consent settings.' }, { status: 500 });

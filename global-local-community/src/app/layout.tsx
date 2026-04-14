@@ -10,6 +10,9 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://living-korea.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  alternates: {
+    canonical: '/',
+  },
   title: {
     default: 'Living In Korea',
     template: '%s | Living In Korea',

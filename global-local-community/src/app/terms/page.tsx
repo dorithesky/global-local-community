@@ -4,6 +4,9 @@ import { PageHeader } from '@/components/page-header';
 export const metadata: Metadata = {
   title: 'Terms and Conditions',
   description: 'Terms and Conditions for Living In Korea.',
+  alternates: {
+    canonical: '/terms',
+  },
 };
 
 export default function TermsPage() {

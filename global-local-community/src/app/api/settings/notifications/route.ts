@@ -20,6 +20,17 @@ export async function POST(request: Request) {
 
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
 
+    await supabase.from('workflow_events').insert({
+      event_type: 'settings.notifications_updated',
+      entity_type: 'profile',
+      entity_id: member.id,
+      actor_id: member.id,
+      payload: {
+        notify_likes: Boolean(body.notifyLikes),
+        notify_comments: Boolean(body.notifyComments),
+      },
+    });
+
     return NextResponse.json({ ok: true, message: 'Notification settings saved.' });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not save notification settings.' }, { status: 500 });

@@ -46,6 +46,17 @@ export async function POST(request: Request) {
 
     if (settingsError) return NextResponse.json({ error: settingsError.message }, { status: 400 });
 
+    await supabase.from('workflow_events').insert({
+      event_type: 'profile.updated',
+      entity_type: 'profile',
+      entity_id: member.id,
+      actor_id: member.id,
+      payload: {
+        city: city || 'Seoul',
+        occupation: occupation || null,
+      },
+    });
+
     return NextResponse.json({ ok: true, message: 'Profile saved.' });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Could not save your profile.' }, { status: 500 });

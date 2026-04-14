@@ -33,6 +33,16 @@ const userSanctionSchema = z.object({
   confirm: z.string().trim().toLowerCase(),
 });
 
+const moderatorNoteSchema = z.object({
+  targetUserId: z.string().trim().optional(),
+  reportId: z.string().uuid().optional(),
+  postId: z.string().uuid().optional(),
+  commentId: z.string().uuid().optional(),
+  note: z.string().trim().min(3).max(500),
+}).refine((value) => Boolean(value.targetUserId || value.reportId || value.postId || value.commentId), {
+  message: 'Moderator note must target a report, post, comment, or member.',
+});
+
 export async function updateReportStatusAction(formData: FormData) {
   const moderator = await requireModerator();
   if (!moderator) throw new Error('Unauthorized');
@@ -162,24 +172,41 @@ export async function addModeratorNoteAction(formData: FormData) {
   const supabase = await getSupabaseServerClient();
   if (!supabase) throw new Error('Supabase is not configured.');
 
-  const targetUserId = String(formData.get('targetUserId') ?? '').trim() || null;
-  const reportId = String(formData.get('reportId') ?? '').trim() || null;
-  const postId = String(formData.get('postId') ?? '').trim() || null;
-  const commentId = String(formData.get('commentId') ?? '').trim() || null;
-  const note = String(formData.get('note') ?? '').trim();
+  const parsed = moderatorNoteSchema.safeParse({
+    targetUserId: String(formData.get('targetUserId') ?? '').trim() || undefined,
+    reportId: String(formData.get('reportId') ?? '').trim() || undefined,
+    postId: String(formData.get('postId') ?? '').trim() || undefined,
+    commentId: String(formData.get('commentId') ?? '').trim() || undefined,
+    note: String(formData.get('note') ?? '').trim(),
+  });
 
-  if (!note) throw new Error('Note is required.');
+  if (!parsed.success) throw new Error('Moderator note is incomplete or invalid.');
+
+  const { targetUserId, reportId, postId, commentId, note } = parsed.data;
 
   const { error } = await supabase.from('moderator_notes').insert({
-    target_user_id: targetUserId,
-    report_id: reportId,
-    post_id: postId,
-    comment_id: commentId,
+    target_user_id: targetUserId ?? null,
+    report_id: reportId ?? null,
+    post_id: postId ?? null,
+    comment_id: commentId ?? null,
     author_id: moderator.id,
     note,
   });
 
   if (error) throw new Error(error.message);
+
+  await supabase.from('workflow_events').insert({
+    event_type: 'moderation.note_added',
+    entity_type: reportId ? 'report' : commentId ? 'comment' : postId ? 'post' : 'profile',
+    entity_id: reportId ?? commentId ?? postId ?? targetUserId ?? null,
+    actor_id: moderator.id,
+    payload: {
+      report_id: reportId ?? null,
+      post_id: postId ?? null,
+      comment_id: commentId ?? null,
+      target_user_id: targetUserId ?? null,
+    },
+  });
 
   await logServerRequest({ userId: moderator.id, path: '/admin/actions/moderator-note' });
 
