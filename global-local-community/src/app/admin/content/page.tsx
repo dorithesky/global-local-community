@@ -3,17 +3,20 @@ import { AdminShell } from '@/components/admin-shell';
 import { AdminSeedPostForm } from '@/components/admin-actions';
 import { createAdminSeedPostAction } from '@/app/admin/actions';
 import { requireAdmin } from '@/lib/auth';
-import { getAdminUserSettingsView } from '@/lib/settings';
-import { ADMIN_CONTENT_OPERATOR_USERNAMES } from '@/lib/admin-content';
+import { getAdminUserSettingsView, getContentOperatorAccounts } from '@/lib/settings';
 
 export default async function AdminContentPage() {
   const admin = await requireAdmin();
   if (!admin) notFound();
 
-  const members = await getAdminUserSettingsView();
+  const [members, operatorAccounts] = await Promise.all([
+    getAdminUserSettingsView(),
+    getContentOperatorAccounts(),
+  ]);
+  const operatorIds = new Set(operatorAccounts.filter((account) => account.active).map((account) => account.userId));
   const authorOptions = members
     .filter((member) => member.profile?.id && member.profile?.displayName && member.profile?.username)
-    .filter((member) => ADMIN_CONTENT_OPERATOR_USERNAMES.includes(member.profile!.username.toLowerCase() as typeof ADMIN_CONTENT_OPERATOR_USERNAMES[number]))
+    .filter((member) => operatorIds.has(member.profile!.id))
     .map((member) => ({
       id: member.profile!.id,
       label: `${member.profile!.displayName} · @${member.profile!.username}`,
@@ -32,7 +35,7 @@ export default async function AdminContentPage() {
             <AdminSeedPostForm action={createAdminSeedPostAction} authors={authorOptions} />
           ) : (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
-              No approved operator accounts are available yet. Create profiles with these usernames first: livingkoreateam, koreasetupdesk, communitysignal.
+              No approved operator accounts are available yet. First approve one from admin members using the content operator control.
             </div>
           )}
         </div>

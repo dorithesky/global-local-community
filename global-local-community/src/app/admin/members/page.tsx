@@ -3,21 +3,26 @@ import { unstable_noStore as noStore } from 'next/cache';
 import { notFound } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { AdminShell } from '@/components/admin-shell';
-import { UserRoleForm, UserSanctionForm } from '@/components/admin-actions';
+import { ContentOperatorForm, UserRoleForm, UserSanctionForm } from '@/components/admin-actions';
 import { requireAdmin } from '@/lib/auth';
-import { getAdminUserSettingsView } from '@/lib/settings';
-import { applyUserSanctionAction, updateUserRoleAction } from '../actions';
+import { getAdminUserSettingsView, getContentOperatorAccounts } from '@/lib/settings';
+import { applyUserSanctionAction, updateContentOperatorAction, updateUserRoleAction } from '../actions';
 
 export default async function AdminMembersPage({ searchParams }: { searchParams?: Promise<{ q?: string; city?: string; status?: string }> }) {
   noStore();
   const admin = await requireAdmin();
   if (!admin) notFound();
 
-  const userSettings = await getAdminUserSettingsView();
+  const [userSettings, contentOperators] = await Promise.all([
+    getAdminUserSettingsView(),
+    getContentOperatorAccounts(),
+  ]);
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const query = (resolvedSearchParams?.q ?? '').trim().toLowerCase();
   const cityFilter = (resolvedSearchParams?.city ?? '').trim();
   const statusFilter = (resolvedSearchParams?.status ?? '').trim();
+
+  const contentOperatorIds = new Set(contentOperators.filter((operator) => operator.active).map((operator) => operator.userId));
 
   const filteredUserSettings = userSettings.filter((setting) => {
     const haystack = [
@@ -96,7 +101,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
                   <p className="mt-1 text-xs text-slate-500">City: {setting.profile?.city ?? 'Unknown'} • Occupation: {setting.profile?.occupation ?? 'Not set'}</p>
                   <p className="mt-1 text-xs text-slate-500">Origin country: {setting.origin_country ?? 'Not set'} • Life stage: {setting.life_stage ?? 'Not set'} • Immediate need: {setting.immediate_need ?? 'Not set'}</p>
                   <p className="mt-1 text-xs text-slate-500">Onboarding completed: {setting.profile?.onboardingCompleted ? 'Yes' : 'No'} • Joined: {setting.profile?.createdAt ? formatDistanceToNow(new Date(setting.profile.createdAt), { addSuffix: true }) : 'Unknown'}</p>
-                  <p className="mt-1 text-xs text-slate-500">Roles: {setting.roles.length ? setting.roles.join(', ') : 'member'} • Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
+                  <p className="mt-1 text-xs text-slate-500">Roles: {setting.roles.length ? setting.roles.join(', ') : 'member'} • Content operator: {contentOperatorIds.has(setting.user_id) ? 'Yes' : 'No'} • Active sanction: {setting.activeSanction ? `${setting.activeSanction.type} (${setting.activeSanction.reason})` : 'None'}</p>
                 </div>
                 {setting.profile?.username ? <Link href={`/profile/${setting.profile.username}`} className="text-sm font-medium text-sky-700 hover:text-sky-800">Open profile</Link> : null}
               </div>
@@ -109,6 +114,7 @@ export default async function AdminMembersPage({ searchParams }: { searchParams?
               <div className="mt-3 grid gap-3 lg:grid-cols-2">
                 <UserSanctionForm action={applyUserSanctionAction} userId={setting.user_id} />
                 <div className="space-y-2">
+                  <ContentOperatorForm action={updateContentOperatorAction} userId={setting.user_id} active={contentOperatorIds.has(setting.user_id)} />
                   <UserRoleForm action={updateUserRoleAction} userId={setting.user_id} role="moderator" intent={setting.roles.includes('moderator') ? 'revoke' : 'grant'} />
                   <UserRoleForm action={updateUserRoleAction} userId={setting.user_id} role="admin" intent={setting.roles.includes('admin') ? 'revoke' : 'grant'} requireConfirm />
                 </div>

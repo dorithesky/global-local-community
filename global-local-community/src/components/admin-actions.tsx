@@ -159,6 +159,31 @@ export function AdminSeedPostForm({ action, authors }: { action: (formData: Form
   );
 }
 
+export function ContentOperatorForm({
+  action,
+  userId,
+  active,
+}: {
+  action: (formData: FormData) => Promise<void>;
+  userId: string;
+  active: boolean;
+}) {
+  return (
+    <form action={action} className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] p-3">
+      <input type="hidden" name="userId" value={userId} />
+      <input type="hidden" name="intent" value={active ? 'revoke' : 'grant'} />
+      <input
+        type="text"
+        name="note"
+        placeholder="Optional internal note"
+        className="min-h-10 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-3 py-2 text-xs text-[var(--text-primary)]"
+      />
+      <p className="basis-full text-[11px] leading-5 text-[var(--text-tertiary)]">Content operators can be used by the admin-only publishing tool, but they do not get admin or moderator powers.</p>
+      <AdminButton label={active ? 'Remove content operator' : 'Approve content operator'} tone={active ? 'danger' : 'success'} />
+    </form>
+  );
+}
+
 export function UserRoleForm({
   action,
   userId,

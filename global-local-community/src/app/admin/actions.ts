@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { assertRateLimit, requireAdmin, requireModerator } from '@/lib/auth';
-import { isAllowedOperatorUsername, sanitizeAdminContentInput } from '@/lib/admin-content';
+import { isAllowedContentOperator, sanitizeAdminContentInput } from '@/lib/admin-content';
 import { classifyContent, detectToxicityOrSpam } from '@/lib/intelligence';
 import { logServerRequest } from '@/lib/request-logging';
 import { detectSecurityAlerts, recordSecurityEvent } from '@/lib/security-events';
@@ -53,6 +53,12 @@ const adminSeedPostSchema = z.object({
   title: z.string().min(5).max(140),
   body: z.string().min(20).max(5000),
   tags: z.string().optional(),
+});
+
+const contentOperatorSchema = z.object({
+  userId: z.string().uuid(),
+  intent: z.enum(['grant', 'revoke']),
+  note: z.string().trim().max(200).optional(),
 });
 
 export async function updateReportStatusAction(formData: FormData) {
@@ -320,7 +326,7 @@ export async function createAdminSeedPostAction(formData: FormData) {
     .maybeSingle();
 
   if (!authorProfile) throw new Error('Selected author profile does not exist.');
-  if (!isAllowedOperatorUsername(authorProfile.username)) {
+  if (!(await isAllowedContentOperator(authorProfile.id))) {
     throw new Error('Only approved operator accounts can publish through this tool.');
   }
 
@@ -389,6 +395,82 @@ export async function createAdminSeedPostAction(formData: FormData) {
   revalidatePath('/feed');
   revalidatePath('/admin');
   revalidatePath(`/categories/${input.category}`);
+}
+
+export async function updateContentOperatorAction(formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) throw new Error('Unauthorized');
+
+  await assertRateLimit('admin');
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) throw new Error('Supabase is not configured.');
+
+  const parsed = contentOperatorSchema.safeParse({
+    userId: String(formData.get('userId') ?? '').trim(),
+    intent: String(formData.get('intent') ?? '').trim().toLowerCase(),
+    note: String(formData.get('note') ?? '').trim() || undefined,
+  });
+
+  if (!parsed.success) throw new Error('Invalid content operator change request.');
+
+  const { userId, intent, note } = parsed.data;
+
+  const { data: targetProfile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (!targetProfile) throw new Error('Target user not found.');
+
+  if (intent === 'grant') {
+    const { error } = await supabase
+      .from('content_operator_accounts')
+      .upsert({ user_id: userId, active: true, note: note ?? null, created_by: admin.id, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabase
+      .from('content_operator_accounts')
+      .update({ active: false, note: note ?? null, updated_at: new Date().toISOString() })
+      .eq('user_id', userId);
+
+    if (error) throw new Error(error.message);
+  }
+
+  await supabase.from('workflow_events').insert({
+    event_type: intent === 'grant' ? 'moderation.content_operator_granted' : 'moderation.content_operator_revoked',
+    entity_type: 'profile',
+    entity_id: userId,
+    actor_id: admin.id,
+    payload: {
+      note: note ?? null,
+      intent,
+    },
+  });
+
+  await logServerRequest({ userId: admin.id, path: '/admin/actions/content-operator' });
+
+  try {
+    await recordSecurityEvent({
+      eventType: intent === 'grant' ? 'moderation.content_operator_granted' : 'moderation.content_operator_revoked',
+      severity: 'high',
+      userId: admin.id,
+      path: '/admin/actions/content-operator',
+      entityType: 'profile',
+      entityId: userId,
+      payload: { intent },
+    });
+
+    await detectSecurityAlerts();
+  } catch (securityError) {
+    console.error('security event logging failed for content operator update', securityError);
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/admin/members');
+  revalidatePath('/admin/content');
 }
 
 export async function updateUserRoleAction(formData: FormData) {

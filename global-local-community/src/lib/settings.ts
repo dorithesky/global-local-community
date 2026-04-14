@@ -56,6 +56,28 @@ export async function getAccountSettings() {
   };
 }
 
+export async function getContentOperatorAccounts() {
+  const admin = await requireAdmin();
+  if (!admin) return [];
+
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return [];
+
+  const { data, error } = await supabase
+    .from('content_operator_accounts')
+    .select('user_id, active, note, created_at, created_by');
+
+  if (error || !data) return [];
+
+  return data.map((row) => ({
+    userId: row.user_id,
+    active: Boolean(row.active),
+    note: row.note ?? null,
+    createdAt: row.created_at,
+    createdBy: row.created_by ?? null,
+  }));
+}
+
 export async function getAdminUserSettingsView() {
   const admin = await requireAdmin();
   if (!admin) return [];

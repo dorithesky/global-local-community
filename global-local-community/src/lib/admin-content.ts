@@ -1,7 +1,6 @@
+import { getSupabaseServerClient } from '@/lib/supabase-server';
 import { sanitizePlainText, sanitizeTagList } from '@/lib/security';
 import type { Category } from '@/lib/types';
-
-export const ADMIN_CONTENT_OPERATOR_USERNAMES = ['livingkoreateam', 'koreasetupdesk', 'communitysignal'] as const;
 
 export const ADMIN_CONTENT_ALLOWED_CATEGORIES: Category[] = [
   'housing',
@@ -19,9 +18,19 @@ export const ADMIN_CONTENT_ALLOWED_CATEGORIES: Category[] = [
   'marketplace',
 ];
 
-export function isAllowedOperatorUsername(username?: string | null) {
-  if (!username) return false;
-  return ADMIN_CONTENT_OPERATOR_USERNAMES.includes(username.toLowerCase() as typeof ADMIN_CONTENT_OPERATOR_USERNAMES[number]);
+export async function isAllowedContentOperator(userId: string) {
+  const supabase = await getSupabaseServerClient();
+  if (!supabase) return false;
+
+  const { data, error } = await supabase
+    .from('content_operator_accounts')
+    .select('user_id, active')
+    .eq('user_id', userId)
+    .eq('active', true)
+    .maybeSingle();
+
+  if (error || !data) return false;
+  return true;
 }
 
 export function sanitizeAdminContentInput(input: {
