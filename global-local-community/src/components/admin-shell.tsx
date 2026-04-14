@@ -17,11 +17,16 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
 export function AdminShell({ currentPath, title, description, children }: { currentPath: string; title: string; description: string; children: ReactNode }) {
   return (
     <div className="space-y-5 pb-24 lg:space-y-6 lg:pb-8">
-      <section className="grid gap-5 xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start xl:gap-6">
+      <header className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)]">Admin</p>
+        <h1 className="mt-2 text-xl font-semibold text-[var(--text-primary)] sm:text-2xl">{title}</h1>
+        <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
+      </header>
+
+      <section className="space-y-4 xl:grid xl:grid-cols-[260px_minmax(0,1fr)] xl:items-start xl:gap-6 xl:space-y-0">
         <aside className="space-y-4 xl:sticky xl:top-6">
           <div className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-admin)] p-4 text-white shadow-sm sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-300">Admin workspace</p>
-            <h2 className="mt-2 text-lg font-semibold text-white">Operations console</h2>
             <nav className="mt-4 space-y-2">
               {ADMIN_NAV_ITEMS.map((item) => {
                 const active = currentPath === item.href;
@@ -40,16 +45,11 @@ export function AdminShell({ currentPath, title, description, children }: { curr
           </div>
           <div className="rounded-3xl border border-[var(--border-strong)] bg-[var(--accent-soft)] p-4 shadow-sm sm:p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)]">Access</p>
-            <p className="mt-3 text-sm leading-6 text-[var(--text-primary)]">These admin routes are intended to stay server-gated and unavailable to non-admin users.</p>
+            <p className="mt-3 text-sm leading-6 text-[var(--text-primary)]">These admin routes stay server-gated and unavailable to non-admin users.</p>
           </div>
         </aside>
 
         <div className="space-y-6">
-          <header className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--accent-primary)]">Admin</p>
-            <h1 className="mt-2 text-xl font-semibold text-[var(--text-primary)] sm:text-2xl">{title}</h1>
-            <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">{description}</p>
-          </header>
           {children}
         </div>
       </section>
