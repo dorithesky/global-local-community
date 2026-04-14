@@ -20,7 +20,7 @@ export function PostCard({ post }: { post: PostRecord }) {
         {typeof post.rank === 'number' ? (
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-[11px] font-medium text-[var(--text-tertiary)]">
-              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold leading-none shadow-sm ${post.rank === 1 ? 'border-amber-300 bg-amber-100 text-amber-950 dark:border-amber-500/20 dark:bg-amber-500/15 dark:text-amber-200' : post.rank === 2 ? 'border-indigo-300 bg-indigo-100 text-indigo-950 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-200' : post.rank === 3 ? 'border-teal-300 bg-teal-100 text-teal-950 dark:border-teal-500/20 dark:bg-teal-500/15 dark:text-teal-200' : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold leading-none shadow-sm ${post.rank === 1 ? 'border-amber-300 bg-amber-100 text-slate-950 dark:border-amber-500/20 dark:bg-amber-500/15 dark:text-amber-200' : post.rank === 2 ? 'border-indigo-300 bg-indigo-100 text-slate-950 dark:border-indigo-500/20 dark:bg-indigo-500/15 dark:text-indigo-200' : post.rank === 3 ? 'border-teal-300 bg-teal-100 text-slate-950 dark:border-teal-500/20 dark:bg-teal-500/15 dark:text-teal-200' : 'border-[var(--border-subtle)] bg-[var(--surface-muted)] text-[var(--text-primary)]'}`}>
                 <TrendingUp className="h-3 w-3" />
                 Trending now
               </span>
