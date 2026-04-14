@@ -23,9 +23,9 @@ export function PostDetailReportTrigger({ action, signedIn }: { action: (state: 
         }}
         aria-label="Report post"
         title="Report post"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--danger-border)] bg-[var(--surface-interactive)] text-[var(--danger-text)] shadow-sm transition hover:bg-[var(--danger-soft)]"
+        className="inline-flex h-5 w-5 items-center justify-center text-[var(--danger-text)] transition hover:text-[var(--danger-text)]/80"
       >
-        <Flag className="h-4 w-4" />
+        <Flag className="h-3 w-3" />
       </button>
       <ReportModal
         open={open}

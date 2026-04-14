@@ -23,9 +23,9 @@ export function CommentReportButton({ action, commentId, signedIn }: { action: (
         }}
         aria-label="Report comment"
         title="Report comment"
-        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-transparent text-[var(--danger-text)] transition hover:border-[var(--danger-border)] hover:bg-[var(--danger-soft)]"
+        className="inline-flex h-5 w-5 shrink-0 items-center justify-center text-[var(--danger-text)] transition hover:text-[var(--danger-text)]/80"
       >
-        <Flag className="h-4 w-4" />
+        <Flag className="h-3 w-3" />
       </button>
       <ReportModal
         open={open}
