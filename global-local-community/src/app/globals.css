@@ -10,6 +10,8 @@
   --bg-body-end: #f8fafc;
   --surface-primary: rgba(255, 255, 255, 0.96);
   --surface-muted: #f8fafc;
+  --surface-elevated: rgba(255, 255, 255, 0.9);
+  --surface-interactive: #ffffff;
   --surface-premium: linear-gradient(135deg, rgba(240, 249, 255, 0.92), rgba(236, 254, 255, 0.82));
   --surface-admin: linear-gradient(135deg, #0f172a, #1e293b);
   --text-primary: #0f172a;
@@ -20,6 +22,10 @@
   --accent-primary: #0284c7;
   --accent-primary-strong: #0369a1;
   --accent-secondary: #0f766e;
+  --accent-soft: rgba(14, 165, 233, 0.12);
+  --danger-soft: rgba(244, 63, 94, 0.1);
+  --danger-border: rgba(244, 63, 94, 0.22);
+  --danger-text: #be123c;
   --overlay: rgba(15, 23, 42, 0.45);
 }
 
@@ -33,6 +39,8 @@
   --bg-body-end: #0f172a;
   --surface-primary: rgba(15, 23, 42, 0.92);
   --surface-muted: #111c2f;
+  --surface-elevated: rgba(17, 28, 47, 0.96);
+  --surface-interactive: rgba(11, 19, 36, 0.96);
   --surface-premium: linear-gradient(135deg, rgba(14, 116, 144, 0.18), rgba(15, 23, 42, 0.96));
   --surface-admin: linear-gradient(135deg, #020617, #111827);
   --text-primary: #e5eef9;
@@ -43,6 +51,10 @@
   --accent-primary: #38bdf8;
   --accent-primary-strong: #7dd3fc;
   --accent-secondary: #2dd4bf;
+  --accent-soft: rgba(56, 189, 248, 0.14);
+  --danger-soft: rgba(244, 63, 94, 0.14);
+  --danger-border: rgba(251, 113, 133, 0.28);
+  --danger-text: #fda4af;
   --overlay: rgba(2, 6, 23, 0.72);
 }
 

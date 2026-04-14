@@ -29,13 +29,13 @@ export function PostImages({ imageUrls = [], title, compact = false }: PostImage
       {resolvedImageUrls.slice(0, 4).map((imageUrl, index) => (
         <div
           key={`${imageUrl}-${index}`}
-          className={`overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 ${compact ? 'min-h-32 sm:min-h-40' : 'min-h-48 sm:min-h-64'}`}
+          className={`overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-muted)] ${compact ? 'min-h-32 sm:min-h-40' : 'min-h-48 sm:min-h-64'}`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={imageUrl}
             alt={`${title} image ${index + 1}`}
-            className={`h-full w-full ${compact ? 'max-h-52 sm:max-h-60' : 'max-h-[24rem] sm:max-h-[32rem]'} object-contain bg-white`}
+            className={`h-full w-full ${compact ? 'max-h-52 sm:max-h-60' : 'max-h-[24rem] sm:max-h-[32rem]'} object-contain bg-[var(--surface-interactive)]`}
           />
         </div>
       ))}

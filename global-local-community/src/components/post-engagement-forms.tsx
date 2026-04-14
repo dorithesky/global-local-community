@@ -12,7 +12,7 @@ function PendingButton({ label, pendingLabel }: { label: string; pendingLabel: s
     <button
       type="submit"
       disabled={pending}
-      className="min-h-11 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-60"
+      className="min-h-11 rounded-full bg-[var(--text-primary)] px-4 py-2 text-sm font-medium text-[var(--surface-primary)] hover:opacity-90 disabled:opacity-60"
     >
       {pending ? pendingLabel : label}
     </button>
@@ -37,13 +37,13 @@ export function CommentForm({
   placeholder?: string;
 }) {
   return (
-    <form action={action} className={`space-y-3 rounded-3xl border border-slate-200 bg-white ${compact ? 'p-0 shadow-none' : 'p-4 shadow-sm sm:p-5'}`}>
+    <form action={action} className={`space-y-3 rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] ${compact ? 'p-0 shadow-none' : 'p-4 shadow-sm sm:p-5'}`}>
       {parentCommentId ? <input type="hidden" name="parentCommentId" value={parentCommentId} /> : null}
       <div>
-        <label className="mb-2 block text-sm font-semibold text-slate-900">{label}</label>
+        <label className="mb-2 block text-sm font-semibold text-[var(--text-primary)]">{label}</label>
         <textarea
           name="body"
-          className="min-h-32 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 outline-none ring-sky-200 focus:ring"
+          className="min-h-32 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm leading-6 text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring"
           placeholder={placeholder}
         />
       </div>
@@ -62,7 +62,7 @@ export function ReportForm({ action, compact = false, targetLabel = 'Report this
   }, [state.status, onSuccess]);
 
   return (
-    <form action={formAction} className={`space-y-4 ${compact ? '' : 'rounded-2xl border border-rose-200 bg-rose-50 p-4'}`}>
+    <form action={formAction} className={`space-y-4 ${compact ? '' : 'rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] p-4'}`}>
       {children}
       <div>
         <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">{targetLabel}</label>
@@ -83,13 +83,13 @@ export function ReportForm({ action, compact = false, targetLabel = 'Report this
         />
       </div>
       {state.status === 'error' ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-2xl border border-[var(--danger-border)] bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger-text)]">
           {state.message ?? 'Your report could not be submitted.'}
         </div>
       ) : null}
       {state.status === 'success' ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
-          <p className="font-medium text-emerald-900">Submitted</p>
+        <div className="rounded-2xl border border-[var(--border-strong)] bg-[var(--accent-soft)] px-4 py-3 text-sm text-[var(--text-secondary)]">
+          <p className="font-medium text-[var(--text-primary)]">Submitted</p>
           <p className="mt-1">{state.message ?? 'Your report has been submitted to moderators.'}</p>
         </div>
       ) : null}

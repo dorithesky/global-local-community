@@ -6,8 +6,8 @@ import { useFormStatus } from 'react-dom';
 function ActionButton({ label, icon, tone = 'neutral', type = 'submit', onClick }: { label: string; icon: React.ReactNode; tone?: 'neutral' | 'danger'; type?: 'button' | 'submit'; onClick?: () => void }) {
   const { pending } = useFormStatus();
   const toneClass = tone === 'danger'
-    ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100'
-    : 'border-sky-200 bg-white text-sky-700 hover:bg-sky-50';
+    ? 'border-[var(--danger-border)] bg-[var(--danger-soft)] text-[var(--danger-text)] hover:brightness-110'
+    : 'border-[var(--border-strong)] bg-[var(--surface-interactive)] text-[var(--accent-primary)] hover:bg-[var(--surface-muted)]';
 
   return (
     <button type={type} onClick={onClick} disabled={pending} className={`inline-flex min-h-9 items-center gap-1 rounded-full border px-2.5 py-1.5 text-[11px] font-medium disabled:opacity-60 ${toneClass}`}>
@@ -44,7 +44,7 @@ export function FeedDeleteButton({ action, compact = false }: { action: (formDat
       }}
     >
       {compact ? (
-        <button type="submit" className="inline-flex h-8 items-center gap-1 rounded-full border border-rose-200 bg-white px-2.5 text-[11px] font-medium text-rose-700 shadow-sm transition hover:bg-rose-50">
+        <button type="submit" className="inline-flex h-8 items-center gap-1 rounded-full border border-[var(--danger-border)] bg-[var(--surface-interactive)] px-2.5 text-[11px] font-medium text-[var(--danger-text)] shadow-sm transition hover:bg-[var(--danger-soft)]">
           <Trash2 className="h-3.5 w-3.5" />
           Delete
         </button>

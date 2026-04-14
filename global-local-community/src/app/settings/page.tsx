@@ -39,7 +39,7 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
         description={onboarding ? 'Add the basics so the feed and identity make sense from day one.' : 'Manage notifications, consent, appearance, and account controls here. Public identity lives on your profile.'}
       />
       {!onboarding ? (
-        <section className="rounded-3xl border border-slate-200 bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">
+        <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 text-sm text-[var(--text-secondary)] shadow-sm sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold text-[var(--text-primary)]">Public identity moved out of Settings</p>
@@ -47,18 +47,18 @@ export default async function SettingsPage({ searchParams }: { searchParams?: Pr
             </div>
             <div className="flex flex-wrap items-center gap-3">
               <ThemeToggle />
-              <Link href={`/profile/${member.username}`} className="inline-flex min-h-11 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-sky-600 dark:hover:bg-sky-500">Open profile</Link>
+              <Link href={`/profile/${member.username}`} className="inline-flex min-h-11 rounded-full bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">Open profile</Link>
             </div>
           </div>
         </section>
       ) : null}
       {onboarding ? (
-        <section className="rounded-3xl border border-sky-200 bg-[var(--surface-premium)] p-4 text-sm text-[var(--text-primary)] shadow-sm sm:p-5">
+        <section className="rounded-3xl border border-[var(--border-strong)] bg-[var(--surface-premium)] p-4 text-sm text-[var(--text-primary)] shadow-sm sm:p-5">
           <p className="font-semibold">Quick setup</p>
           <ol className="mt-3 list-decimal space-y-2 pl-5 leading-6">
             <li>Add your city, occupation, and origin.</li>
             <li>Choose your life stage and current need.</li>
-            <li>Save, then go to the <Link href="/feed" className="font-medium text-sky-700 underline underline-offset-4">feed</Link> or <Link href="/create" className="font-medium text-sky-700 underline underline-offset-4">ask a question</Link>.</li>
+            <li>Save, then go to the <Link href="/feed" className="font-medium text-[var(--accent-primary)] underline underline-offset-4">feed</Link> or <Link href="/create" className="font-medium text-[var(--accent-primary)] underline underline-offset-4">ask a question</Link>.</li>
           </ol>
         </section>
       ) : null}

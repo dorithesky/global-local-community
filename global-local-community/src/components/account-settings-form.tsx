@@ -12,44 +12,44 @@ export function AccountSettingsForm({
 }) {
   return (
     <div className="space-y-5 sm:space-y-6">
-      <section className="rounded-3xl border border-sky-100 bg-gradient-to-br from-white to-sky-50/40 p-4 shadow-sm sm:p-6">
+      <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
         <form action={saveProfileIdentityAction} className="space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-slate-900">Public profile</p>
-              <p className="mt-1 text-sm leading-6 text-slate-500">Change the identity details people see in the community.</p>
+              <p className="text-sm font-semibold text-[var(--text-primary)]">Public profile</p>
+              <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Change the identity details people see in the community.</p>
             </div>
-            <Link href="#account-controls" className="text-sm font-medium text-sky-700 hover:text-sky-800">Jump to account controls</Link>
+            <Link href="#account-controls" className="text-sm font-medium text-[var(--accent-primary)] hover:text-[var(--accent-primary-strong)]">Jump to account controls</Link>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-900">Display name</label>
-              <input name="displayName" defaultValue={settings.profile.displayName} className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" />
+              <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Display name</label>
+              <input name="displayName" defaultValue={settings.profile.displayName} className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-900">City</label>
-              <input name="city" defaultValue={settings.profile.city} className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" />
+              <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">City</label>
+              <input name="city" defaultValue={settings.profile.city} className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-900">Occupation</label>
-              <input name="occupation" defaultValue={settings.profile.occupation} className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" placeholder="Teacher, designer, student" />
+              <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Occupation</label>
+              <input name="occupation" defaultValue={settings.profile.occupation} className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring" placeholder="Teacher, designer, student" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-900">Origin country</label>
-              <input name="originCountry" defaultValue={settings.profile.originCountry} className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" placeholder="Canada, India, UK" />
+              <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Origin country</label>
+              <input name="originCountry" defaultValue={settings.profile.originCountry} className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring" placeholder="Canada, India, UK" />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-900">Life stage or visa context</label>
-              <input name="lifeStage" defaultValue={settings.profile.lifeStage} className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring" placeholder="Student, teacher, job seeker, spouse visa" />
+              <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Life stage or visa context</label>
+              <input name="lifeStage" defaultValue={settings.profile.lifeStage} className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring" placeholder="Student, teacher, job seeker, spouse visa" />
             </div>
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-900">Bio</label>
-            <textarea name="bio" defaultValue={settings.profile.bio} className="min-h-28 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 outline-none ring-sky-200 focus:ring" />
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">Bio</label>
+            <textarea name="bio" defaultValue={settings.profile.bio} className="min-h-28 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm leading-6 text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring" />
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-900">What do you need most right now?</label>
-            <select name="immediateNeed" defaultValue={settings.profile.immediateNeed} className="min-h-11 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none ring-sky-200 focus:ring">
+            <label className="mb-2 block text-sm font-medium text-[var(--text-primary)]">What do you need most right now?</label>
+            <select name="immediateNeed" defaultValue={settings.profile.immediateNeed} className="min-h-11 w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-3 text-sm text-[var(--text-primary)] outline-none ring-[var(--border-strong)] focus:ring">
               <option value="">Choose one</option>
               <option value="housing">Housing</option>
               <option value="jobs">Jobs</option>
@@ -57,60 +57,60 @@ export function AccountSettingsForm({
               <option value="events">Events</option>
               <option value="marketplace">Marketplace</option>
             </select>
-            <p className="mt-2 text-xs leading-5 text-slate-500 sm:leading-6">This helps shape the first posts and recommendations you should see.</p>
+            <p className="mt-2 text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">This helps shape the first posts and recommendations you should see.</p>
           </div>
-          <button type="submit" className="min-h-11 rounded-full bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700">
+          <button type="submit" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">
             Save profile
           </button>
         </form>
       </section>
 
-      <section className="rounded-3xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/40 p-4 shadow-sm sm:p-6">
+      <section className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
         <form action={saveNotificationPreferencesAction} className="space-y-4">
           <div>
-            <p className="text-sm font-semibold text-slate-900">Notifications</p>
-            <p className="mt-1 text-sm leading-6 text-slate-500">Choose the activity updates you want to receive.</p>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">Notifications</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Choose the activity updates you want to receive.</p>
           </div>
           <div className="space-y-3">
-            <label className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-medium text-slate-800">
+            <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-4 text-sm font-medium text-[var(--text-primary)]">
               <span>Get Likes</span>
               <input type="checkbox" name="notifyLikes" defaultChecked={settings.notifications.notifyLikes} className="h-4 w-4 shrink-0" />
             </label>
-            <label className="flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm font-medium text-slate-800">
+            <label className="flex items-center justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-4 text-sm font-medium text-[var(--text-primary)]">
               <span>Get Comments</span>
               <input type="checkbox" name="notifyComments" defaultChecked={settings.notifications.notifyComments} className="h-4 w-4 shrink-0" />
             </label>
           </div>
-          <button type="submit" className="min-h-11 rounded-full bg-sky-600 px-5 py-3 text-sm font-medium text-white hover:bg-sky-700">
+          <button type="submit" className="min-h-11 rounded-full bg-[var(--accent-primary)] px-5 py-3 text-sm font-medium text-white hover:bg-[var(--accent-primary-strong)]">
             Save notification settings
           </button>
         </form>
       </section>
 
-      <section id="account-controls" className="rounded-3xl border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 shadow-sm sm:p-6">
+      <section id="account-controls" className="rounded-3xl border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-4 shadow-sm sm:p-6">
         <form action={saveConsentSettingsAction} className="space-y-4">
           <div>
-            <p className="text-sm font-semibold text-slate-900">Marketing and data consent</p>
-            <p className="mt-1 text-sm leading-6 text-slate-500">Separate consent for marketing communication and approved third-party delivery tools.</p>
+            <p className="text-sm font-semibold text-[var(--text-primary)]">Marketing and data consent</p>
+            <p className="mt-1 text-sm leading-6 text-[var(--text-tertiary)]">Separate consent for marketing communication and approved third-party delivery tools.</p>
           </div>
-          <label className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700">
+          <label className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-4 text-sm text-[var(--text-secondary)]">
             <span>
-              <span className="block font-medium text-slate-900">I agree to receive marketing information</span>
-              <span className="mt-1 block leading-6 text-slate-500">Includes product updates, launches, and community announcements.</span>
+              <span className="block font-medium text-[var(--text-primary)]">I agree to receive marketing information</span>
+              <span className="mt-1 block leading-6 text-[var(--text-tertiary)]">Includes product updates, launches, and community announcements.</span>
             </span>
             <input type="checkbox" name="marketingConsent" defaultChecked={settings.consent.marketingConsent} className="mt-1 h-4 w-4 shrink-0" />
           </label>
-          <label className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700">
+          <label className="flex items-start justify-between gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-interactive)] px-4 py-4 text-sm text-[var(--text-secondary)]">
             <span>
-              <span className="block font-medium text-slate-900">I allow approved third-party providers to help deliver those emails</span>
-              <span className="mt-1 block leading-6 text-slate-500">Used only for sending the communication you agreed to receive.</span>
+              <span className="block font-medium text-[var(--text-primary)]">I allow approved third-party providers to help deliver those emails</span>
+              <span className="mt-1 block leading-6 text-[var(--text-tertiary)]">Used only for sending the communication you agreed to receive.</span>
             </span>
             <input type="checkbox" name="thirdPartyEmailConsent" defaultChecked={settings.consent.thirdPartyEmailConsent} className="mt-1 h-4 w-4 shrink-0" />
           </label>
-          <button type="submit" className="min-h-11 rounded-full bg-slate-900 px-5 py-3 text-sm font-medium text-white hover:bg-slate-800">
+          <button type="submit" className="min-h-11 rounded-full bg-[var(--text-primary)] px-5 py-3 text-sm font-medium text-[var(--surface-primary)] hover:opacity-90">
             Save consent settings
           </button>
-          <p className="text-xs leading-5 text-slate-500 sm:leading-6">If you need stricter compliance handling later, this should move into a dedicated consent table with audit timestamps.</p>
+          <p className="text-xs leading-5 text-[var(--text-tertiary)] sm:leading-6">If you need stricter compliance handling later, this should move into a dedicated consent table with audit timestamps.</p>
         </form>
       </section>
     </div>

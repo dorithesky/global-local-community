@@ -19,7 +19,7 @@ export function SignOutButton({ compact = false }: { compact?: boolean } = {}) {
     <button
       type="button"
       onClick={handleSignOut}
-      className={`${compact ? 'min-h-10 min-w-10 px-0 py-0' : 'min-h-11 px-3 py-2.5 text-sm'} inline-flex items-center justify-center rounded-full border border-slate-200 bg-white font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50`}
+      className={`${compact ? 'min-h-10 min-w-10 px-0 py-0' : 'min-h-11 px-3 py-2.5 text-sm'} inline-flex items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] font-medium text-[var(--text-secondary)] shadow-sm transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)]`}
       aria-label="Sign out"
       title="Sign out"
     >

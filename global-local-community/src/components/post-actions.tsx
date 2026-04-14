@@ -10,7 +10,7 @@ function ActionButton({ label, pendingLabel }: { label: string; pendingLabel: st
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-sky-200 bg-white px-3 py-2 text-sm font-medium text-sky-700 hover:bg-sky-50 disabled:opacity-60"
+      className="inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface-interactive)] px-3 py-2 text-sm font-medium text-[var(--accent-primary)] hover:bg-[var(--surface-muted)] disabled:opacity-60"
     >
       {pending ? pendingLabel : label}
     </button>
@@ -49,8 +49,8 @@ export function DeletePostButton({ action, compact = false }: { action: (formDat
         type="submit"
         disabled={pending}
         className={compact
-          ? 'inline-flex h-8 items-center gap-1 rounded-full border border-rose-200 bg-white px-2.5 text-[11px] font-medium text-rose-700 shadow-sm transition hover:bg-rose-50 disabled:opacity-60'
-          : 'inline-flex min-h-10 items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 hover:bg-rose-100 disabled:opacity-60'}
+          ? 'inline-flex h-8 items-center gap-1 rounded-full border border-[var(--danger-border)] bg-[var(--surface-interactive)] px-2.5 text-[11px] font-medium text-[var(--danger-text)] shadow-sm transition hover:bg-[var(--danger-soft)] disabled:opacity-60'
+          : 'inline-flex min-h-10 items-center gap-2 rounded-full border border-[var(--danger-border)] bg-[var(--danger-soft)] px-3 py-2 text-sm font-medium text-[var(--danger-text)] hover:brightness-110 disabled:opacity-60'}
       >
         <Trash2 className={compact ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
         {pending ? 'Deleting...' : compact ? 'Delete' : 'Delete post'}
